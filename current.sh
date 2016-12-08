@@ -71,12 +71,18 @@ fi
 if [ "$PASSWORD" = "YES" ]; then
    if [ "$(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')" ];then
      echo "password $(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')"
-  fi 
+   else
+     echo "password -"
+   fi 
 fi
 
 ## print mode
 if [ "$MODE" = "YES" ]; then
-  echo "mode $(cat mazi.conf) " 
+   if [ -f mazi.conf ]; then
+     echo "mode $(cat mazi.conf) "
+   else
+     echo "mode -"
+   fi 
 fi
 
 
