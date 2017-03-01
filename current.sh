@@ -78,8 +78,8 @@ fi
 
 ## print mode
 if [ "$MODE" = "YES" ]; then
-   if [ -f mazi.conf ]; then
-     echo "mode $(cat mazi.conf) "
+   if [ -f /etc/mazi/mazi.conf ]; then
+     echo "mode $(cat /etc/mazi/mazi.conf) "
    else
      echo "mode -"
    fi 
