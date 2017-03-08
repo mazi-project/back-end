@@ -18,8 +18,18 @@ do
 				sudo iptables -A FORWARD -i wlan1 -j DROP
 				sudo iptables -A FORWARD -i eth0 -j DROP
 
-				# Redirect to apache
-				sudo iptables -t nat -A PREROUTING -p tcp -m tcp --dport 80 -j DNAT --to-destination 10.0.0.1
+				# Redirect HTTP to apache
+				sudo iptables -t mangle -N HTTP
+				sudo iptables -t mangle -A PREROUTING -i wlan0 -p tcp -m tcp --dport 80 -j HTTP
+				sudo iptables -t mangle -A HTTP -j MARK --set-mark 99
+				sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination 10.0.0.1
+		
+				# Redirect HTTPS to apache
+				sudo iptables -t mangle -N HTTPS
+				sudo iptables -t mangle -A PREROUTING -i wlan0 -p tcp -m tcp --dport 443 -j HTTPS
+				sudo iptables -t mangle -A HTTPS -j MARK --set-mark 98
+				sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp -m mark --mark 98 -m tcp --dport 443 -j DNAT --to-destination 10.0.0.1
+
 
 				#Save rules.v4 rules
 				sudo iptables-save | sudo tee /etc/iptables/rules.v4
