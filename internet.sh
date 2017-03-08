@@ -35,7 +35,7 @@ do
 				sudo iptables-save | sudo tee /etc/iptables/rules.v4
 				
 				echo You are now in offline mode 
-                                echo 'offline' | sudo tee mazi.conf
+                                echo 'offline' | sudo tee /etc/mazi/mazi.conf
 
 			elif [ "$MODE" = "dual" ]; then
 				#echo $MODE 
@@ -53,11 +53,11 @@ do
                                 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 				
                                 echo You are now in dual mode
-                                echo 'dual' | sudo tee mazi.conf 
+                                echo 'dual' | sudo tee /etc/mazi/mazi.conf 
 
 			elif [ "$MODE" = "restricted" ]; then
 				echo $MODE
-                                echo 'restricted' | sudo tee mazi.conf
+                                echo 'restricted' | sudo tee /etc/mazi/mazi.conf
 			else
 				echo "Please choose between offline, dual or restricted mode"
 			fi
