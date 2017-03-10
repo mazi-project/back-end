@@ -20,6 +20,12 @@ usage() { echo "Usage: sudo sh antenna.sh  [options]"
           echo " -p,--password                   Set the password of WIFI network"1>&2; exit 1; }
 
 
+path="/etc/wpa_supplicant/wpa_supplicant.conf"
+intface=$(ifconfig | grep "wlan1" | awk '{print $1}')
+password=""
+ssid=""
+
+
 while [ $# -gt 0 ]
 do
 key="$1"
@@ -48,7 +54,8 @@ esac
 shift     #past argument or value
 done
 
-intface=$(ifconfig | grep "wlan1" | awk '{print $1}')
+intface=$(iwconfig wlan1 | grep "wlan1" | awk '{print $1}')
+
 
 if [ "$active" = "TRUE" ];then
       if [ "$intface" ];then
@@ -59,5 +66,33 @@ if [ "$active" = "TRUE" ];then
       exit 0;
 fi
 
+if [ "$ssid" ];then
+	
+	sudo sed -i '/network={/d' $path
+	sudo sed -i '/ssid=/d' $path
+	sudo sed -i '/psk=/d' $path
+	sudo sed -i '/}/d' $path
+
+	sudo sed -i '$ a network={' $path
+	sudo sed -i "$ a ssid=\"$ssid\" " $path
+	if [ "$password" ];then
+           sudo sed -i "$ a psk=\"$password\"" $path
+	fi
+        sudo sed -i '$ a }' $path
+
+	id=$(sudo ps aux | grep wpa_supplicant | awk '{print $2}') 
+
+        if [ "$id" ];then 
+           sudo kill $id
+        fi
+        sudo ifconfig $intface up
+        sudo wpa_supplicant -B -i$intface -c /etc/wpa_supplicant/wpa_supplicant.conf -Dwext
+        
+ 
+fi
+
+
+
 
 exit 1;
+
