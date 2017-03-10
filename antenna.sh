@@ -59,7 +59,8 @@ intface=$(iwconfig wlan1 | grep "wlan1" | awk '{print $1}')
 
 if [ "$active" = "TRUE" ];then
       if [ "$intface" ];then
-         echo "active"
+         
+         echo "active $(iwconfig wlan1 | grep wlan1 |awk '{print $4}')"
       else
          echo "inactive"
       fi
@@ -85,6 +86,7 @@ if [ "$ssid" ];then
         if [ "$id" ];then 
            sudo kill $id
         fi
+        
         sudo ifconfig $intface up
         sudo wpa_supplicant -B -i$intface -c /etc/wpa_supplicant/wpa_supplicant.conf -Dwext
         
