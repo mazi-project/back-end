@@ -50,7 +50,9 @@ do
 				sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 				# Forward Internet through wlan0
 				sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
-                               
+				# Forward Internet through wlan0                               
+				sudo iptables -t nat -A POSTROUTING -o wlan1 -j MASQUERADE
+
                                 #Save rules.v4 rules
                                 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 				
