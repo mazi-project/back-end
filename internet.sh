@@ -10,9 +10,8 @@ do
 			if [ "$MODE" = "offline" ]; then
 				#echo $MODE
 				#Redirect  with DNSMASQ
-                                sed -i 's/address=\/#\/10.0.0.1/#address=\/#\/10.0.0.1/g' /etc/dnsmasq.conf                                
+                                sed -i 's/#address=\/#\/10.0.0.1/address=\/#\/10.0.0.1/g' /etc/dnsmasq.conf                                
 
-	
 				#Delete iptables rules
 				sudo iptables -F
 				sudo iptables -F -t nat
@@ -45,10 +44,10 @@ do
 			elif [ "$MODE" = "dual" ]; then
 				#echo $MODE 
 
-				#Delete redirect from DNSMAQ
-                                
-                                sed -i 's/#address=\/#\/10.0.0.1/address=\/#\/10.0.0.1/g' /etc/dnsmasq.conf
+				#Comment redirect from DNSMAQ
+                                sed -i 's/address=\/#\/10.0.0.1/#address=\/#\/10.0.0.1/g' /etc/dnsmasq.conf
 
+                                
 				#Delete iptables rules
 				sudo iptables -F
 				sudo iptables -F -t nat
