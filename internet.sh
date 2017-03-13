@@ -13,7 +13,8 @@ do
 				#Delete iptables rules
 				sudo iptables -F
 				sudo iptables -F -t nat
-
+				sudo iptables -F -t mangle				
+		
 				# Block Internet
 				sudo iptables -A FORWARD -i wlan1 -j DROP
 				sudo iptables -A FORWARD -i eth0 -j DROP
@@ -43,6 +44,7 @@ do
 				#Delete iptables rules
 				sudo iptables -F
 				sudo iptables -F -t nat
+				sudo iptables -F -t mangle
 
 				# Forward Internet through eth0
 				sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
