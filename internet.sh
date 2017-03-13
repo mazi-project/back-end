@@ -9,7 +9,10 @@ do
                 m) MODE=${OPTARG}
 			if [ "$MODE" = "offline" ]; then
 				#echo $MODE
+				#Redirect  with DNSMASQ
+                                sed -i 's/address=\/#\/10.0.0.1/#address=\/#\/10.0.0.1/g' /etc/dnsmasq.conf                                
 
+	
 				#Delete iptables rules
 				sudo iptables -F
 				sudo iptables -F -t nat
@@ -30,8 +33,9 @@ do
 				sudo iptables -t mangle -A PREROUTING -i wlan0 -p tcp -m tcp --dport 443 -j HTTPS
 				sudo iptables -t mangle -A HTTPS -j MARK --set-mark 98
 				sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp -m mark --mark 98 -m tcp --dport 443 -j DNAT --to-destination 10.0.0.1
-
-
+				
+				#Restart DNSMASQ
+				sudo service dnsmasq restart
 				#Save rules.v4 rules
 				sudo iptables-save | sudo tee /etc/iptables/rules.v4
 				
@@ -40,6 +44,10 @@ do
 
 			elif [ "$MODE" = "dual" ]; then
 				#echo $MODE 
+
+				#Delete redirect from DNSMAQ
+                                
+                                sed -i 's/#address=\/#\/10.0.0.1/address=\/#\/10.0.0.1/g' /etc/dnsmasq.conf
 
 				#Delete iptables rules
 				sudo iptables -F
@@ -52,6 +60,9 @@ do
 				sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
 				# Forward Internet through wlan0                               
 				sudo iptables -t nat -A POSTROUTING -o wlan1 -j MASQUERADE
+				
+				#Restart DNSMASQ
+                                sudo service dnsmasq restart
 
                                 #Save rules.v4 rules
                                 sudo iptables-save | sudo tee /etc/iptables/rules.v4
