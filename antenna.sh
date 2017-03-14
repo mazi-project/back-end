@@ -86,7 +86,7 @@ if [ "$ssid" ];then
         if [ "$id" ];then 
            sudo kill $id
         fi
-        
+        sleep 1
         sudo ifconfig $intface up
         sudo wpa_supplicant -B -i$intface -c /etc/wpa_supplicant/wpa_supplicant.conf -Dwext
         

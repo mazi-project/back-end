@@ -140,6 +140,7 @@ id=$(ps aux | grep hostapd.conf| grep root| awk '{print $2}')
 if [ "$id" ];then 
    sudo kill $id
 fi
+sleep 1
 sudo ifconfig $(grep 'interface' /etc/hostapd/hostapd.conf| sed 's/\interface=//g') down
 sudo hostapd -B $path
 
