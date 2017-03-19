@@ -85,11 +85,12 @@ sudo sh mazi-app.sh -a <start/stop/status> <application>
 
 ## current.sh
 
-The *current.sh* script displays the features of the MAZI zone WIFI network.
+The *current.sh* script displays the features of the MAZI zone WIFI .
 
 Usage:
-*sudo sh current.sh  [options]*
-
+```
+sudo sh current.sh  [options]
+```
 [options]
 
 -i,--interface                           Shows the name of the interface
@@ -105,11 +106,12 @@ Usage:
 
 ## antenna.sh
 
-The *antenna.sh* script connects the second wifi dongle antenna to the internet through the wifi network.
+The *antenna.sh* script connects the second wifi dongle antenna to the internet through a wifi network.
 
 Usage:
-*sudo sh antenna.sh  [options]*
-
+```
+sudo sh antenna.sh  [options]
+```
 [options]
 
 -a,--active                           Shows if the wifi dongle exists
