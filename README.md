@@ -55,6 +55,14 @@ Usage:
 sudo sh internet.sh -m <offline/dual/restricted>
 
 ```
+## mazi-stat.sh
+
+The *mazi-stat.sh* script dispalys the total online users of the MAZI zone WIFI network.
+
+Usage:
+```
+
+sudo sh mazi-stat.sh -u 
 
 ## License
 
