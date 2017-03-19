@@ -23,16 +23,12 @@ sudo sh wifiap.sh  [options]
 
 Set up a Wi-Fi Access Point
 ```
-
 sudo sh wifiap.sh  -s mazizone -c 6 -p mazizone
-
 ```
 
 change the name of the Access Point
 ```
-
 sudo sh wifiap.sh -s John
-
 ```
 
 **Password**
@@ -52,9 +48,7 @@ restricted: some of the clients of the local Wi-Fi network have access to the In
 
 Usage:
 ```
-
 sudo sh internet.sh -m <offline/dual/restricted>
-
 ```
 ## mazi-stat.sh
 
@@ -62,9 +56,7 @@ The *mazi-stat.sh* script dispalys the total online users of the MAZI zone WIFI 
 
 Usage:
 ```
-
 sudo sh mazi-stat.sh -u 
-
 ```
 
 ## mazi-app.sh
@@ -79,9 +71,7 @@ status: shows the status of the applications
 
 Usage:
 ```
-
 sudo sh mazi-app.sh -a <start/stop/status> <application>
-
 ```
 
 ## current.sh
