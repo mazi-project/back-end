@@ -5,8 +5,9 @@ This is the back-end scripts of the MAZI toolkit. You can clone this repository 
 The *wifiap.sh* script creates a Wi-Fi Access Point according to the configuration you define. The script modifies the file */etc/hostapd/hostapd.conf* and then restarts the hostapd service.
 
 Usage:
-*sudo sh wifiap.sh  [options]*
-
+```
+sudo sh wifiap.sh  [options]
+```
 [options]
 
 -s,--ssid                                The name of the WiFi Access Point
