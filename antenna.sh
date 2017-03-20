@@ -17,7 +17,8 @@ usage() { echo "Usage: sudo sh antenna.sh  [options]"
           echo "[options]"
 	  echo " -a,--active                     Displays if ACTIVE if we have second antena" 
           echo " -s,--ssid                       Set the name of  WIFI network"
-          echo " -p,--password                   Set the password of WIFI network"1>&2; exit 1; }
+          echo " -p,--password                   Set the password of WIFI network"
+          echo " -l,--list                   Displays the list of available wifi"1>&2; exit 1; }
 
 
 path="/etc/wpa_supplicant/wpa_supplicant.conf"
@@ -42,6 +43,9 @@ case $key in
     -a|--active)
     active="TRUE"
     ;;
+    -l|--list)
+    list="TRUE"
+    ;;
     --default)
     DEFAULT=YES
     shift # past argument with no value
@@ -55,6 +59,14 @@ shift     #past argument or value
 done
 
 intface=$(iwconfig wlan1 | grep "wlan1" | awk '{print $1}')
+
+
+if [ "$list" = "TRUE" ];then
+ 
+      sudo iwlist $intface scan | grep "ESSID" | uniq
+      exit 0;
+fi
+
 
 
 if [ "$active" = "TRUE" ];then
