@@ -5,7 +5,7 @@
 # Usage: sudo sh antenna.sh  [options]
 # 
 # [options]
-# -a,--active                     Displays if ACTIVE if we have second antena 
+# -a,--active                     Displays if we have second wifi dongle antena 
 # -s,--ssid                       Set the name of  WIFI network
 # -p,--password                   Set the password of WIFI network
 #
@@ -15,7 +15,7 @@
 usage() { echo "Usage: sudo sh antenna.sh  [options]" 
 	  echo ""
           echo "[options]"
-	  echo " -a,--active                     Displays if ACTIVE if we have second antena" 
+	  echo " -a,--active                     Displays if we have second wifi dongle antena" 
           echo " -s,--ssid                       Set the name of  WIFI network"
           echo " -p,--password                   Set the password of WIFI network"
           echo " -l,--list                   Displays the list of available wifi"1>&2; exit 1; }
