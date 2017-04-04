@@ -28,7 +28,9 @@ case $key in
      case $app in
          etherpad)
          sudo service etherpad-lite $2 | grep "Active" |awk '{print $2}'     
-
+         ;;
+         mazi-princess)
+         sudo service mazi-princess $2 | grep "Active" |awk '{print $2}'
          ;;
          mazi-board)
          sudo service mazi-board $2 | grep "Active" |awk '{print $2}'
