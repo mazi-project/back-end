@@ -11,7 +11,8 @@
 #set -x
 usage() { echo "Usage: sudo sh mazi-stat.sh  [options]" 
           echo " " 
-          echo "[options]" 
+          echo "[options]"
+          echo "-t,--temp         CPU core temperature" 
           echo "-u,--users        Display the total online users" 1>&2; exit 1; }
 
 
@@ -29,6 +30,9 @@ case $key in
     users=$(cat users.log | grep 'responded' | awk '{print $12}')
     echo "wifi users" $users 
     ;;
+    -t|--temp)
+    vcgencmd measure_temp
+    ;; 
     *)
        # unknown option
     usage   
