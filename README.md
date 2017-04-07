@@ -66,12 +66,12 @@ sudo sh mazi-stat.sh [options]
 ```
 [options]
 
--t,--temp         Displays the CPU core temperature                                                                       
--u,--users        Displays the total online users                                                                         
--c,--cpu          Displays the CPU usage                                                                                   
--r,--ram          Displays the RAM usage                                                                                   
--s,--storage      Displays the percentage of the available storage                                                         
--n,--network      Displays the Download/Upload speed                                                                       
+-t,--temp                     Displays the CPU core temperature                                                           
+-u,--users                    Displays the total online users                                                             
+-c,--cpu                      Displays the CPU usage                                                                       
+-r,--ram                      Displays the RAM usage                                                                       
+-s,--storage                  Displays the percentage of the available storage                                             
+-n,--network                  Displays the Download/Upload speed                                                           
 
 ## mazi-app.sh
 
