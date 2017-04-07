@@ -15,7 +15,8 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
           echo "-t,--temp         Displays the CPU core temperature" 
           echo "-u,--users        Displays the total online users"
           echo "-c,--cpu          Displays the CPU usage" 
-          echo "-r,--ram          Displays the RAM usage"1>&2; exit 1; }
+          echo "-r,--ram          Displays the RAM usage"
+          echo "-s,--storage      Displays the percentage of the available storage" 1>&2; exit 1; }
 
 
 
@@ -40,6 +41,9 @@ case $key in
     ;;
     -r|-ram)
     free -k | grep Mem | awk '{printf"%3.1f%%\n",($3/$2*100)}'
+    ;;
+    -s|-storage)
+    df -h | grep root | awk '{printf"%3.1f%%\n",(100-$5)}'
     ;;
     *)
        # unknown option
