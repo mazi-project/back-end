@@ -16,7 +16,8 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
           echo "-u,--users        Displays the total online users"
           echo "-c,--cpu          Displays the CPU usage" 
           echo "-r,--ram          Displays the RAM usage"
-          echo "-s,--storage      Displays the percentage of the available storage" 1>&2; exit 1; }
+          echo "-s,--storage      Displays the percentage of the available storage"
+          echo "-n,--network      Displays the Download/Upload speed" 1>&2; exit 1; }
 
 
 
@@ -44,6 +45,9 @@ case $key in
     ;;
     -s|-storage)
     df -h | grep root | awk '{printf"%3.1f%%\n",(100-$5)}'
+    ;;
+    -n|--network)
+    speedtest-cli | grep -e Upload: -e Download:
     ;;
     *)
        # unknown option
