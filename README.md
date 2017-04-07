@@ -52,12 +52,26 @@ sudo sh internet.sh -m <offline/dual/restricted>
 ```
 ## mazi-stat.sh
 
-The *mazi-stat.sh* script dispalys the total online users of the MAZI zone WIFI network.
+The *mazi-stat.sh* script displays the statistics of the current Raspberry pi. 
+
+Script's requirements
+```
+sudo apt-get install python-pip
+sudo pip install speedtest-cli
+```
 
 Usage:
 ```
-sudo sh mazi-stat.sh -u 
+sudo sh mazi-stat.sh [options]
 ```
+[options]
+
+-t,--temp         Displays the CPU core temperature 
+-u,--users        Displays the total online users
+-c,--cpu          Displays the CPU usage 
+-r,--ram          Displays the RAM usage
+-s,--storage      Displays the percentage of the available storage
+-n,--network      Displays the Download/Upload speed
 
 ## mazi-app.sh
 
