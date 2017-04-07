@@ -12,8 +12,9 @@
 usage() { echo "Usage: sudo sh mazi-stat.sh  [options]" 
           echo " " 
           echo "[options]"
-          echo "-t,--temp         CPU core temperature" 
-          echo "-u,--users        Display the total online users" 1>&2; exit 1; }
+          echo "-t,--temp         Displays the CPU core temperature" 
+          echo "-u,--users        Displays the total online users"
+          echo "-c,--cpu          Displays the CPU usage" 1>&2; exit 1; }
 
 
 
@@ -33,6 +34,9 @@ case $key in
     -t|--temp)
     vcgencmd measure_temp
     ;; 
+    -c|--cpu)
+    top -d 1 -b -n2 | grep "Cpu(s)"|tail -n 1 | awk '{print ($2 + $4)"%"}'
+    ;;
     *)
        # unknown option
     usage   
