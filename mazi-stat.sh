@@ -14,7 +14,8 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
           echo "[options]"
           echo "-t,--temp         Displays the CPU core temperature" 
           echo "-u,--users        Displays the total online users"
-          echo "-c,--cpu          Displays the CPU usage" 1>&2; exit 1; }
+          echo "-c,--cpu          Displays the CPU usage" 
+          echo "-r,--ram          Displays the RAM usage"1>&2; exit 1; }
 
 
 
@@ -36,6 +37,9 @@ case $key in
     ;; 
     -c|--cpu)
     top -d 1 -b -n2 | grep "Cpu(s)"|tail -n 1 | awk '{print ($2 + $4)"%"}'
+    ;;
+    -r|-ram)
+    free -k | grep Mem | awk '{printf"%3.1f%%\n",($3/$2*100)}'
     ;;
     *)
        # unknown option
