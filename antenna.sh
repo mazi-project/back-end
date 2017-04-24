@@ -84,25 +84,31 @@ if [ "$ssid" ];then
 	sudo sed -i '/network={/d' $path
 	sudo sed -i '/ssid=/d' $path
 	sudo sed -i '/psk=/d' $path
+        sudo sed -i '/key_mgmt=NONE/d' $path
 	sudo sed -i '/}/d' $path
 
 	sudo sed -i '$ a network={' $path
 	sudo sed -i "$ a ssid=\"$ssid\" " $path
 	if [ "$password" ];then
            sudo sed -i "$ a psk=\"$password\"" $path
-	fi
+	else
+           sudo sed -i '$ a key_mgmt=NONE' $path
+        fi
         sudo sed -i '$ a }' $path
 
-	id=$(sudo ps aux | grep wpa_supplicant | awk '{print $2}') 
-
-        if [ "$id" ];then 
-           sudo kill $id
+	WPAid=$(sudo ps aux | grep wpa_supplicant | awk '{print $2}')
+        DHCPid=$(sudo ps aux | grep "dhcpcd $intface"| awk '{print $2}')      
+        if [ "$WPAid" ];then 
+           sudo kill $WPAid
+        fi
+         if [ "$DHCPid" ];then 
+           sudo kill $DHCPid
         fi
         sleep 1
         sudo ifconfig $intface up
-        sudo wpa_supplicant -B -i$intface -c /etc/wpa_supplicant/wpa_supplicant.conf -Dwext
-        
- 
+      # sudo wpa_supplicant -B -i$intface -c /etc/wpa_supplicant/wpa_supplicant.conf -Dwext
+        sudo wpa_supplicant -B -i $intface -c /etc/wpa_supplicant/wpa_supplicant.conf
+        dhcpcd $intface
 fi
 
 
