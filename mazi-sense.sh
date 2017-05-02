@@ -11,7 +11,7 @@
 # [options]
 # -s , --store                    Store the measurements to Database through restAPI
 #
-# [STH11]
+# [sth11]
 # -t , --temporature              Displays the Temporature 
 # -h , --humidity                 Displays the Humidity 
 #set -x
@@ -19,13 +19,13 @@
 usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]"
 	  echo ""
 	  echo "[SenseName]"
-	  echo "-n,--name                       Set the name of the sensor"
+	  echo "-n,--name  [sth11,..]            Set the name of the sensor"
 	  echo ""
 	  echo "[Options]"
           echo "-s , --store                    Store the measurements to Database through restAPI"
           echo ""
 	  echo "[SensorOptions]"
-	  echo "[STH11]"
+	  echo "[sth11]"
   	  echo "-t , --temporature              Get the Temporature "
 	  echo "-h , --humidity                 Get the Humidity" 1>&2; exit 1; }
 
@@ -66,37 +66,28 @@ if [ "$NAME" = "" ];then
    exit 0;
 fi
 
-##### Take the name of the sensor through a rast API ######
 
-#name="$(curl -s  http://portal.mazizone.eu/sensors/name/$ID)"
 
 ##### STH11 Sensor #####
 
-if [ "$NAME" = "sth11" -o "$NAME" = "STH11" ];then
+if [ "$NAME" = "sth11" ];then
    echo "$NAME"
 
    ##### GET THE MEASUREMENT #####
    if [ "$TEMP" = "true" ]; then
-     TEMP=$(python sth11.py -t)
-     echo "$TEMP"
+     VALUE[0]="$(python sth11.py -t)"
+     echo "The Temporature is: ${VALUE[0]}"
    elif [ "$HUM" = "true" ]; then
-     HUM=$(python sth11.py -h)
-     echo "$HUM"
+     VALUE[1]="$(python sth11.py -h)"
+     echo "The Humidity is: ${VALUE[1]}"
    else
-     TEMP=$(python sth11.py -t)
-     HUM=$(python sth11.py -h)
-     echo "$TEMP"
-     echo "$HUM"
+     VALUE[0]="$(python sth11.py -t)"
+     VALUE[1]="$(python sth11.py -h)"
+     echo "The temporature is: ${VALUE[0]}"
+     echo "The Humidity is: ${VALUE[1]}"
    fi
 
-   ##### STORE OPTION #####
-   if [ "$STORE" = "true" ]; then
-
-     #### check the id of sensore ####
-     cd $path
-     ID=$(cat type | grep 'sth11' | awk '{print $2}')
-     echo $ID
-   fi
+   echo "${VALUE[*]}"
 
 else
 
@@ -106,6 +97,35 @@ else
       exit 0;
   fi
 fi
+
+
+##### STORE OPTION #####
+if [ "$STORE" = "true" ]; then
+
+   #### Take the ID of sensor ####
+   cd $path
+   if [ -f "Type" ]; then      # Check if a file Type exists
+      ID=$(cat Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
+
+      if [ "$ID" = "" ]; then                                   #If doesn't exist, get the ID through the restAPI
+         ID=$(curl -s -X POST  http://portal.mazizone.eu/sensors/type/id/$NAME)
+         sudo echo "$NAME  $ID" >> $path/Type
+      fi
+   else                              #If file doesn't exist, create it and get the ID through the restAPI
+     sudo touch Type
+     ID=$(curl -s -X POST  http://portal.mazizone.eu/sensors/type/id/$NAME)
+     echo "$NAME  $ID" |sudo tee $path/Type
+   fi
+
+   #### Call the store method ####
+   TIME=$(date)
+   curl --data "time=$TIME&value=${VALUE[*]}&sensor_id=$ID" http://portal.mazizone.eu/sensors
+fi
+
+
+
+
 #set +x
+
 
 

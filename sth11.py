@@ -22,10 +22,10 @@ while ( args > 1):
   
   if(sys.argv[args] == "-h" or sys.argv[args] == "--humidity"):
     humidity = sht1x.read_humidity()  
-    print("Humidity: {0:.2f}".format(humidity))
+    print("{0:.2f}".format(humidity))
   elif(sys.argv[args] == "-t" or sys.argv[args] == "--temperature"):
     temperature = sht1x.read_temperature_C()
-    print("Temperature: {0:.2f}".format(temperature))
+    print("{0:.2f}".format(temperature))
   else:
     usage()
 
