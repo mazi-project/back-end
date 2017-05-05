@@ -17,9 +17,11 @@ def usage():
 
    
 args = len(sys.argv)
+if (args == 1):
+  print "0"
 while ( args > 1):
   args -= 1   
-  
+
   if(sys.argv[args] == "-h" or sys.argv[args] == "--humidity"):
     humidity = sht1x.read_humidity()  
     print("{0:.2f}".format(humidity))

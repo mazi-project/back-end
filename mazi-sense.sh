@@ -1,4 +1,4 @@
-#!/bin/bash  
+#!/bin/bash
 
 #This script manages all available  sensors 
 #
@@ -9,7 +9,10 @@
 # -n,--name                       Set the name of the sensor
 #
 # [options]
-# -s , --store                    Store the measurements to Database through restAPI
+# -s , --store                    Store the measurements to Database through the restAPI
+# -d , --duration                 The time to run this script.To second
+#                                
+#
 #
 # [sth11]
 # -t , --temporature              Displays the Temporature 
@@ -19,17 +22,18 @@
 usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]"
 	  echo ""
 	  echo "[SenseName]"
-	  echo "-n,--name  [sth11,..]            Set the name of the sensor"
+	  echo "-n,--name  [sth11,..]              Set the name of the sensor"
 	  echo ""
 	  echo "[Options]"
-          echo "-s , --store                    Store the measurements to Database through restAPI"
+          echo "-s , --store                       Store the measurements to Database through restAPI"
+          echo "-d , --duration                    The time to run this script.To second"
           echo ""
 	  echo "[SensorOptions]"
 	  echo "[sth11]"
-  	  echo "-t , --temporature              Get the Temporature "
-	  echo "-h , --humidity                 Get the Humidity" 1>&2; exit 1; }
+  	  echo "-t , --temporature                  Get the Temporature "
+	  echo "-h , --humidity                     Get the Humidity" 1>&2; exit 1; }
 
-
+DUR="1"
 path=$(pwd)
 while [ $# -gt 0 ]
 do
@@ -44,10 +48,14 @@ case $key in
      STORE="true"
      ;;
      -t|--temporature)
-     TEMP="true"
+     TEMP="$1"
      ;;
      -h|--humidity)
-     HUM="true"
+     HUM="$1"
+     ;;
+     -d|--duration)
+     DUR="$2"
+     shift
      ;;
      *)
      # unknown option
@@ -57,6 +65,14 @@ esac
 shift     #past argument or value
 done
 
+
+
+endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
+
+
+while [ $(date +%s) -lt $endTime ]; do 
+echo "$(date +%s) => $endTime"
+sleep 1
 ###### Check the sensor name ######
 
 if [ "$NAME" = "" ];then
@@ -70,32 +86,14 @@ fi
 
 ##### STH11 Sensor #####
 
-if [ "$NAME" = "sth11" ];then
+if [ "$NAME" = "sth11"  ];then
    echo "$NAME"
+   temp="$(python sth11.py $TEMP)"
+   hum="$(python sth11.py $HUM)"
+   echo "The Temporature is: $temp"
+   echo "The Humidity is: $hum"
 
-   ##### GET THE MEASUREMENT #####
-   if [ "$TEMP" = "true" ]; then
-     VALUE[0]="$(python sth11.py -t)"
-     echo "The Temporature is: ${VALUE[0]}"
-   elif [ "$HUM" = "true" ]; then
-     VALUE[1]="$(python sth11.py -h)"
-     echo "The Humidity is: ${VALUE[1]}"
-   else
-     VALUE[0]="$(python sth11.py -t)"
-     VALUE[1]="$(python sth11.py -h)"
-     echo "The temporature is: ${VALUE[0]}"
-     echo "The Humidity is: ${VALUE[1]}"
-   fi
 
-   echo "${VALUE[*]}"
-
-else
-
-  if [ "$TEMP" = "true" -o "$HUM" = "true" ]; then
-      echo "invalid option for sensor $name"
-      echo "Try 'sh mazi-sense.sh --help' for more information"
-      exit 0;
-  fi
 fi
 
 
@@ -108,24 +106,20 @@ if [ "$STORE" = "true" ]; then
       ID=$(cat Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
 
       if [ "$ID" = "" ]; then                                   #If doesn't exist, get the ID through the restAPI
-         ID=$(curl -s -X POST  http://portal.mazizone.eu/sensors/type/id/$NAME)
+         ID=$(curl -s -X POST  http://portal.mazizone.eu/sensors/register/$NAME)
          sudo echo "$NAME  $ID" >> $path/Type
       fi
    else                              #If file doesn't exist, create it and get the ID through the restAPI
      sudo touch Type
-     ID=$(curl -s -X POST  http://portal.mazizone.eu/sensors/type/id/$NAME)
-     echo "$NAME  $ID" |sudo tee $path/Type
+     ID=$(curl -s -X POST  http://portal.mazizone.eu/sensors/register/$NAME)
+     echo "$NAME  $ID" | sudo tee $path/Type
    fi
 
    #### Call the store method ####
-   TIME=$(date)
-   curl --data "time=$TIME&value=${VALUE[*]}&sensor_id=$ID" http://portal.mazizone.eu/sensors
+  TIME=$(date  "+%H%M%S%d%m%y")
+
+  curl --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":"'$TIME'"}' http://portal.mazizone.eu/sensors/store
 fi
 
-
-
-
+done
 #set +x
-
-
-
