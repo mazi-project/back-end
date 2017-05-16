@@ -1,0 +1,15 @@
+LICENSE.txt
+MANIFEST.in
+README.txt
+distribute_setup.py
+setup.cfg
+setup.py
+rpiSht1x.egg-info/PKG-INFO
+rpiSht1x.egg-info/SOURCES.txt
+rpiSht1x.egg-info/dependency_links.txt
+rpiSht1x.egg-info/requires.txt
+rpiSht1x.egg-info/top_level.txt
+sht1x/Sht1x.py
+sht1x/__init__.py
+sht1x/RPiMock/GPIO.py
+sht1x/RPiMock/__init__.py
