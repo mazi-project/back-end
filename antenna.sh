@@ -18,7 +18,8 @@ usage() { echo "Usage: sudo sh antenna.sh  [options]"
           echo " -s,--ssid                       Set the name of  WIFI network"
           echo " -p,--password                   Set the password of WIFI network"
           echo " -l,--list                       Displays the list of available wifi"
-          echo " -h,--hidden                     Connect to hidden network"1>&2; exit 1; }
+          echo " -h,--hidden                     Connect to hidden network"
+          echo " -d,--disconnect                 Disconnect from network " 1>&2; exit 1; }
 
 
 path="/etc/wpa_supplicant/wpa_supplicant.conf"
@@ -49,6 +50,9 @@ case $key in
     -l|--list)
     list="TRUE"
     ;;
+    -d|--disconnect)
+    disc="TRUE"
+    ;;
     --default)
     DEFAULT=YES
     shift # past argument with no value
@@ -63,9 +67,18 @@ done
 
 intface=$(iwconfig wlan1 | grep "wlan1" | awk '{print $1}')
 
+if [ $disc ]; then
+        WPAid=$(sudo ps aux | grep wpa_supplicant | awk '{print $2}')
+        DHCPid=$(sudo ps aux | grep "dhcpcd $intface"| awk '{print $2}')      
+        if [ "$WPAid" ];then 
+           sudo kill $WPAid
+        fi
+         if [ "$DHCPid" ];then 
+           sudo kill $DHCPid
+        fi
+fi
 
 if [ "$list" = "TRUE" ];then
- 
       sudo iwlist $intface scan | grep "ESSID" | uniq
       exit 0;
 fi
