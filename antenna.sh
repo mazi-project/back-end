@@ -11,14 +11,14 @@
 #
 
 
-
 usage() { echo "Usage: sudo sh antenna.sh  [options]" 
 	  echo ""
           echo "[options]"
 	  echo " -a,--active                     Displays if we have second wifi dongle antena" 
           echo " -s,--ssid                       Set the name of  WIFI network"
           echo " -p,--password                   Set the password of WIFI network"
-          echo " -l,--list                   Displays the list of available wifi"1>&2; exit 1; }
+          echo " -l,--list                       Displays the list of available wifi"
+          echo " -h,--hidden                     Connect to hidden network"1>&2; exit 1; }
 
 
 path="/etc/wpa_supplicant/wpa_supplicant.conf"
@@ -42,6 +42,9 @@ case $key in
     ;;
     -a|--active)
     active="TRUE"
+    ;;
+    -h|--hidden)
+    hidden="TRUE"
     ;;
     -l|--list)
     list="TRUE"
@@ -93,6 +96,10 @@ if [ "$ssid" ];then
            sudo sed -i "$ a psk=\"$password\"" $path
 	else
            sudo sed -i '$ a key_mgmt=NONE' $path
+        fi
+        if [ $hidden ];then
+           sudo sed -i '$ a scan_ssid=1' $path
+           echo "Hidden"
         fi
         sudo sed -i '$ a }' $path
 
