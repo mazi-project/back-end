@@ -73,16 +73,12 @@ do
    shift     #past argument or value
 done
 
-#### create  a Type file #####
+#### Create the file Type #####
 if [ ! -f "$path_type/Type" ]; then
     sudo touch $path_type/Type
 fi
 
-endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
-
-while [ true ]; do
-
-   #### Check the sensor name ####
+#### Check the sensor name ####
    if [ ! $NAME ];then
       echo "Please complete the SenseName"
       echo ""
@@ -90,6 +86,9 @@ while [ true ]; do
       exit 0;
    fi
 
+endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
+
+while [ true ]; do
 
    ##### STH11 Sensor #####
    if [ "$NAME" = "sth11"  ];then
