@@ -17,6 +17,11 @@
 # [sth11]
 # -t , --temporature              Displays the Temporature 
 # -h , --humidity                 Displays the Humidity 
+#
+# [sensehat]
+# -t , --temporature              Displays the Temporature 
+# -h , --humidity                 Displays the Humidity 
+#
 #set -x
 #
 
@@ -34,7 +39,11 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
 	  echo "[SensorOptions]"
 	  echo "[sth11]"
   	  echo "-t , --temperature                  Get the Temperature "
-	  echo "-h , --humidity                     Get the Humidity" 1>&2; exit 1; }
+	  echo "-h , --humidity                     Get the Humidity" 
+          echo ""
+          echo "[sensehat]"
+          echo "-t , --temperature                  Get the Temperature "
+          echo "-h , --humidity                     Get the Humidity" 1>&2; exit 1; }
 DUR="0"
 INT="0"
 path_sense="$(pwd)/lib"
@@ -114,6 +123,29 @@ while [ true ]; do
       fi
    fi
 
+    ##### SenseHat Sensor #####
+   if [ "$NAME" = "sensehat" ];then
+      echo "$NAME"
+      temp="$(python $path_sense/$NAME.py $TEMP)"
+      hum="$(python $path_sense/$NAME.py $HUM)"
+      if [ $TEMP ]; then
+         echo "The Temperature is: $temp"
+      fi
+      if [ $HUM ]; then
+         echo "The Humidity is: $hum"
+      fi
+      ##### STORE OPTION #####
+      if [ $STORE ]; then
+         #### Take the ID of sensor ####
+         ID=$(cat $path_type/Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
+         if [ ! $ID ]; then                                   #If ID doesn't exist, get the ID through the restAPI
+            ID=$(curl -s -X POST  http://portal.mazizone.eu/sensors/register/$NAME)
+            sudo echo "$NAME  $ID" >> $path_type/Type
+         fi
+         TIME=$(date  "+%H%M%S%d%m%y")
+         curl --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":"'$TIME'"}' http://portal.mazizone.eu/sensors/store
+      fi
+   fi
 
    #### Exit Statement ####
    sleep $INT

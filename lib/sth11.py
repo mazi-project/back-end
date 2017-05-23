@@ -12,7 +12,7 @@ def usage():
     print ' '
     print '[options]'
     print '-h , --humidity                 Displays the Humidity '
-    print '-t , --temporature              Displays the Temporature'    
+    print '-t , --temperature              Displays the Temperature'    
 
 
    
