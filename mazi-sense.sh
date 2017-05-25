@@ -89,6 +89,9 @@ done
 ##### Scan for available sensors  ######
 
 if [ $SCAN ];then
+   if [ "$(python $path_sense/sht11.py $SCAN)" = "10" ]; then
+      echo "sht11"
+   fi
    if [ -f "/proc/device-tree/hat/product" ]; then
       echo "sensehat"
    fi
