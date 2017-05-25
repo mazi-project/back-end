@@ -35,15 +35,16 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "-s , --store                       Store the measurements in the Database"
           echo "-d , --duration                    Duration in seconds to take a measurement"
           echo "-i , --interval                    Seconds between periodic measurement"
+          echo "-a , --available                   Displays the available sensors"
           echo ""
 	  echo "[SensorOptions]"
 	  echo "[sht11]"
-  	  echo "-t , --temperature                  Get the Temperature "
-	  echo "-h , --humidity                     Get the Humidity" 
+  	  echo "-t , --temperature                 Get the Temperature "
+	  echo "-h , --humidity                    Get the Humidity" 
           echo ""
           echo "[sensehat]"
-          echo "-t , --temperature                  Get the Temperature "
-          echo "-h , --humidity                     Get the Humidity" 1>&2; exit 1; }
+          echo "-t , --temperature                 Get the Temperature "
+          echo "-h , --humidity                    Get the Humidity" 1>&2; exit 1; }
 DUR="0"
 INT="0"
 path_sense="$(pwd)/lib"
@@ -74,6 +75,9 @@ do
         INT="$2"
         shift
         ;;
+        -a|--available)
+        SCAN="$1"
+        ;;
         *)
         # unknown option
         usage
@@ -81,6 +85,19 @@ do
    esac
    shift     #past argument or value
 done
+
+##### Scan for available sensors  ######
+
+if [ $SCAN ];then
+   if [ "$(python $path_sense/sht11.py $SCAN)" = "10" ];then
+      echo "sht11"
+   fi
+   if [ -f "/proc/device-tree/hat/" ]; then
+      echo "sensehat"
+   fi
+   exit 0;
+fi
+
 
 #### Create the file Type #####
 if [ ! -f "$path_type/Type" ]; then
