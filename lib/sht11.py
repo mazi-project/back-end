@@ -14,7 +14,6 @@ def usage():
     print '-h , --humidity                 Displays the Humidity '
     print '-t , --temperature              Displays the Temperature'    
 
-
    
 args = len(sys.argv)
 if (args == 1):

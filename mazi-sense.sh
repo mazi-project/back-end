@@ -14,7 +14,7 @@
 # -i , --interval                 Seconds between periodic measurement                               
 #
 #
-# [sth11]
+# [sht11]
 # -t , --temporature              Displays the Temporature 
 # -h , --humidity                 Displays the Humidity 
 #
@@ -37,7 +37,7 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "-i , --interval                    Seconds between periodic measurement"
           echo ""
 	  echo "[SensorOptions]"
-	  echo "[sth11]"
+	  echo "[sht11]"
   	  echo "-t , --temperature                  Get the Temperature "
 	  echo "-h , --humidity                     Get the Humidity" 
           echo ""
@@ -99,11 +99,11 @@ endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
 
 while [ true ]; do
 
-   ##### STH11 Sensor #####
-   if [ "$NAME" = "sth11"  ];then
+   ##### SHT11 Sensor #####
+   if [ "$NAME" = "sht11"  ];then
       echo "$NAME"
-      temp="$(python $path_sense/sth11.py $TEMP)"
-      hum="$(python $path_sense/sth11.py $HUM)"
+      temp="$(python $path_sense/$NAME.py $TEMP)"
+      hum="$(python $path_sense/$NAME.py $HUM)"
       if [ $TEMP ]; then
          echo "The Temperature is: $temp"
       fi
@@ -153,4 +153,6 @@ while [ true ]; do
       exit 0  
    fi
 done
+
+#set +x
 
