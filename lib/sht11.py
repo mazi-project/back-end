@@ -1,11 +1,12 @@
 #!/usr/bin/python
-
-from sht1x.Sht1x import Sht1x as SHT1x
-import sys
-dataPin = 35
-clkPin = 33
-sht1x = SHT1x(dataPin, clkPin, SHT1x.GPIO_BOARD)
-
+try:
+   from sht1x.Sht1x import Sht1x as SHT1x
+   import sys
+   dataPin = 35
+   clkPin = 33
+   sht1x = SHT1x(dataPin, clkPin, SHT1x.GPIO_BOARD)
+except Exception:
+   pass
 
 def usage():
     print 'Usage python sht11.py [options]'

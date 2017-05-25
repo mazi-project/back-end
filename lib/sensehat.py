@@ -29,13 +29,14 @@ def get_smooth(x):
   return(xs)
 
 def correct_temp():
-  t1 = sense.get_temperature_from_humidity()
-  t2 = sense.get_temperature_from_pressure()
-  t = (t1+t2)/2
-  t_cpu = get_cpu_temp()
-  # calculates the real temperature compesating CPU heating
-  t_corr = t - ((t_cpu-t)/1.5)
-  t_corr = get_smooth(t_corr)
+  for x in range(0, 3):
+    t1 = sense.get_temperature_from_humidity()
+    t2 = sense.get_temperature_from_pressure()
+    t = (t1+t2)/2
+    t_cpu = get_cpu_temp()
+    # calculates the real temperature compesating CPU heating
+    t_corr = t - ((t_cpu-t)/1.5)
+    t_corr = get_smooth(t_corr)
   return(t_corr)
 
 
