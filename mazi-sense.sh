@@ -14,9 +14,14 @@
 # -i , --interval                 Seconds between periodic measurement                               
 #
 #
-# [sth11]
+# [sht11]
 # -t , --temporature              Displays the Temporature 
 # -h , --humidity                 Displays the Humidity 
+#
+# [sensehat]
+# -t , --temporature              Displays the Temporature 
+# -h , --humidity                 Displays the Humidity 
+#
 #set -x
 #
 
@@ -31,11 +36,16 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "-s , --store                       Store the measurements in the Database"
           echo "-d , --duration                    Duration in seconds to take a measurement"
           echo "-i , --interval                    Seconds between periodic measurement"
+          echo "-a , --available                   Displays the available sensors"
           echo ""
 	  echo "[SensorOptions]"
-	  echo "[sth11]"
-  	  echo "-t , --temperature                  Get the Temperature "
-	  echo "-h , --humidity                     Get the Humidity" 1>&2; exit 1; }
+	  echo "[sht11]"
+  	  echo "-t , --temperature                 Get the Temperature "
+	  echo "-h , --humidity                    Get the Humidity" 
+          echo ""
+          echo "[sensehat]"
+          echo "-t , --temperature                 Get the Temperature "
+          echo "-h , --humidity                    Get the Humidity" 1>&2; exit 1; }
 DUR="0"
 INT="0"
 path_sense="/root/back-end/lib"
@@ -66,6 +76,9 @@ do
         INT="$2"
         shift
         ;;
+        -a|--available)
+        SCAN="$1"
+        ;;
         *)
         # unknown option
         usage
@@ -73,6 +86,19 @@ do
    esac
    shift     #past argument or value
 done
+
+##### Scan for available sensors  ######
+
+if [ $SCAN ];then
+   if [ "$(python $path_sense/sht11.py $SCAN)" = "10" ]; then
+      echo "sht11"
+   fi
+   if [ -f "/proc/device-tree/hat/product" ]; then
+      echo "sensehat"
+   fi
+   exit 0;
+fi
+
 
 #### Create the file Type #####
 if [ ! -f "$path_type/Type" ]; then
@@ -91,11 +117,11 @@ endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
 
 while [ true ]; do
 
-   ##### STH11 Sensor #####
-   if [ "$NAME" = "sth11"  ];then
+   ##### SHT11 Sensor #####
+   if [ "$NAME" = "sht11"  ];then
       echo "$NAME"
-      temp="$(python $path_sense/sth11.py $TEMP)"
-      hum="$(python $path_sense/sth11.py $HUM)"
+      temp="$(python $path_sense/$NAME.py $TEMP)"
+      hum="$(python $path_sense/$NAME.py $HUM)"
       if [ $TEMP ]; then
          echo "The Temperature is: $temp"
       fi
@@ -115,6 +141,29 @@ while [ true ]; do
       fi
    fi
 
+    ##### SenseHat Sensor #####
+   if [ "$NAME" = "sensehat" ];then
+      echo "$NAME"
+      temp="$(python $path_sense/$NAME.py $TEMP)"
+      hum="$(python $path_sense/$NAME.py $HUM)"
+      if [ $TEMP ]; then
+         echo "The Temperature is: $temp"
+      fi
+      if [ $HUM ]; then
+         echo "The Humidity is: $hum"
+      fi
+      ##### STORE OPTION #####
+      if [ $STORE ]; then
+         #### Take the ID of sensor ####
+         ID=$(cat $path_type/Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
+         if [ ! $ID ]; then                                   #If ID doesn't exist, get the ID through the restAPI
+            ID=$(curl -s -X POST  http://portal.mazizone.eu/sensors/register/$NAME)
+            sudo echo "$NAME  $ID" >> $path_type/Type
+         fi
+         TIME=$(date  "+%H%M%S%d%m%y")
+         curl --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":"'$TIME'"}' http://portal.mazizone.eu/sensors/store
+      fi
+   fi
 
    #### Exit Statement ####
    sleep $INT
@@ -122,4 +171,6 @@ while [ true ]; do
       exit 0  
    fi
 done
+
+#set +x
 
