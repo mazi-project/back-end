@@ -24,8 +24,9 @@
 usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]"
 	  echo ""
 	  echo "[SenseName]"
-	  echo "-n,--name  [sth11,..]              Set the name of the sensor"
-	  echo ""
+	  echo "-n,--name                         Set the name of the sensor"
+	  echo "                                        {sht11,sensehat....}"
+          echo ""
 	  echo "[Options]"
           echo "-s , --store                       Store the measurements in the Database"
           echo "-d , --duration                    Duration in seconds to take a measurement"
@@ -37,7 +38,7 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
 	  echo "-h , --humidity                     Get the Humidity" 1>&2; exit 1; }
 DUR="0"
 INT="0"
-path_sense="$(pwd)/lib"
+path_sense="/root/back-end/lib"
 path_type="/etc/mazi"
 while [ $# -gt 0 ]
 do
