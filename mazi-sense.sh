@@ -47,7 +47,7 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "-h , --humidity                    Get the Humidity" 1>&2; exit 1; }
 DUR="0"
 INT="0"
-path_sense="$(pwd)/lib"
+path_sense="/root/back-end/lib"
 path_type="/etc/mazi"
 while [ $# -gt 0 ]
 do
