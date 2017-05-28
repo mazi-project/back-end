@@ -36,7 +36,7 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "-s , --store                       Store the measurements in the Database"
           echo "-d , --duration                    Duration in seconds to take a measurement"
           echo "-i , --interval                    Seconds between periodic measurement"
-          echo "-a , --available                   Displays the available sensors"
+          echo "-a , --available                   Displays the status of the available sensors"
           echo ""
 	  echo "[SensorOptions]"
 	  echo "[sht11]"
@@ -90,11 +90,14 @@ done
 ##### Scan for available sensors  ######
 
 if [ $SCAN ];then
-   if [ "$(python $path_sense/sht11.py $SCAN)" = "10" ]; then
-      echo "sht11"
-   fi
    if [ -f "/proc/device-tree/hat/product" ]; then
-      echo "sensehat"
+      SERVICE="$(ps -ef | grep sensehat | grep -v 'grep')"
+      
+      if [ "$SERVICE" != "" ]; then
+         echo "sensehat active"
+      else
+         echo "sensehat inactive" 
+      fi
    fi
    exit 0;
 fi
