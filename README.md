@@ -95,14 +95,14 @@ The *current.sh* script displays the features of the MAZI zone WIFI .
 Usage:
 ```
 sudo sh current.sh  [options]
-```
-[options]
-  -i,--interface                    Shows the name of the interface
-  -c,--channel                      Shows the channel to use
-  -m,--mode                         Shows the mode of Access Point
-  -p,--password                     Shows the password of the Access Point
-  -s,-ssid                          Shows the name of the WiFi Access Point
-
+```                                                                                                                       
+[options]                                                                                                                 
+  -i,--interface                    Shows the name of the interface                                                       
+  -c,--channel                      Shows the channel to use                                                               
+  -m,--mode                         Shows the mode of Access Point                                                         
+  -p,--password                     Shows the password of the Access Point                                                 
+  -s,-ssid                          Shows the name of the WiFi Access Point                                               
+                                                                                                                           
 
 ## antenna.sh
 
@@ -111,15 +111,15 @@ The *antenna.sh* script connects the second wifi dongle antenna to the internet 
 Usage:
 ```
 sudo sh antenna.sh  [options]
-```
-[options]
-  -a,--active                       Shows if the wifi dongle exists
-  -s,--ssid                         Set the name of wifi network
-  -p,--password                     Set the password of wifi network
-  -l,--list                         Displays the list of available wifi
-  -h,--hidden                       Connect to hidden network
-  -d,--disconnect                   Disconnect from network 
-
+```                                                                                                                       
+[options]                                                                                                                 
+  -a,--active                       Shows if the wifi dongle exists                                                       
+  -s,--ssid                         Set the name of wifi network                                                           
+  -p,--password                     Set the password of wifi network                                                       
+  -l,--list                         Displays the list of available wifi                                                   
+  -h,--hidden                       Connect to hidden network                                                             
+  -d,--disconnect                   Disconnect from network                                                               
+                                                                                                                           
 ## mazi-sense.sh
 
 The *mazi-sense.sh* script manages all the available sensors which are plugging on the raspberry pi 
