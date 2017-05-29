@@ -3,6 +3,7 @@
 #This script manages all available  sensors 
 #
 # Usage: sudo sh mazi-sense.sh [senseName] [options]
+#
 # 
 #
 # [senseName]
@@ -46,10 +47,12 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "[sensehat]"
           echo "-t , --temperature                 Get the Temperature "
           echo "-h , --humidity                    Get the Humidity" 1>&2; exit 1; }
-DUR="0"
-INT="0"
+
+DUR="0"     #initialization of duration 
+INT="0"     #initialization of interval 
 path_sense="/root/back-end/lib"
-path_type="/etc/mazi"
+path_Type="/etc/mazi"
+
 while [ $# -gt 0 ]
 do
    key="$1"
@@ -104,8 +107,8 @@ fi
 
 
 #### Create the file Type #####
-if [ ! -f "$path_type/Type" ]; then
-    sudo touch $path_type/Type
+if [ ! -f "$path_Type/Type" ]; then
+    sudo touch $path_Type/Type
 fi
 
 #### Check the sensor name ####
@@ -134,13 +137,14 @@ while [ true ]; do
       ##### STORE OPTION #####
       if [ $STORE ]; then
          #### Take the ID of sensor ####
-         ID=$(cat $path_type/Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
+         ID=$(cat $path_Type/Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
          if [ ! $ID ]; then                                   #If ID doesn't exist, get the ID through the restAPI
-            ID=$(curl -s -X POST  http://portal.mazizone.eu/sensors/register/$NAME)
-            sudo echo "$NAME  $ID" >> $path_type/Type
+            IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')" 
+            ID="$(curl -s --data '{"name":"'$NAME'","ip":"'$IP'"}' http://portal.mazizone.eu/sensors/register)" 
+            sudo echo "$NAME  $ID $IP" >> $path_Type/Type
          fi
          TIME=$(date  "+%H%M%S%d%m%y")
-         curl --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":"'$TIME'"}' http://portal.mazizone.eu/sensors/store
+         curl --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":'$TIME'}' http://portal.mazizone.eu/sensors/store
       fi
    fi
 
@@ -158,13 +162,14 @@ while [ true ]; do
       ##### STORE OPTION #####
       if [ $STORE ]; then
          #### Take the ID of sensor ####
-         ID=$(cat $path_type/Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
+         ID=$(cat $path_Type/Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
          if [ ! $ID ]; then                                   #If ID doesn't exist, get the ID through the restAPI
-            ID=$(curl -s -X POST  http://portal.mazizone.eu/sensors/register/$NAME)
-            sudo echo "$NAME  $ID" >> $path_type/Type
+            IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')" 
+            ID="$(curl -s --data '{"name":"'$NAME'","ip":"'$IP'"}' http://portal.mazizone.eu/sensors/register)" 
+            sudo echo "$NAME  $ID $IP" >> $path_Type/Type
          fi
          TIME=$(date  "+%H%M%S%d%m%y")
-         curl --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":"'$TIME'"}' http://portal.mazizone.eu/sensors/store
+         curl --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":'$TIME'}' http://portal.mazizone.eu/sensors/store
       fi
    fi
 
@@ -176,4 +181,5 @@ while [ true ]; do
 done
 
 #set +x
+
 
