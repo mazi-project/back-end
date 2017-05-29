@@ -127,24 +127,24 @@ The *mazi-sense.sh* script manages all the available sensors which are plugging 
 Usage:
 ```
 sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]
-```
-[SenseName]
-  -n,--name                         Set the name of the sensor
-                                       {sht11,sensehat....}
-[Options]
-  -s , --store                       Store the measurements in the Database
-  -d , --duration                    Duration in seconds to take a measurement
-  -i , --interval                    Seconds between periodic measurement
-  -a , --available                   Displays the status of the available sensors
-
-[SensorOptions]
-  {sht11}
-  -t , --temperature                 Get the Temperature
-  -h , --humidity                    Get the Humidity
-
-  {sensehat}
-  -t , --temperature                 Get the Temperature
-  -h , --humidity                    Get the Humidity
+```                                                                                                                       
+[SenseName]                                                                                                               
+  -n,--name                         Set the name of the sensor                                                             
+                                       {sht11,sensehat....}                                                               
+[Options]                                                                                                                 
+  -s , --store                       Store the measurements in the Database                                               
+  -d , --duration                    Duration in seconds to take a measurement                                             
+  -i , --interval                    Seconds between periodic measurement                                                 
+  -a , --available                   Displays the status of the available sensors                                         
+                                                                                                                           
+[SensorOptions]                                                                                                           
+  {sht11}                                                                                                                 
+  -t , --temperature                 Get the Temperature                                                                   
+  -h , --humidity                    Get the Humidity                                                                     
+                                                                                                                           
+  {sensehat}                                                                                                               
+  -t , --temperature                 Get the Temperature                                                                   
+  -h , --humidity                    Get the Humidity                                                                     
 
 
 ## License
