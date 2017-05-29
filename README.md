@@ -130,7 +130,7 @@ sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]
 ```                                                                                                                       
 [SenseName]                                                                                                               
   -n,--name                         Set the name of the sensor                                                             
-                                       {sht11,sensehat....}                                                               
+                                    {sht11,sensehat....}                                                               
 [Options]                                                                                                                 
   -s , --store                       Store the measurements in the Database                                               
   -d , --duration                    Duration in seconds to take a measurement                                             
