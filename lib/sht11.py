@@ -1,5 +1,8 @@
 #!/usr/bin/python
-try:
+from contextlib import contextmanager
+import warnings
+
+def sht11():
   from sht1x.Sht1x import Sht1x as SHT1x
   import sys
   dataPin = 35
@@ -27,14 +30,13 @@ try:
      elif(sys.argv[args] == "-t" or sys.argv[args] == "--temperature"):
         temperature = sht1x.read_temperature_C()
         print("{0:.2f}".format(temperature))
-     elif(sys.argv[args] == "-a" or sys.argv[args] == "--available"):
-        print SHT1x.GPIO_BOARD
      else:
         usage()
 
-except Exception:
-   pass
 
- 
-
+try:
+  warnings.filterwarnings("ignore")
+  sht11()
+except:
+  pass
 
