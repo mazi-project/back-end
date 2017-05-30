@@ -140,11 +140,11 @@ while [ true ]; do
          ID=$(cat $path_Type/Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
          if [ ! $ID ]; then                                   #If ID doesn't exist, get the ID through the restAPI
             IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')" 
-            ID="$(curl -s --data '{"name":"'$NAME'","ip":"'$IP'"}' http://portal.mazizone.eu/sensors/register)" 
+            ID="$(curl -s -X POST --data '{"name":"'$NAME'","ip":"'$IP'"}' http://10.0.0.1:4567/sensors/register)" 
             sudo echo "$NAME  $ID $IP" >> $path_Type/Type
          fi
          TIME=$(date  "+%H%M%S%d%m%y")
-         curl --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":'$TIME'}' http://portal.mazizone.eu/sensors/store
+         curl -X POST --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":'$TIME'}' http://10.0.0.1:4567/sensors/store
       fi
    fi
 
@@ -165,11 +165,11 @@ while [ true ]; do
          ID=$(cat $path_Type/Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
          if [ ! $ID ]; then                                   #If ID doesn't exist, get the ID through the restAPI
             IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')" 
-            ID="$(curl -s --data '{"name":"'$NAME'","ip":"'$IP'"}' http://portal.mazizone.eu/sensors/register)" 
+            ID="$(curl -s -X POST --data '{"name":"'$NAME'","ip":"'$IP'"}' http://10.0.0.1:4567/sensors/register)" 
             sudo echo "$NAME  $ID $IP" >> $path_Type/Type
          fi
          TIME=$(date  "+%H%M%S%d%m%y")
-         curl --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":'$TIME'}' http://portal.mazizone.eu/sensors/store
+         curl -X POST --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":'$TIME'}' http://10.0.0.1:4567/sensors/store
       fi
    fi
 
@@ -181,5 +181,4 @@ while [ true ]; do
 done
 
 #set +x
-
 
