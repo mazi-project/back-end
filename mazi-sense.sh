@@ -105,22 +105,27 @@ if [ $SCAN ];then
    exit 0;
 fi
 
-
-#### Create the file Type #####
-if [ ! -f "$path_Type/Type" ]; then
-    sudo touch $path_Type/Type
-fi
-
 #### Check the sensor name ####
-   if [ ! $NAME ];then
-      echo "Please complete the SenseName"
-      echo ""
-      usage 
-      exit 0;
-   fi
+if [ ! $NAME ];then
+    echo "Please complete the SenseName"
+    echo ""
+    usage 
+    exit 0;
+fi
 
 endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
 
+##### Register the ID of sensor #####
+if [ $STORE ]; then
+   #### Take the ID of sensor ####
+   IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')" 
+   ID="$(curl -s -X GET --data '{"name":"'$NAME'","ip":"'$IP'"}' http://10.0.0.1:4567/sensors/id)" #Search for id that corresponds to the name
+                                                                                                   # and ip of the sensor
+   if [ ! $ID ]; then               #If ID doesn't exist,register the sensor and get the ID  
+      ID="$(curl -s -X POST --data '{"name":"'$NAME'","ip":"'$IP'"}' http://10.0.0.1:4567/sensors/register)" 
+   fi
+fi
+ 
 while [ true ]; do
 
    ##### SHT11 Sensor #####
@@ -136,13 +141,6 @@ while [ true ]; do
       fi
       ##### STORE OPTION #####
       if [ $STORE ]; then
-         #### Take the ID of sensor ####
-         ID=$(cat $path_Type/Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
-         if [ ! $ID ]; then                                   #If ID doesn't exist, get the ID through the restAPI
-            IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')" 
-            ID="$(curl -s -X POST --data '{"name":"'$NAME'","ip":"'$IP'"}' http://10.0.0.1:4567/sensors/register)" 
-            sudo echo "$NAME  $ID $IP" >> $path_Type/Type
-         fi
          TIME=$(date  "+%H%M%S%d%m%y")
          curl -X POST --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":'$TIME'}' http://10.0.0.1:4567/sensors/store
       fi
@@ -161,13 +159,6 @@ while [ true ]; do
       fi
       ##### STORE OPTION #####
       if [ $STORE ]; then
-         #### Take the ID of sensor ####
-         ID=$(cat $path_Type/Type | grep "$NAME" | awk '{print $2}')   #Search for id that corresponds to the name of the sensor
-         if [ ! $ID ]; then                                   #If ID doesn't exist, get the ID through the restAPI
-            IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')" 
-            ID="$(curl -s -X POST --data '{"name":"'$NAME'","ip":"'$IP'"}' http://10.0.0.1:4567/sensors/register)" 
-            sudo echo "$NAME  $ID $IP" >> $path_Type/Type
-         fi
          TIME=$(date  "+%H%M%S%d%m%y")
          curl -X POST --data '{"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":'$TIME'}' http://10.0.0.1:4567/sensors/store
       fi
