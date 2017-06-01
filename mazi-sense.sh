@@ -55,7 +55,7 @@ DUR="0"     #initialization of duration
 INT="0"     #initialization of interval 
 path_sense="/root/back-end/lib"
 path_Type="/etc/mazi"
-
+IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')"
 while [ $# -gt 0 ]
 do
    key="$1"
@@ -123,9 +123,9 @@ if [ $SCAN ];then
       SERVICE="$(ps -ef | grep sensehat | grep -v 'grep')"
       
       if [ "$SERVICE" != "" ]; then
-         echo "sensehat active"
+         echo "sensehat active $IP"
       else
-         echo "sensehat inactive" 
+         echo "sensehat inactive $IP" 
       fi
    fi
    exit 0;
@@ -144,7 +144,6 @@ endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
 ##### Register the ID of sensor #####
 if [ $STORE ]; then
    #### Take the ID of sensor ####
-   IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')" 
    ID="$(curl -s -X GET --data '{"name":"'$NAME'","ip":"'$IP'"}' http://10.0.0.1:4567/sensors/id)" #Search for id that corresponds to the name
                                                                                                    # and ip of the sensor
    if [ ! $ID ]; then               #If ID doesn't exist,register the sensor and get the ID  
