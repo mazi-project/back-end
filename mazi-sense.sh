@@ -53,6 +53,7 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
 
 DUR="0"     #initialization of duration 
 INT="0"     #initialization of interval 
+INITPSW="0"     # initialization of mysql password
 path_sense="/root/back-end/lib"
 path_Type="/etc/mazi"
 
@@ -86,7 +87,8 @@ do
         SCAN="$1"
 	;;
 	--init)
-	INIT="true"
+	INITPSW="$2"
+	shift
         ;;
         *)
         # unknown option
@@ -99,16 +101,16 @@ done
 
 ##### Initialization  ######
 
-if [ $INIT ]; then
+if [ $INITPSW ]; then
 	echo "Installing sense-hat"
 	apt-get install -y -f sense-hat
 	echo "Configuring SQL database"
 	#mysql -u root -p$INITPSW -e "CREATE DATABASE IF NOT EXISTS sensors;"
-	mysql -u root -e "CREATE DATABASE IF NOT EXISTS sensors;"
-	mysql -u root -e "CREATE USER mazi_user@localhost IDENTIFIED BY '1234';"
-	mysql -u root -e "GRANT ALL ON sensors.* TO 'mazi_user'@'localhost' IDENTIFIED BY '1234';"
-	mysql -u root -e "FLUSH PRIVILEGES;"
-	mysql -u root -e "CREATE TABLE IF NOT EXISTS sensors.type (id INT PRIMARY KEY AUTO_INCREMENT,name VARCHAR(10), ip VARCHAR(15));"
+	mysql -u root -p$INITPSW -e "CREATE DATABASE IF NOT EXISTS sensors;"
+	mysql -u root -p$INITPSW -e "CREATE USER mazi_user@localhost IDENTIFIED BY '1234';"
+	mysql -u root -p$INITPSW -e "GRANT ALL ON sensors.* TO 'mazi_user'@'localhost' IDENTIFIED BY '1234';"
+	mysql -u root -p$INITPSW -e "FLUSH PRIVILEGES;"
+	mysql -u root -p$INITPSW -e "CREATE TABLE IF NOT EXISTS sensors.type (id INT PRIMARY KEY AUTO_INCREMENT,name VARCHAR(10), ip VARCHAR(15));"
 	echo "Sensor Initialization finished"
 
 	exit 0;
