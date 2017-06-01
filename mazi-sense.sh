@@ -12,7 +12,9 @@
 # [options]
 # -s , --store                    Store the measurements to Database through the restAPI
 # -d , --duration                 Duration in seconds to take a measurement
-# -i , --interval                 Seconds between periodic measurement                               
+# -i , --interval                 Seconds between periodic measurement
+# -a , --available                Displays the status of the available sensors
+# --init                          Sensor initialization
 #
 #
 # [sht11]
@@ -38,6 +40,7 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "  -d , --duration                    Duration in seconds to take a measurement"
           echo "  -i , --interval                    Seconds between periodic measurement"
           echo "  -a , --available                   Displays the status of the available sensors"
+          echo "  --init                             Sensor initialization"
           echo ""
 	  echo "[SensorOptions]"
 	  echo "  {sht11}"
@@ -81,6 +84,9 @@ do
         ;;
         -a|--available)
         SCAN="$1"
+	;;
+	--init)
+	INIT="true"
         ;;
         *)
         # unknown option
@@ -89,6 +95,25 @@ do
    esac
    shift     #past argument or value
 done
+
+
+##### Initialization  ######
+
+if [ $INIT ]; then
+	echo "Installing sense-hat"
+	apt-get install -y -f sense-hat
+	echo "Configuring SQL database"
+	#mysql -u root -p$INITPSW -e "CREATE DATABASE IF NOT EXISTS sensors;"
+	mysql -u root -e "CREATE DATABASE IF NOT EXISTS sensors;"
+	mysql -u root -e "CREATE USER mazi_user@localhost IDENTIFIED BY '1234';"
+	mysql -u root -e "GRANT ALL ON sensors.* TO 'mazi_user'@'localhost' IDENTIFIED BY '1234';"
+	mysql -u root -e "FLUSH PRIVILEGES;"
+	mysql -u root -e "CREATE TABLE IF NOT EXISTS sensors.type (id INT PRIMARY KEY AUTO_INCREMENT,name VARCHAR(10), ip VARCHAR(15));"
+	echo "Sensor Initialization finished"
+
+	exit 0;
+fi
+
 
 ##### Scan for available sensors  ######
 
