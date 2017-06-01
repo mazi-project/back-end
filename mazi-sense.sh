@@ -53,7 +53,6 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
 
 DUR="0"     #initialization of duration 
 INT="0"     #initialization of interval 
-INITPSW="0"     # initialization of mysql password
 path_sense="/root/back-end/lib"
 path_Type="/etc/mazi"
 
