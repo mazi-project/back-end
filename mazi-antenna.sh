@@ -2,7 +2,7 @@
 
 #This script set up the second antenna 
 #
-# Usage: sudo sh antenna.sh  [options]
+# Usage: mazi-antenna.sh  [options]
 # 
 # [options]
 # -a,--active                     Displays if we have second wifi dongle antena 
@@ -11,7 +11,8 @@
 #
 
 
-usage() { echo "Usage: sudo sh antenna.sh  [options]" 
+
+usage() { echo "Usage: mazi-antenna.sh  [options]" 
 	  echo ""
           echo "[options]"
 	  echo " -a,--active                     Displays if we have second wifi dongle antena" 
@@ -76,6 +77,7 @@ if [ $disc ]; then
          if [ "$DHCPid" ];then 
            sudo kill $DHCPid
         fi
+        exit 0;
 fi
 
 if [ "$list" = "TRUE" ];then
@@ -87,7 +89,6 @@ fi
 
 if [ "$active" = "TRUE" ];then
       if [ "$intface" ];then
-         
          echo "active $(iwconfig wlan1 | grep wlan1 |awk '{print $4}')"
       else
          echo "inactive"
@@ -126,8 +127,7 @@ if [ "$ssid" ];then
         fi
         sleep 1
         sudo ifconfig $intface up
-      # sudo wpa_supplicant -B -i$intface -c /etc/wpa_supplicant/wpa_supplicant.conf -Dwext
-        sudo wpa_supplicant -B -i $intface -c /etc/wpa_supplicant/wpa_supplicant.conf
+        sudo wpa_supplicant -B -i $intface -c $path
         dhcpcd $intface
 fi
 

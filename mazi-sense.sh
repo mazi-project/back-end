@@ -54,7 +54,7 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
 DUR="0"     #initialization of duration 
 INT="0"     #initialization of interval 
 path_sense="/root/back-end/lib"
-path_Type="/etc/mazi"
+hat_module="/proc/device-tree/hat/product"
 IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')"
 while [ $# -gt 0 ]
 do
@@ -119,7 +119,7 @@ fi
 ##### Scan for available sensors  ######
 
 if [ $SCAN ];then
-   if [ -f "/proc/device-tree/hat/product" ]; then
+   if [ -f $hat_module ]; then
       SERVICE="$(ps -ef | grep sensehat | grep -v 'grep')"
       
       if [ "$SERVICE" != "" ]; then
@@ -139,8 +139,6 @@ if [ ! $NAME ];then
     exit 0;
 fi
 
-endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
-
 ##### Register the ID of sensor #####
 if [ $STORE ]; then
    #### Take the ID of sensor ####
@@ -151,6 +149,7 @@ if [ $STORE ]; then
    fi
 fi
  
+endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
 while [ true ]; do
 
    ##### SHT11 Sensor #####

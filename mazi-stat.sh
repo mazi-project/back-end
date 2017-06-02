@@ -22,16 +22,16 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
 
 
 ######  Parse command line arguments   ######
-path=$(pwd)
+path_log="/root/back-end/users.log"
 key="$1"
 
 case $key in
     -u|--users)
-    cd $path
-    sudo touch users.log
-    sudo chmod 777 users.log 
-    sudo arp-scan --interface=wlan0 10.0.0.1/24 --retry=3 -g  > users.log
-    users=$(cat users.log | grep 'responded' | awk '{print $12}')
+    sudo touch $path_log
+    sudo chmod 777 $path_log 
+    sudo arp-scan --interface=wlan0 10.0.0.1/24 --retry=3 -g  > $path_log
+#    sudo arp-scan --interface=wlan0 10.0.0.1 --retry=3 -g  > $path_log
+    users=$(cat $path_log | grep 'responded' | awk '{print $12}')
     echo "wifi users" $users 
     ;;
     -t|--temp)

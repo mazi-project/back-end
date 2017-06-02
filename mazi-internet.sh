@@ -2,6 +2,10 @@
 
 usage() { echo "Usage: sh $0 [-m <offline/dual/restricted>]" 1>&2; exit 1; }
 
+
+mazi_conf="/etc/mazi/mazi.conf"
+dnsmasq="/etc/dnsmasq.conf"
+iptables="/etc/iptables/rules.v4"
 while getopts m: option
 do
         case "${option}"
@@ -10,7 +14,7 @@ do
 			if [ "$MODE" = "offline" ]; then
 				#echo $MODE
 				#Redirect  with DNSMASQ
-                                sudo sed -i '/#Redirect rule/a \address=\/#\/10.0.0.1' /etc/dnsmasq.conf                                
+                                sudo sed -i '/#Redirect rule/a \address=\/#\/10.0.0.1' $dnsmasq                                
 
 				#Delete iptables rules
 				sudo iptables -F
@@ -36,16 +40,16 @@ do
 				#Restart DNSMASQ
 				sudo service dnsmasq restart
 				#Save rules.v4 rules
-				sudo iptables-save | sudo tee /etc/iptables/rules.v4
+				sudo iptables-save | sudo tee $iptables
 				
 				echo You are now in offline mode 
-                                echo 'offline' | sudo tee /etc/mazi/mazi.conf
+                                echo 'offline' | sudo tee $mazi_conf
 
 			elif [ "$MODE" = "dual" ]; then
 				#echo $MODE 
 
 				#Delete redirect from DNSMAQ
-                                sudo sudo sed -i '/address=\/#\/10.0.0.1/d' /etc/dnsmasq.conf
+                                sudo sudo sed -i '/address=\/#\/10.0.0.1/d' $dnsmasq
 
                                 
 				#Delete iptables rules
@@ -64,14 +68,14 @@ do
                                 sudo service dnsmasq restart
 
                                 #Save rules.v4 rules
-                                sudo iptables-save | sudo tee /etc/iptables/rules.v4
+                                sudo iptables-save | sudo tee $iptables
 				
                                 echo You are now in dual mode
-                                echo 'dual' | sudo tee /etc/mazi/mazi.conf 
+                                echo 'dual' | sudo tee $mazi_conf
 
 			elif [ "$MODE" = "restricted" ]; then
 				echo $MODE
-                                echo 'restricted' | sudo tee /etc/mazi/mazi.conf
+                                echo 'restricted' | sudo tee $mazi_conf
 			else
 				echo "Please choose between offline, dual or restricted mode"
 			fi

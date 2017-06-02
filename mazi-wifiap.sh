@@ -2,7 +2,7 @@
 
 #This script modify a variety of wireless network settings
 #
-# Usage: sudo sh wifiap.sh  [options]
+# Usage: mazi-wifiap.sh  [options]
 # 
 # [options]
 # -i,--interface [wlan0,wlan1]    Set interface name 
@@ -13,7 +13,7 @@
 #
 
 #set -x
-usage() { echo "Usage: sudo sh wifiap.sh  [options]" 
+usage() { echo "Usage: mazi-wifiap.sh  [options]" 
           echo " " 
           echo "[options]" 
 #          echo "-i,--interface [wlan0,wlan1]    Set interface name"
@@ -68,7 +68,7 @@ done
 
 ######  First-Time setup  ######
 
-if [ ! -s /etc/hostapd/hostapd.conf ]; then
+if [ ! -s $path ]; then
   
   echo 'driver=nl80211' | sudo tee $path # append line to empty file
   sudo sed -i "$ a hw_mode=g" $path
@@ -100,7 +100,7 @@ fi
 
 #password
 if [ "$PASSWORD" ];then
-  if [ $(grep 'wpa' /etc/hostapd/hostapd.conf | wc -l) -eq 5  ];then  
+  if [ $(grep 'wpa' $path | wc -l) -eq 5  ];then  
     #Change password
     sudo sed -i '/wpa_passphrase/d' $path
     sudo sed -i "$ a wpa_passphrase=$PASSWORD" $path   
@@ -141,7 +141,7 @@ if [ "$id" ];then
    sudo kill $id
 fi
 sleep 1
-sudo ifconfig $(grep 'interface' /etc/hostapd/hostapd.conf| sed 's/\interface=//g') down
+sudo ifconfig $(grep 'interface' $path | sed 's/\interface=//g') down
 sudo hostapd -B $path
 
 #set +x

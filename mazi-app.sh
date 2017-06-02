@@ -16,8 +16,6 @@ usage() { echo "Usage: sudo sh mazi-app.sh  [options] <application>"
 
 
 
-path=$(pwd)
-
 ######  Parse command line arguments   ######
 
 key="$1"
