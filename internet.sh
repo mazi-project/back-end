@@ -10,13 +10,13 @@ do
 			if [ "$MODE" = "offline" ]; then
 				#echo $MODE
 				#Redirect  with DNSMASQ
-                                sudo sed -i '/#Redirect rule/a \address=\/#\/10.0.0.1' /etc/dnsmasq.conf                                
+                                sudo sed -i '/#Redirect rule/a \address=\/#\/10.0.0.1' /etc/dnsmasq.conf
 
 				#Delete iptables rules
 				sudo iptables -F
 				sudo iptables -F -t nat
-				sudo iptables -F -t mangle				
-		
+				sudo iptables -F -t mangle
+
 				# Block Internet
 				sudo iptables -A FORWARD -i wlan1 -j DROP
 				sudo iptables -A FORWARD -i eth0 -j DROP
@@ -26,28 +26,28 @@ do
 				sudo iptables -t mangle -A PREROUTING -i wlan0 -p tcp -m tcp --dport 80 -j HTTP
 				sudo iptables -t mangle -A HTTP -j MARK --set-mark 99
 				sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination 10.0.0.1
-		
+
 				# Redirect HTTPS to apache
 				sudo iptables -t mangle -N HTTPS
 				sudo iptables -t mangle -A PREROUTING -i wlan0 -p tcp -m tcp --dport 443 -j HTTPS
 				sudo iptables -t mangle -A HTTPS -j MARK --set-mark 98
 				sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp -m mark --mark 98 -m tcp --dport 443 -j DNAT --to-destination 10.0.0.1
-				
+
 				#Restart DNSMASQ
 				sudo service dnsmasq restart
 				#Save rules.v4 rules
 				sudo iptables-save | sudo tee /etc/iptables/rules.v4
-				
-				echo You are now in offline mode 
+
+				echo You are now in offline mode
                                 echo 'offline' | sudo tee /etc/mazi/mazi.conf
 
 			elif [ "$MODE" = "dual" ]; then
-				#echo $MODE 
+				#echo $MODE
 
 				#Delete redirect from DNSMAQ
-                                sudo sudo sed -i '/address=\/#\/10.0.0.1/d' /etc/dnsmasq.conf
+                                sudo sed -i '/address=\/#\/10.0.0.1/d' /etc/dnsmasq.conf
 
-                                
+
 				#Delete iptables rules
 				sudo iptables -F
 				sudo iptables -F -t nat
@@ -57,17 +57,17 @@ do
 				sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 				# Forward Internet through wlan0
 				sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
-				# Forward Internet through wlan0                               
+				# Forward Internet through wlan0
 				sudo iptables -t nat -A POSTROUTING -o wlan1 -j MASQUERADE
-				
+
 				#Restart DNSMASQ
                                 sudo service dnsmasq restart
 
                                 #Save rules.v4 rules
                                 sudo iptables-save | sudo tee /etc/iptables/rules.v4
-				
+
                                 echo You are now in dual mode
-                                echo 'dual' | sudo tee /etc/mazi/mazi.conf 
+                                echo 'dual' | sudo tee /etc/mazi/mazi.conf
 
 			elif [ "$MODE" = "restricted" ]; then
 				echo $MODE
