@@ -147,17 +147,17 @@ sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]
   -h , --humidity....................Get the Humidity                                                                     
 
 
-##mazi-domain                                                                                                                           
+## mazi-domain                                                                                                                           
                                                                                                                                          
-This script changes the domain of mazi toolkit                                                                                           
+This script changes the domain name of mazi toolkit                                                                                     
 Usage:
 ```
 sudo sh mazi-domain.sh -d < new domain >
 ```                                                                                                                       
 
-##mazi-resetpswd.sh                                                                                                                     
+## mazi-resetpswd.sh                                                                                                                     
                                                                                                                                         
-This script reset the mazi_admin password of the portal to "1234"                                                                      
+This script reset the  administrator password of the portal to "1234"                                                                   
 Usage:
 ```
 sudo sh mazi-resetpswd.sh
