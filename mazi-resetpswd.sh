@@ -7,7 +7,7 @@
 
 usage() { echo "This script resets the mazi_admin password of the portal"
           echo ""
-          echo "Usage: mazi-password.sh "  1>&2; exit 1; }
+          echo "Usage: mazi-resetpswd.sh "  1>&2; exit 1; }
 
 
 if [ $# -gt 0 ];then
