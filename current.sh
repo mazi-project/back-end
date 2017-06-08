@@ -14,11 +14,12 @@
 usage() { echo "Usage: sudo sh current.sh  [options]" 
           echo " " 
           echo "[options]" 
-          echo "-i,--interface [wlan0,wlan1]    Print the interface name"
-          echo "-s,--ssid                       Print the name of your WIFI network"
-          echo "-c,--channel                    Print the number of channel"
-          echo "-p,--password                   Print the WiFi password"
-          echo "-m,--mode                       Print the network mode" 1>&2; exit 1; }
+          echo "-i,--interface [wlan0,wlan1]    Displays the interface name"
+          echo "-s,--ssid                       Displays the name of your WIFI network"
+          echo "-c,--channel                    Displays the number of channel"
+          echo "-p,--password                   Displays the WiFi password"
+          echo "-d,--domain                     Displays the new domain of toolkit"
+          echo "-m,--mode                       Displays the network mode" 1>&2; exit 1; }
 
 
 while [ $# -gt 0 ]
@@ -29,6 +30,9 @@ case $key in
     -i |--interface)
     INTERFACE="YES"
     ;;
+    -d |--domain)
+    DOMAIN="YES"
+    ;; 
     -s|--ssid)
     SSID="YES"
     ;;
@@ -65,6 +69,11 @@ fi
 if [ "$SSID" = "YES" ]; then
     
   echo "ssid $(grep 'ssid' /etc/hostapd/hostapd.conf| sed 's/ssid=//g')"  
+fi
+## print new domain
+if [ $DOMAIN ]; then
+
+  echo $(grep 'ServerName' /etc/apache2/sites-available/portal.conf | awk '{print $2}')
 fi
 
 ## print password if it exists
