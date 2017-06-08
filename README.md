@@ -147,6 +147,21 @@ sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]
   -h , --humidity....................Get the Humidity                                                                     
 
 
+##mazi-domain                                                                                                                           
+                                                                                                                                         
+This script changes the domain of mazi toolkit                                                                                           
+Usage:
+```
+sudo sh mazi-domain.sh -d < new domain >
+```                                                                                                                       
+
+##mazi-resetpswd.sh                                                                                                                     
+                                                                                                                                        
+This script reset the mazi_admin password of the portal to "1234"                                                                      
+Usage:
+```
+sudo sh mazi-resetpswd.sh
+```     
 ## License
 
 See the [LICENSE] (https://github.com/mazi-project/back-end/blob/master/LICENSE) file for license rights and limitations (MIT).
