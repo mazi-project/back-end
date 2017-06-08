@@ -10,13 +10,13 @@ sudo sh wifiap.sh  [options]
 ```
 [options]
 
--s,--ssid                           The name of the WiFi Access Point
+-s,--ssid......................The name of the WiFi Access Point
 
--c,--channel............................The channel to use
+-c,--channel...................The channel to use
 
--w,--wpa                                 Set off/OFF if you want to turn off wireless network security
+-w,--wpa.......................Set off/OFF if you want to turn off wireless network security
 
--p,--password                            The password of the Access Point
+-p,--password..................The password of the Access Point
 
 
 **Examples**
@@ -66,12 +66,12 @@ sudo sh mazi-stat.sh [options]
 ```
 [options]
 
-  -t,--temp                     Displays the CPU core temperature                                                           
-  -u,--users                    Displays the total online users                                                             
-  -c,--cpu                      Displays the CPU usage                                                                       
-  -r,--ram                      Displays the RAM usage                                                                       
-  -s,--storage                  Displays the percentage of the available storage                                             
-  -n,--network                  Displays the Download/Upload speed                                                           
+  -t,--temp.................Displays the CPU core temperature                                                           
+  -u,--users................Displays the total online users                                                             
+  -c,--cpu..................Displays the CPU usage                                                                       
+  -r,--ram..................Displays the RAM usage                                                                       
+  -s,--storage..............Displays the percentage of the available storage                                             
+  -n,--network..............Displays the Download/Upload speed                                                           
 
 ## mazi-app.sh
 
@@ -97,12 +97,12 @@ Usage:
 sudo sh current.sh  [options]
 ```                                                                                                                       
 [options]                                                                                                                 
-  -i,--interface                    Shows the name of the interface                                                       
-  -c,--channel                      Shows the channel to use                                                               
-  -m,--mode                         Shows the mode of Access Point                                                         
-  -p,--password                     Shows the password of the Access Point                                                 
-  -s,-ssid                          Shows the name of the WiFi Access Point                                               
-                                                                                                                           
+  -i,--interface....................Shows the name of the interface                                                       
+  -c,--channel......................Shows the channel to use                                                               
+  -m,--mode.........................Shows the mode of Access Point                                                         
+  -p,--password.....................Shows the password of the Access Point                                                 
+  -s,-ssid..........................Shows the name of the WiFi Access Point                                                   
+  -d,--domain.......................Shows the new domain of toolkit                                                                     
 
 ## antenna.sh
 
@@ -113,12 +113,12 @@ Usage:
 sudo sh antenna.sh  [options]
 ```                                                                                                                       
 [options]                                                                                                                 
-  -a,--active                       Shows if the wifi dongle exists                                                       
-  -s,--ssid                         Set the name of wifi network                                                           
-  -p,--password                     Set the password of wifi network                                                       
-  -l,--list                         Displays the list of available wifi                                                   
-  -h,--hidden                       Connect to hidden network                                                             
-  -d,--disconnect                   Disconnect from network                                                               
+  -a,--active.......................Shows if the wifi dongle exists                                                       
+  -s,--ssid.........................Set the name of wifi network                                                           
+  -p,--password.....................Set the password of wifi network                                                       
+  -l,--list.........................Displays the list of available wifi                                                   
+  -h,--hidden.......................Connect to hidden network                                                             
+  -d,--disconnect...................Disconnect from network                                                               
                                                                                                                            
 ## mazi-sense.sh
 
@@ -129,22 +129,22 @@ Usage:
 sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]
 ```                                                                                                                       
 [SenseName]                                                                                                               
-  -n,--name                         Set the name of the sensor                                                             
+  -n,--name.........................Set the name of the sensor                                                             
                                     {sht11,sensehat....}                                                               
 [Options]                                                                                                                 
-  -s , --store                       Store the measurements in the Database                                               
-  -d , --duration                    Duration in seconds to take a measurement                                             
-  -i , --interval                    Seconds between periodic measurement                                                 
-  -a , --available                   Displays the status of the available sensors                                         
+  -s , --store.......................Store the measurements in the Database                                               
+  -d , --duration....................Duration in seconds to take a measurement                                             
+  -i , --interval....................Seconds between periodic measurement                                                 
+  -a , --available...................Displays the status of the available sensors                                         
                                                                                                                            
 [SensorOptions]                                                                                                           
   {sht11}                                                                                                                 
-  -t , --temperature                 Get the Temperature                                                                   
-  -h , --humidity                    Get the Humidity                                                                     
+  -t , --temperature.................Get the Temperature                                                                   
+  -h , --humidity....................Get the Humidity                                                                     
                                                                                                                            
   {sensehat}                                                                                                               
-  -t , --temperature                 Get the Temperature                                                                   
-  -h , --humidity                    Get the Humidity                                                                     
+  -t , --temperature.................Get the Temperature                                                                   
+  -h , --humidity....................Get the Humidity                                                                     
 
 
 ## License
