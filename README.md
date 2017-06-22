@@ -14,9 +14,9 @@ sudo sh wifiap.sh  [options]
 
 -c,--channel___________________The channel to use
 
--w,--wpa.......................Set off/OFF if you want to turn off wireless network security
+-w,--wpa_______________________Set off/OFF if you want to turn off wireless network security
 
--p,--password..................The password of the Access Point
+-p,--password__________________The password of the Access Point
 
 
 **Examples**
@@ -66,12 +66,12 @@ sudo sh mazi-stat.sh [options]
 ```
 [options]
 
-  -t,--temp.................Displays the CPU core temperature                                                           
-  -u,--users................Displays the total online users                                                             
-  -c,--cpu..................Displays the CPU usage                                                                       
-  -r,--ram..................Displays the RAM usage                                                                       
-  -s,--storage..............Displays the percentage of the available storage                                             
-  -n,--network..............Displays the Download/Upload speed                                                           
+-t,--temp_______________Displays the CPU core temperature                                                           
+-u,--users_____________Displays the total online users                                                             
+-c,--cpu________________Displays the CPU usage                                                                       
+-r,--ram________________Displays the RAM usage                                                                       
+-s,--storage____________Displays the percentage of the available storage                                             
+-n,--network____________Displays the Download/Upload speed                                                           
 
 ## mazi-app.sh
 
