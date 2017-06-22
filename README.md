@@ -10,9 +10,9 @@ sudo sh wifiap.sh  [options]
 ```
 [options]
 
--s,--ssid ______________________ The name of the WiFi Access Point
+-s,--ssid______________________The name of the WiFi Access Point
 
--c,--channel...................The channel to use
+-c,--channel___________________The channel to use
 
 -w,--wpa.......................Set off/OFF if you want to turn off wireless network security
 
