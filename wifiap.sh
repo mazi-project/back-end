@@ -20,8 +20,7 @@ usage() { echo "Usage: sudo sh wifiap.sh  [options]"
           echo "-s,--ssid                        Set the name of your WiFi network"
           echo "-c,--channel                     Set channel number"
           echo "-p,--password                    Set your passphrase (WiFi password)"
-          echo "-w,--wpa  [OFF/off]              Turn off wireless network security" 
-          echo "-r,--router                      Modifies the wireless network settings of OpenWrt router" 1>&2; exit 1; }
+          echo "-w,--wpa  [OFF/off]              Turn off wireless network security" 1>&2; exit 1; }
 
 
 
@@ -35,9 +34,6 @@ do
 key="$1"
 
 case $key in
-    -r |--router)
-    ROUTER="TRUE"
-    ;;
     -s|--ssid)
     SSID="$2"
     shift # past argument=value
@@ -61,6 +57,11 @@ case $key in
 esac
 shift     #past argument or value
 done
+
+#Modifies the wireless network settings of OpenWrt router
+if [ "$(sh current.sh -w)" = "OpenWrt router" ];then
+   ROUTER="TRUE"
+fi
 
 
 ######  First-Time setup  ######
@@ -149,3 +150,4 @@ else
   sudo hostapd -B $path
 fi
 #set +x
+

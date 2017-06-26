@@ -14,6 +14,7 @@ path="/etc/dnsmasq.conf"
 WRT="10.0.2.2"
 PSWD="mazi"
 key="$1"
+sudo touch /etc/mazi/router.conf
 case $key in
     -a |--activate)
     ACT="TRUE"
@@ -28,6 +29,7 @@ case $key in
     usage   
     ;;
 esac
+
 
 if [ "$ACT" ];then
    #Setup eth0 interface and DHCP 
@@ -48,21 +50,35 @@ if [ "$ACT" ];then
    if [ "$id" ];then 
       sudo kill $id
    fi
+   sudo echo 'active' | sudo tee /etc/mazi/router.conf
 
 fi
 
 
 if [ "$DACT" ];then
-   #Restore DHCP settings
+
+  #Enable WiFi on raspberry pi
+   id=$(ps aux | grep hostapd.conf| grep root| awk '{print $2}') 
+
+   if [ "$id" ];then 
+     sudo kill $id
+   fi
+   sleep 1
+   sudo ifconfig wlan0 down
+   sudo hostapd -B $hostapd
+
+
+  #Disable WiFi on OpenWrt router
+   sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=1; uci commit wireless; wifi'
+ 
+  #Restore DHCP settings
    sudo sed -i '/OpenWrt/d' $path 
    sudo sed -i '/interface=eth0/d' $path
    sudo sed -i '/dhcp-range=10.0.2.10,10.0.2.200,255.255.255.0,12h/d' $path
    sudo service dnsmasq restart
    
-   #Disable WiFi on OpenWrt router
-   sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=1; uci commit wireless; wifi'
-
-   #Enable WiFi on raspberry pi
-   sudo sh /root/back-end/wifiap.sh
+   sudo ip addr flush dev eth0
+   sudo echo 'inactive' | sudo tee /etc/mazi/router.conf
 fi
+
 

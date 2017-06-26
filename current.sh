@@ -19,7 +19,8 @@ usage() { echo "Usage: sudo sh current.sh  [options]"
           echo "-c,--channel                    Displays the number of channel"
           echo "-p,--password                   Displays the WiFi password"
           echo "-d,--domain                     Displays the new domain of toolkit"
-          echo "-m,--mode                       Displays the network mode" 1>&2; exit 1; }
+          echo "-m,--mode                       Displays the network mode"
+          echo "-w,--wifi                       Displays the device which broadcast the local WiFi network" 1>&2; exit 1; }
 
 
 while [ $# -gt 0 ]
@@ -45,6 +46,9 @@ case $key in
     -m|--mode)
     MODE="YES"
     ;;
+    -w|--wifi)
+    DEVICE="TRUE"
+    ;;
     *)
        # unknown option
     usage   
@@ -52,6 +56,15 @@ case $key in
 esac
 shift #past argument
 done
+
+
+if [ -f /etc/mazi/router.conf  -a  "$(cat /etc/mazi/router.conf)" = "active" ];then
+  dev="OpenWrt router"
+else
+  if [ "$(ps aux | grep hostapd | grep -v 'grep')" ];then
+  dev="Raspberry pi"
+  fi
+fi
 
 ## print interface
 if [ "$INTERFACE" = "YES" ]; then
@@ -96,4 +109,7 @@ fi
 
 
 
+if [ "$DEVICE" ];then
+  echo "$dev"
+fi
 
