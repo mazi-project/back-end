@@ -1,4 +1,4 @@
-#!/bin/bash  
+#!/bin/bash 
 
 #This script returns the current network settings
 #
@@ -23,6 +23,8 @@ usage() { echo "Usage: sudo sh current.sh  [options]"
           echo "-w,--wifi                       Displays the device which broadcast the local WiFi network" 1>&2; exit 1; }
 
 
+WRT="10.0.2.2"
+PSWD="mazi"
 while [ $# -gt 0 ]
 do
 key="$1"
@@ -59,6 +61,7 @@ done
 
 
 if [ -f /etc/mazi/router.conf  -a  "$(cat /etc/mazi/router.conf)" = "active" ];then
+  ROUTER="TRUE"
   dev="OpenWrt router"
 else
   if [ "$(ps aux | grep hostapd | grep -v 'grep')" ];then
@@ -68,34 +71,56 @@ fi
 
 ## print interface
 if [ "$INTERFACE" = "YES" ]; then
-  echo "interface $(grep 'interface' /etc/hostapd/hostapd.conf| sed 's/\interface=//g') "  
-    
+  if [ "$ROUTER" ];then
+    intface="br-lan"
+  else
+    intface=$(grep 'interface' /etc/hostapd/hostapd.conf| sed 's/\interface=//g') 
+  fi
+  echo "interface $intface"
 fi
 
 ## print channel
 if [ "$CHANNEL" = "YES" ]; then
-   
-   echo "channel $(grep 'channel' /etc/hostapd/hostapd.conf| sed 's/channel=//g')" 
+  if [ "$ROUTER" ];then 
+    channel=$(sudo sshpass -p "$PSWD" ssh root@$WRT "grep 'channel' /etc/config/wireless | sed 's/option channel//g'| grep -o  [^\']* | xargs")
+  else
+    channel=$(grep 'channel' /etc/hostapd/hostapd.conf| sed 's/channel=//g') 
+  fi
+  echo "channel $channel"
 fi
 
 ## print ssid
 if [ "$SSID" = "YES" ]; then
-    
-  echo "ssid $(grep 'ssid' /etc/hostapd/hostapd.conf| sed 's/ssid=//g')"  
+  if [ "$ROUTER" ];then
+     ssid=$(sudo sshpass -p "$PSWD" ssh root@$WRT "grep 'ssid' /etc/config/wireless | sed 's/option ssid//g'| grep -o  [^\']* | xargs")
+  else
+    ssid=$(grep 'ssid' /etc/hostapd/hostapd.conf| sed 's/ssid=//g')  
+  fi
+  echo "ssid $ssid"
 fi
+
+
 ## print new domain
 if [ $DOMAIN ]; then
-
-  echo $(grep 'ServerName' /etc/apache2/sites-available/portal.conf | awk '{print $2}')
+  echo "domain $(grep 'ServerName' /etc/apache2/sites-available/portal.conf | awk '{print $2}')"
 fi
+
 
 ## print password if it exists
 if [ "$PASSWORD" = "YES" ]; then
-   if [ "$(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')" ];then
-     echo "password $(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')"
-   else
-     echo "password -"
-   fi 
+  key="-"
+  if [ "$ROUTER" ];then
+     pswd=$(sudo sshpass -p "$PSWD" ssh root@$WRT "grep 'option encryption' /etc/config/wireless | sed 's/option encryption//g'| grep -o [^\']* | xargs")
+     if [ "$pswd" != "none" ];then
+         key=$( sudo sshpass -p "$PSWD" ssh root@$WRT "grep 'option key' /etc/config/wireless | sed 's/option key//g'| grep -o [^\']* | xargs")
+     fi  
+  else
+     paswd=$(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')
+     if [ "$pswd" != "" ];then
+         key=$(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')
+     fi
+  fi 
+  echo "password $key"
 fi
 
 ## print mode
@@ -110,6 +135,5 @@ fi
 
 
 if [ "$DEVICE" ];then
-  echo "$dev"
+  echo "device $dev"
 fi
-
