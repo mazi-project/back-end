@@ -24,9 +24,10 @@ usage() { echo "Usage: sudo sh wifiap.sh  [options]"
 
 
 
-path="/etc/hostapd/hostapd.conf"
+hostapd="/etc/hostapd/hostapd.conf"
 WRT="10.0.2.2"
 PSWD="mazi"
+path="/root/back-end"
 ######  Parse command line arguments   ######
 
 while [ $# -gt 0 ]
@@ -59,7 +60,7 @@ shift     #past argument or value
 done
 
 #Modifies the wireless network settings of OpenWrt router
-if [ "$(sh current.sh -w)" = "device OpenWrt router" ];then
+if [ "$(sh $path/current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
 
@@ -68,9 +69,9 @@ fi
 
 if [ ! -s /etc/hostapd/hostapd.conf ]; then
   
-  echo 'driver=nl80211' | sudo tee $path # append line to empty file
-  sudo sed -i "$ a hw_mode=g" $path
-  sudo sed -i "$ a macaddr_acl=0" $path
+  echo 'driver=nl80211' | sudo tee $hostapd # append line to empty file
+  sudo sed -i "$ a hw_mode=g" $hostapd
+  sudo sed -i "$ a macaddr_acl=0" $hostapd
 fi
 
 ######  Setup arguments  ######
@@ -81,8 +82,8 @@ if [ "$SSID" ]; then
   if [ "$ROUTER" ];then
     sudo sshpass -p "$PSWD" ssh root@$WRT 'sed -i "/option ssid/c\        option ssid '$SSID'" /etc/config/wireless' 
   else
-    sudo sed -i '/ssid/d' $path
-    sudo sed -i "$ a ssid=$SSID" $path
+    sudo sed -i '/ssid/d' $hostapd
+    sudo sed -i "$ a ssid=$SSID" $hostapd
   fi
 fi
 
@@ -91,8 +92,8 @@ if [ "$CHANNEL" ]; then
   if [ "$ROUTER" ];then
     sudo sshpass -p "$PSWD" ssh root@$WRT 'sed -i "/option channel/c\        option channel '$CHANNEL'" /etc/config/wireless'  
   else
-    sudo sed -i '/channel/d' $path
-    sudo sed -i "$ a channel=$CHANNEL" $path  
+    sudo sed -i '/channel/d' $hostapd
+    sudo sed -i "$ a channel=$CHANNEL" $hostapd  
   fi
 fi
 
@@ -104,17 +105,17 @@ if [ "$PASSWORD" ];then
     sudo sshpass -p "$PSWD" ssh root@$WRT 'sed -i "/option key/c\        option key '$PASSWORD'" /etc/config/wireless'
   else
     #Set up wireless network security
-    sudo sed -i '/wpa/d' $path
-    sudo sed -i '/wpa_passphrase/d' $path
-    sudo sed -i '/wpa_key_mgmt/d' $path
-    sudo sed -i '/wpa_pairwise/d' $path
-    sudo sed -i '/wpa_ptk_rekey/d' $path
+    sudo sed -i '/wpa/d' $hostapd
+    sudo sed -i '/wpa_passphrase/d' $hostapd
+    sudo sed -i '/wpa_key_mgmt/d' $hostapd
+    sudo sed -i '/wpa_pairwise/d' $hostapd
+    sudo sed -i '/wpa_ptk_rekey/d' $hostapd
    
-    sudo sed -i '$ a wpa=1' $path
-    sudo sed -i "$ a wpa_passphrase=$PASSWORD" $path
-    sudo sed -i '$ a wpa_key_mgmt=WPA-PSK' $path
-    sudo sed -i '$ a wpa_pairwise=TKIP CCMP' $path
-    sudo sed -i '$ a wpa_ptk_rekey=600' $path
+    sudo sed -i '$ a wpa=1' $hostapd
+    sudo sed -i "$ a wpa_passphrase=$PASSWORD" $hostapd
+    sudo sed -i '$ a wpa_key_mgmt=WPA-PSK' $hostapd
+    sudo sed -i '$ a wpa_pairwise=TKIP CCMP' $hostapd
+    sudo sed -i '$ a wpa_ptk_rekey=600' $hostapd
   fi  
 fi
 
@@ -124,11 +125,11 @@ if [ "$WPA" = "off" -o "$WPA" = "OFF" ];then
   if [ "$ROUTER" ];then
     sudo sshpass -p "$PSWD" ssh root@$WRT 'sed -i "/option encryption/c\        option encryption 'none'" /etc/config/wireless'
   else
-    sudo sed -i '/wpa/d' $path
-    sudo sed -i '/wpa_passphrase/d' $path
-    sudo sed -i '/wpa_key_mgmt/d' $path
-    sudo sed -i '/wpa_pairwise/d' $path
-    sudo sed -i '/wpa_ptk_rekey/d' $path
+    sudo sed -i '/wpa/d' $hostapd
+    sudo sed -i '/wpa_passphrase/d' $hostapd
+    sudo sed -i '/wpa_key_mgmt/d' $hostapd
+    sudo sed -i '/wpa_pairwise/d' $hostapd
+    sudo sed -i '/wpa_ptk_rekey/d' $hostapd
   fi
 fi
 
@@ -147,7 +148,7 @@ else
   fi
   sleep 1
   sudo ifconfig $(grep 'interface' /etc/hostapd/hostapd.conf| sed 's/\interface=//g') down
-  sudo hostapd -B $path
+  sudo hostapd -B $hostapd
 fi
 #set +x
 

@@ -22,10 +22,10 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
 
 
 ######  Parse command line arguments   ######
-path=$(pwd)
+path="/root/back-end"
 key="$1"
 
-if [ "$(sh current.sh -w)" = "device OpenWrt router" ];then
+if [ "$(sh $path/current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
 
@@ -36,7 +36,7 @@ case $key in
     sudo touch users.log
     sudo chmod 777 users.log 
     if [ "$ROUTER" ];then
-      sudo arp-scan --interface=eth0 10.0.2.1/24 --retry=3 -g  > users.log
+      sudo arp-scan --interface=eth0 --localnet --retry=3 -g  > users.log
       users=$(cat users.log | grep 'responded' | awk '{print $12}') 
       echo "wifi users $(($users - 1))"
     else
