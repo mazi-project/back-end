@@ -59,7 +59,7 @@ shift     #past argument or value
 done
 
 #Modifies the wireless network settings of OpenWrt router
-if [ "$(sh current.sh -w)" = "OpenWrt router" ];then
+if [ "$(sh current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
 
