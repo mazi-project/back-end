@@ -164,7 +164,11 @@ sudo sh mazi-resetpswd.sh
 ```     
 ## mazi-router.sh                                                                                                      
                                                                                                                            
-mazi-router.sh configures OpenWrt router as external antenna of raspberry pi which broadcasts the local WiFi network mazizone                                                   
+mazi-router.sh configures OpenWrt router as external antenna of raspberry pi which broadcasts the local WiFi network mazizone    
+Script's requirements                                                                                                     
+```
+sudo apt-get install sshpass                                                                                               
+```
 Usage:
 ```
 sudo sh mazi-router.sh [options]
