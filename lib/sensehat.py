@@ -35,7 +35,7 @@ def correct_temp():
     t = (t1+t2)/2
     t_cpu = get_cpu_temp()
     # calculates the real temperature compesating CPU heating
-    t_corr = t - ((t_cpu-t)/1)
+    t_corr = t - ((t_cpu-t)/1.6)
     t_corr = get_smooth(t_corr)
   return(t_corr)
 

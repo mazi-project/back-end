@@ -60,12 +60,14 @@ shift #past argument
 done
 
 
-if [ -f /etc/mazi/router.conf  -a  "$(cat /etc/mazi/router.conf)" = "active" ];then
-  ROUTER="TRUE"
-  dev="OpenWrt router"
+if [ -f /etc/mazi/router.conf ];then
+  if [ "$(cat /etc/mazi/router.conf)" = "active" ];then
+    ROUTER="TRUE"
+    dev="OpenWrt router"
+  fi
 else
   if [ "$(ps aux | grep hostapd | grep -v 'grep')" ];then
-  dev="Raspberry pi"
+    dev="Raspberry pi"
   fi
 fi
 
