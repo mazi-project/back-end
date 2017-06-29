@@ -5,9 +5,9 @@ usage(){
         echo "Usage: sh mazi-router.sh [options] " 
         echo ""
         echo "[options]"
-        echo "-a,--available      Displays the status of router OpenWrt"
-        echo "-c,--connect        Starts the process to configure the OpenWrt router "
-        echo "-d,--disconnect     Restores the initial settings" 1>&2; exit 1;}
+        echo "-s,--status         Displays the status of router OpenWrt"
+        echo "-a,--activate       Starts the process to configure the OpenWrt router "
+        echo "-d,--deactivate     Restores the initial settings" 1>&2; exit 1;}
 
 
 hostapd="/etc/hostapd/hostapd.conf"
@@ -17,15 +17,15 @@ PSWD="mazi"
 key="$1"
 sudo touch /etc/mazi/router.conf
 case $key in
-    -c |--connect)
+    -a |--activate)
     ACT="TRUE"
     shift # past argument=value
     ;;
-    -d|--disconnect)
+    -d|--deactivate)
     DACT="TRUE"
     shift # past argument=value
     ;;
-    -a|--available)
+    -s|--status)
     SCAN="TRUE"
     ;;
     *)
@@ -36,12 +36,13 @@ esac
 
 
 if [ "$SCAN" ];then
-  router=$(sudo arp-scan --interface=eth0 10.0.2.0/24 | grep 'responded' | awk '{print $12}')
-  if [ "$router" != "0" ];then
+  router=$(sudo arp-scan --interface=eth0 10.0.2.0/24 | grep -w "10.0.2.2" | awk '{print $1}')
+  if [ "$router" = "10.0.2.2" ];then
      echo "router available"
   else
      echo "router unavailable"
   fi
+  exit 0
 fi
 
 
