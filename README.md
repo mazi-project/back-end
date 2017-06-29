@@ -173,9 +173,10 @@ Usage:
 ```
 sudo sh mazi-router.sh [options]
 ```                                                                                                                    
-[Options]                                                                                                                 
--a,--activate       Starts the process to configure the OpenWrt router                                                     
--d,--deactivate     Restores the initial settings
+[Options] 
+-a,--available      Displays the status of router OpenWrt
+-c,--connect        Starts the process to configure the OpenWrt router                                                     
+-d,--disconnect     Restores the initial settings
 ## License
 
 See the [LICENSE] (https://github.com/mazi-project/back-end/blob/master/LICENSE) file for license rights and limitations (MIT).
