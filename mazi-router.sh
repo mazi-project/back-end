@@ -36,7 +36,7 @@ esac
 
 
 if [ "$SCAN" ];then
-  router=$(sudo arp-scan --interface=eth0 10.0.2.0/24 | grep -w "10.0.2.2" | awk '{print $1}')
+  router=$(sudo arp-scan --interface=eth0 10.0.2.0/24 --arpspa 10.0.2.1 | grep -w "10.0.2.2" | awk '{print $1}')
   if [ "$router" = "10.0.2.2" ];then
      echo "router available"
   else

@@ -36,11 +36,11 @@ case $key in
     sudo touch $log/users.log
     sudo chmod 777 $log/users.log 
     if [ "$ROUTER" ];then
-      sudo arp-scan --interface=eth0 10.0.2.0/24 --retry=3 -g  > $log/users.log
+      sudo arp-scan --interface=eth0 10.0.2.0/24 --arpspa 10.0.2.1 --retry=3 -g  > $log/users.log
       users=$(cat $log/users.log | grep 'responded' | awk '{print $12}') 
       echo "wifi users $(($users - 1))"
     else
-      sudo arp-scan --interface=wlan0 10.0.0.0/24 --retry=3 -g  > $log/users.log
+      sudo arp-scan --interface=wlan0 10.0.0.0/24 --arpspa 10.0.0.1 --retry=3 -g  > $log/users.log
       users=$(cat $log/users.log | grep 'responded' | awk '{print $12}')
       echo "wifi users" $users    
     fi

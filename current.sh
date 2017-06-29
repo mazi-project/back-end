@@ -65,10 +65,9 @@ if [ -f /etc/mazi/router.conf ];then
     ROUTER="TRUE"
     dev="OpenWrt router"
   fi
-else
-  if [ "$(ps aux | grep hostapd | grep -v 'grep')" ];then
-    dev="Raspberry pi"
-  fi
+fi
+if [ "$(ps aux | grep hostapd | grep -v 'grep')" ];then
+  dev="Raspberry pi"
 fi
 
 ## print interface
