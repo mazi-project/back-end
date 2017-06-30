@@ -65,7 +65,6 @@ esac
 shift     #past argument or value
 done
 
-intface=$(iwconfig wlan1 | grep "wlan1" | awk '{print $1}')
 
 if [ $disc ]; then
         WPAid=$(sudo ps aux | grep wpa_supplicant | awk '{print $2}')
@@ -85,9 +84,8 @@ fi
 
 
 
-if [ "$active" = "TRUE" ];then
-      if [ "$intface" ];then
-         
+if [ $active ];then
+      if [ $intface ];then
          echo "active $(iwconfig wlan1 | grep wlan1 |awk '{print $4}')"
       else
          echo "inactive"
@@ -96,7 +94,7 @@ if [ "$active" = "TRUE" ];then
 fi
 
 if [ "$ssid" ];then
-	
+
 	sudo sed -i '/network={/d' $path
 	sudo sed -i '/ssid=/d' $path
 	sudo sed -i '/psk=/d' $path

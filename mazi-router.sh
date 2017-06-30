@@ -73,27 +73,23 @@ fi
 if [ "$DACT" ];then
 
   #Enable WiFi on raspberry pi
-   id=$(ps aux | grep hostapd.conf| grep root| awk '{print $2}') 
+   id=$(ps aux | grep hostapd.conf| grep -v 'grep'| awk '{print $2}') 
 
-   if [ "$id" ];then 
-     sudo kill $id
+   if [ "$id" = "" ];then 
+     sudo ifconfig wlan0 down
+     sudo hostapd -B $hostapd
    fi
-   sleep 1
-   sudo ifconfig wlan0 down
-   sudo hostapd -B $hostapd
-
 
   #Disable WiFi on OpenWrt router
    sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=1; uci commit wireless; wifi'
- 
+
   #Restore DHCP settings
    sudo sed -i '/OpenWrt/d' $path 
    sudo sed -i '/interface=eth0/d' $path
    sudo sed -i '/dhcp-range=10.0.2.10,10.0.2.200,255.255.255.0,12h/d' $path
    sudo service dnsmasq restart
-   
+
    sudo ip addr flush dev eth0
+   sudo dhclient eth0
    sudo echo 'inactive' | sudo tee /etc/mazi/router.conf
 fi
-
-
