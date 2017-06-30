@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 usage(){
         echo "mazi-router.sh configures OpenWrt router as external antenna of raspberry pi which broadcasts the local WiFi network mazizone "
         echo "Usage: sh mazi-router.sh [options] " 
@@ -60,7 +60,7 @@ if [ "$ACT" ];then
    #Enable WiFi on OpenWrt router
    sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=0; uci commit wireless; wifi'
    #Disable WiFi on raspberry pi
-   id=$(ps aux | grep hostapd.conf| grep root| awk '{print $2}') 
+   id=$(ps aux | grep hostapd.conf| grep -v 'grep' | awk '{print $2}') 
 
    if [ "$id" ];then 
       sudo kill $id
@@ -90,6 +90,6 @@ if [ "$DACT" ];then
    sudo service dnsmasq restart
 
    sudo ip addr flush dev eth0
-   sudo dhclient eth0
    sudo echo 'inactive' | sudo tee /etc/mazi/router.conf
 fi
+set +x
