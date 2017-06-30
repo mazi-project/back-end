@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 usage(){
         echo "mazi-router.sh configures OpenWrt router as external antenna of raspberry pi which broadcasts the local WiFi network mazizone "
         echo "Usage: sh mazi-router.sh [options] " 
@@ -89,7 +89,10 @@ if [ "$DACT" ];then
    sudo sed -i '/dhcp-range=10.0.2.10,10.0.2.200,255.255.255.0,12h/d' $path
    sudo service dnsmasq restart
 
-   sudo ip addr flush dev eth0
    sudo echo 'inactive' | sudo tee /etc/mazi/router.conf
+
+   sudo ip addr flush dev eth0
+   sudo timeout 2 dhclient eth0
+
 fi
-set +x
+#set +x
