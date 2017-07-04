@@ -141,7 +141,7 @@ if [ "$ROUTER" ];then
   sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=1; uci commit wireless; wifi'
   sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=0; uci commit wireless; wifi' 
 else 
-  id=$(ps aux | grep hostapd.conf| grep root| awk '{print $2}') 
+  id=$(ps aux | grep hostapd.conf| grep -v 'grep' | awk '{print $2}') 
 
   if [ "$id" ];then 
      sudo kill $id
@@ -149,6 +149,8 @@ else
   sleep 1
   sudo ifconfig $(grep 'interface' /etc/hostapd/hostapd.conf| sed 's/\interface=//g') down
   sudo hostapd -B $hostapd
+  sudo ifconfig $(grep 'interface' /etc/hostapd/hostapd.conf| sed 's/\interface=//g') 10.0.0.1/24
 fi
 #set +x
+
 
