@@ -86,7 +86,7 @@ if [ "$DACT" ];then
      sudo ifconfig wlan0 down
      sudo hostapd -B $hostapd
    fi
-
+   sudo ifconfig wlan0 10.0.0.1/24
   #Disable WiFi on OpenWrt router
    sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=1; uci commit wireless; wifi'
 
