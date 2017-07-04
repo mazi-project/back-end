@@ -52,7 +52,7 @@ if [ "$ACT" ];then
    sudo ifconfig eth0 10.0.2.1/24 
    sudo sed -i '/iface eth0 inet manual/d' $interface
    
-   sudo sed -i '/auto eth0/ a \iface eth0 inet static\n  address 10.0.2.1\n  netmask 255.255.255.0\n  gateway 10.0.2.1' $interface
+   sudo sed -i '/auto eth0/ a \iface eth0 inet static\n  address 10.0.2.1\/24' $interface
 
    #Setup Dnsmasq
    sudo sed -i '/OpenWrt/d' $path
@@ -99,7 +99,7 @@ if [ "$DACT" ];then
    sudo echo 'inactive' | sudo tee /etc/mazi/router.conf
 
    sudo ip addr flush dev eth0
-   sudo sed -i '/iface eth0/,/gateway 10.0.2.1/d' $interface
+   sudo sed -i '/iface eth0/,/address 10.0.2.1\/24/d' $interface
    sudo sed -i '/auto eth0/ a \iface eth0 inet manual' $interface
 
 fi
