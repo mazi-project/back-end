@@ -18,10 +18,10 @@ sudo pip install speedtest-cli
 
 
 #execute bash script from any location
-sudo export PATH=$PATH:/root/back-end/
-sudo echo 'export PATH="/root/back-end:$PATH"' >> ~/.bashrc
-. ~/.bashrc
-sudo chmod o+x /root/back-end/*
+#sudo export PATH=$PATH:/root/back-end/
+#sudo echo 'export PATH="/root/back-end:$PATH"' >> ~/.bashrc
+#. ~/.bashrc
+#sudo chmod o+x /root/back-end/*
 
 #drivers of available antennas 
 
