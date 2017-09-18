@@ -23,7 +23,7 @@ data_fun() {
    datasize=$(echo $datasize | awk '{print $NF}')
      
    TIME=$(date  "+%H%M%S%d%m%y")
-   data='{"deployment":'$(jq ".deployment" $features)',
+   data='{"deployment":'$(jq ".deployment" $conf)',
           "device_id":'$id',
           "date":'$TIME',
           "polls":'$polls',
@@ -33,7 +33,7 @@ data_fun() {
    echo $data
 }
 ##### Initialization ######
-features="/etc/mazi/features.json"
+conf="/etc/mazi/mazi.conf"
 interval="10"
 
 key="$1"
@@ -49,9 +49,9 @@ case $key in
 esac
 
 if [ $store ];then
-  id=$(curl -s -X GET -d @$features http://10.0.0.1:4567/device/id)
-  [ ! $id ] && id=$(curl -s -X POST -d @$features http://10.0.0.1:4567/deployment/register)
-  curl -s -X POST --data '{"deployment":'$(jq ".deployment" $features)'}' http://10.0.0.1:4567/create/framadate
+  id=$(curl -s -X GET -d @$conf http://10.0.0.1:4567/device/id)
+  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://10.0.0.1:4567/deployment/register)
+  curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://10.0.0.1:4567/create/framadate
 
   if [ $store = "enable" ];then
      while [ true ]; do

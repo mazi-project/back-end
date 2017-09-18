@@ -2,6 +2,9 @@
 
 usage() { echo "Usage: sh $0 [-m <offline/dual/restricted>]" 1>&2; exit 1; }
 
+
+conf="/etc/mazi/mazi.conf"
+
 while getopts m: option
 do
         case "${option}"
@@ -39,7 +42,7 @@ do
 				sudo iptables-save | sudo tee /etc/iptables/rules.v4
 
 				echo You are now in offline mode
-                                echo 'offline' | sudo tee /etc/mazi/mazi.conf
+                                echo $(cat $conf | jq '.+ {"mode": "offline"}') | sudo tee $conf
 
 			elif [ "$MODE" = "dual" ]; then
 				#echo $MODE
@@ -67,11 +70,11 @@ do
                                 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 
                                 echo You are now in dual mode
-                                echo 'dual' | sudo tee /etc/mazi/mazi.conf
+                                echo $(cat $conf | jq '.+ {"mode": "dual"}') | sudo tee $conf
 
 			elif [ "$MODE" = "restricted" ]; then
 				echo $MODE
-                                echo 'restricted' | sudo tee /etc/mazi/mazi.conf
+                                echo $(cat $conf | jq '.+ {"mode": "restricted"}') | sudo tee $conf
 			else
 				echo "Please choose between offline, dual or restricted mode"
 			fi

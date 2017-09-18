@@ -39,4 +39,3 @@ try:
   sht11()
 except:
   pass
-

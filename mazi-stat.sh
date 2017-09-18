@@ -69,7 +69,7 @@ data_fun(){
  echo ""
 
  TIME=$(date  "+%H%M%S%d%m%y") 
- data='{"deployment":'$(jq ".deployment" $features)',
+ data='{"deployment":'$(jq ".deployment" $conf)',
         "device_id":'$id',
         "date":'$TIME',
         "users":'$users',
@@ -85,7 +85,6 @@ data_fun(){
 ###### Initialization ######
 path="/root/back-end"
 log="/etc/mazi"
-features="/etc/mazi/features.json"
 interval="10"
 users="null"
 temp="null"
@@ -96,7 +95,7 @@ upload="null"
 upload_unit="null"
 download="null"
 download_unit="null"
-
+conf="/etc/mazi/mazi.conf"
 if [ "$(sh $path/current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
@@ -142,9 +141,9 @@ done
 
 if [ $store ];then 
   if [ $store = "enable" ];then
-    id=$(curl -s -X GET -d @$features http://10.0.0.1:4567/device/id)
-    [ ! $id ] && id=$(curl -s -X POST -d @$features http://10.0.0.1:4567/deployment/register) 
-    curl -s -X POST --data '{"deployment":'$(jq ".deployment" $features)'}' http://10.0.0.1:4567/create/statistics
+    id=$(curl -s -X GET -d @$conf http://10.0.0.1:4567/device/id)
+    [ ! $id ] && id=$(curl -s -X POST -d @$conf http://10.0.0.1:4567/deployment/register) 
+    curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://10.0.0.1:4567/create/statistics
     
     while [ true ]; do
       target_time=$(( $(date +%s)  + $interval ))
