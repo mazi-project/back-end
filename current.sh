@@ -25,6 +25,7 @@ usage() { echo "Usage: sudo sh current.sh  [options]"
 
 WRT="10.0.2.2"
 PSWD="mazi"
+conf="/etc/mazi/mazi.conf"
 while [ $# -gt 0 ]
 do
 key="$1"
@@ -126,8 +127,8 @@ fi
 
 ## print mode
 if [ "$MODE" = "YES" ]; then
-   if [ -f /etc/mazi/mazi.conf ]; then
-     echo "mode $(cat /etc/mazi/mazi.conf) "
+   if [ -f $conf ]; then
+     echo "mode $(jq ".mode" $conf) "
    else
      echo "mode -"
    fi 
