@@ -8,9 +8,9 @@ usage() {
 }
 
 data_fun() {
-   users=$(mysql -uroot -pm@z1 etherpad -e 'select store.value from store' |grep -Eo '"name":.*' |sed -e 's/"name"://' |sed -e 's/,"timestamp":.*//'|sort |uniq -c  |sort -rn |awk '(count+=$1) { print count}' |tail -1)
+   users=$(mysql -uroot -pm@z1 etherpad -e 'select store.value from store' |grep -o '"padIDs":{".*":.*}}' | wc -l)
 
-   pads=$(mysql -uroot -pm@z1 etherpad -e 'select store.key from store' |grep -Eo '^pad:[^:]+' |sed -e 's/pad://' |sort |uniq -c |sort -rn |awk '(count+=1) {if ($1!="2") { print count}}' |tail -1)
+   pads="$(mysql -uroot -pm@z1 etherpad -e 'select store.key from store' |grep -Eo '^pad:[^:]+' |sed -e 's/pad://' |sort |uniq -c |sort -rn |awk '(count+=1) {if ($1!="2") { print count}}' |tail -1)"
 
    datasize=$(echo "SELECT ROUND(SUM(data_length + index_length), 2)  as Size_in_B FROM information_schema.TABLES 
           WHERE table_schema = 'etherpad';" | mysql -uroot -pm@z1)
@@ -20,8 +20,8 @@ data_fun() {
    data='{"deployment":'$(jq ".deployment" $conf)',
           "device_id":'$id',
           "date":'$TIME',
-          "pads":'$pads',
-          "users":'$users',
+          "pads":"'$pads'",
+          "users":"'$users'",
           "datasize":'$datasize'}'
   echo $data
 }
