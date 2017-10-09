@@ -21,8 +21,8 @@ data_fun() {
 
    TIME=$(date  "+%H%M%S%d%m%y")
    data='{"deployment":'$(jq ".deployment" $conf)',
-          "device_id":"'$id'",
-          "date":"'$TIME'",
+          "device_id":'$id',
+          "date":'$TIME',
           "polls":"'$polls'",
           "comments":"'$comments'",
           "votes":"'$votes'"}'
