@@ -4,7 +4,8 @@ usage() {
    echo "Usage: sudo sh mazi-stat.sh  [options]" 
    echo " " 
    echo "[options]"
-   echo "--store           [enable] or [disable ]" 1>&2; exit 1;
+   echo "--store           [enable] or [disable ]"
+   echo "-d,--domain       Set a remote server domain.( Default is localhost )" 1>&2; exit 1;
 }
 
 data_fun() {
@@ -33,11 +34,16 @@ data_fun() {
 ##### Initialization ######
 conf="/etc/mazi/mazi.conf"
 interval="10"
+domain="localhost"
 
 key="$1"
 case $key in
       --store)
       store="$2"
+      shift
+      ;;
+      -d|--domain)
+      domain="$2"
       shift
       ;;
       *)
@@ -47,15 +53,15 @@ case $key in
 esac
 
 if [ $store ];then
-  id=$(curl -s -X GET -d @$conf http://10.0.0.1:4567/device/id)
-  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://10.0.0.1:4567/deployment/register)
-  curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://10.0.0.1:4567/create/guestbook 
+  id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
+  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register)
+  curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/guestbook 
 
   if [ $store = "enable" ];then
      while [ true ]; do
        target_time=$(( $(date +%s)  + $interval ))
        data_fun
-       curl -s -X POST --data "$data" http://10.0.0.1:4567/update/guestbook
+       curl -s -X POST --data "$data" http://$domain:4567/update/guestbook
        current_time=$(date +%s)
        sleep_time=$(( $target_time - $current_time ))
        [ $sleep_time -gt 0 ] && sleep $sleep_time
