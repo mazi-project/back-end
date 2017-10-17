@@ -15,7 +15,7 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "  -d , --duration                    Duration in seconds to take a measurement"
           echo "  -i , --interval                    Seconds between periodic measurement"
           echo "  -a , --available                   Displays the status of the available sensors"
-          echo "  --init                             Sensor initialization"
+          echo "  -D , --domain                      Set a remote server domain.( Default is localhost )"
           echo ""
 	  echo "[SensorOptions]"
 	  echo "  {sht11}"
@@ -63,9 +63,9 @@ do
         -a|--available)
         SCAN="$1"
 	;;
-	--init)
-	INITPSW="$2"
-	shift
+        -D|--domain)
+        domain="$2"
+        shift
         ;;
         *)
         # unknown option
@@ -79,7 +79,6 @@ done
 if [ $SCAN ];then
    if [ -f "/proc/device-tree/hat/product" ]; then
       SERVICE="$(ps -ef | grep sensehat | grep -v 'grep')"
-      
       if [ "$SERVICE" != "" ]; then
          echo "sensehat active $IP"
       else
@@ -90,8 +89,15 @@ if [ $SCAN ];then
 fi
 
 #### Check the sensor name ####
-if [ ! $NAME ];then
-    echo "Please complete the SenseName"
+if [ $NAME ];then
+   if [ $NAME != "sensehat" -a $NAME != "sht11" ];then
+     echo "Invalid sensor name"
+     echo ""
+     usage 
+     exit 0;
+   fi
+else
+    echo "Please complete the sensor name"
     echo ""
     usage 
     exit 0;
@@ -101,7 +107,7 @@ fi
 if [ $STORE ]; then
    #### Take the ID of sensor ####
    ID=$(curl -s -X GET --data '{"deployment":'$(jq ".deployment" $conf)',"sensor_name":"'$NAME'","ip":"'$IP'"}' http://$domain:4567/sensors/id) 
-   
+
    if [ ! $ID ];then
       device_id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
       [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register)
@@ -113,7 +119,7 @@ fi
 endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
 case $NAME in
    sensehat)
-   
+
    while [ true ]; do
      echo "$NAME"
      temp="$(python $path_sense/$NAME.py $TEMP)"
@@ -147,8 +153,8 @@ case $NAME in
    done
    ;;
    *)
- 
-  echo "Wrong name of sensor"
+
+   echo "Wrong name of sensor"
    echo ""
    usage
    ;;
