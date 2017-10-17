@@ -13,7 +13,7 @@ usage() { echo "This script changes the domain of mazi toolkit"
           echo ""
           echo "Usage: mazi-domain.sh [options]"
           echo "[options]"
-          echo "-d,--domain  <new domain>             Set a new Domail of portal page"
+          echo "-d,--domain  <new domain>             Set a new Domain of portal page"
           echo "-s,--splash  <application>/<portal>   Set a application or portal as a basic page"  1>&2; exit 1; }
 
 while [ $# -gt 0 ]
