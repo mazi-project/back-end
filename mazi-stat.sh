@@ -8,7 +8,7 @@
 # -u,--users     Display online users 
 #
 
-#set -x
+set -x
 
 #### Functions ####
 usage() { echo "Usage: sudo sh mazi-stat.sh  [options]" 
@@ -20,7 +20,8 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
           echo "-r,--ram          Displays the RAM usage"
           echo "-s,--storage      Displays the percentage of used storage"
           echo "-n,--network      Displays the Download/Upload speed" 
-          echo "--store           [enable] or [disable ]" 1>&2; exit 1; 
+          echo "--store           [enable] or [disable ]"
+          echo "-d,--domain       Set a remote server domain.( Default is localhost )" 1>&2; exit 1; 
 }
 
 users_fun() {
@@ -72,12 +73,12 @@ data_fun(){
  data='{"deployment":'$(jq ".deployment" $conf)',
         "device_id":'$id',
         "date":'$TIME',
-        "users":'$users',
-        "temp":'$temp',
-        "cpu":'$cpu',
-        "ram":'$ram',
-        "storage":'$storage',
-        "network":{"upload":'$upload',"upload_unit":"'$upload_unit'","download":'$download',"download_unit":"'$download_unit'"} }'
+        "users":"'$users'",
+        "temp":"'$temp'",
+        "cpu":"'$cpu'",
+        "ram":"'$ram'",
+        "storage":"'$storage'",
+        "network":{"upload":"'$upload'","upload_unit":"'$upload_unit'","download":"'$download'","download_unit":"'$download_unit'"} }'
 
 
 }
@@ -86,16 +87,9 @@ data_fun(){
 path="/root/back-end"
 log="/etc/mazi"
 interval="10"
-users="null"
-temp="null"
-cpu="null"
-ram="null"
-storage="null"
-upload="null"
-upload_unit="null"
-download="null"
-download_unit="null"
 conf="/etc/mazi/mazi.conf"
+domain="localhost"
+
 if [ "$(sh $path/current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
@@ -130,6 +124,10 @@ do
       store="$2"
       shift
       ;;
+      -d|--domain)      
+      domain="$2"
+      shift
+      ;;
       *)
       # unknown option
       usage   
@@ -141,18 +139,20 @@ done
 
 if [ $store ];then 
   if [ $store = "enable" ];then
-    id=$(curl -s -X GET -d @$conf http://10.0.0.1:4567/device/id)
-    [ ! $id ] && id=$(curl -s -X POST -d @$conf http://10.0.0.1:4567/deployment/register) 
-    curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://10.0.0.1:4567/create/statistics
-    
+    id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
+    [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register) 
+    curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/statistics
+    data_fun
+    curl -s -X POST --data "$data" http://$domain:4567/update/statistics
+
     while [ true ]; do
       target_time=$(( $(date +%s)  + $interval ))
       data_fun
-      curl -s -X POST --data "$data" http://10.0.0.1:4567/update/statistics
       current_time=$(date +%s)
-      [ $(( $target_time - $current_time )) -gt 0 ] && sleep $(( $target_time - $current_time )) 
+      [ $(($target_time - $current_time)) -gt 0 ] && sleep $(($target_time - $current_time)) 
+      curl -s -X POST --data "$data" http://$domain:4567/update/statistics   
     done
-  
+
   elif [ $store = "disable" ];then
     Pid=$(ps aux | grep -F "store enable" | grep -v 'grep' | awk '{print $2}' )
     [ $Pid ] && kill $Pid && echo " disable"
@@ -165,3 +165,4 @@ else
 fi
 
 
+set +x 
