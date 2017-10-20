@@ -101,8 +101,8 @@ conf="/etc/mazi/mazi.conf"
 interval="10"
 domain="localhost"
  #Database
-username=$(jq -r ".username" /etc/mazi/sql.json)
-password=$(jq -r ".password" /etc/mazi/sql.json)
+username=$(jq -r ".username" /etc/mazi/sql.conf)
+password=$(jq -r ".password" /etc/mazi/sql.conf)
 
 while [ $# -gt 0 ]
 do
