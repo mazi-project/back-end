@@ -74,6 +74,27 @@ data_guestbook() {
   echo $data
 }
 
+store(){
+   NAME=$1
+   while [ true ]; do
+     target_time=$(( $(date +%s)  + $interval ))
+     data_$NAME
+     curl -s -X POST --data "$data" http://$domain:4567/update/$NAME
+     current_time=$(date +%s)
+     sleep_time=$(( $target_time - $current_time ))
+     [ $sleep_time -gt 0 ] && sleep $sleep_time
+   done
+}
+
+disable(){
+   NAME=$1
+   Pid=$(ps aux | grep "store enable"| grep "$NAME" | grep -v 'grep' | awk '{print $2}')
+   for i in $Pid; do
+     kill $i 
+     echo "disable"
+   done
+}
+
 ##### Initialization ######
 conf="/etc/mazi/mazi.conf"
 interval="10"
@@ -88,7 +109,7 @@ do
   key="$1"
   case $key in
       -n|--name)
-      name="$2"
+      apps="$2"
       shift
       ;;
       --store)
@@ -108,30 +129,27 @@ do
 done
 
 
+
+
 if [ $store ];then
   id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
   [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register)
-  curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/$name
+  for i in $apps; do 
+      curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/$i &
+  done
 
   if [ $store = "enable" ];then
-     while [ true ]; do
-       target_time=$(( $(date +%s)  + $interval ))
-       data_$name
-       curl -s -X POST --data "$data" http://$domain:4567/update/$name
-       current_time=$(date +%s)
-       sleep_time=$(( $target_time - $current_time ))
-       [ $sleep_time -gt 0 ] && sleep $sleep_time
-     done
+    for i in $apps; do
+       store $i &  
+    done
   elif [ $store = "disable" ];then
-   Pid=$(ps aux | grep "store enable"| grep "$name" | grep -v 'grep' | awk '{print $2}' )
-   [ $Pid ] && kill $Pid && echo " disable"
+    disable $i 
   else
    echo "WRONG ARGUMENT"
    usage
 
   fi
 fi
-
 
 
 
