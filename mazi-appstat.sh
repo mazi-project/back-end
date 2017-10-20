@@ -7,7 +7,8 @@ usage() {
    echo "-n,--name         Set the name of the application"
    echo ""
    echo "[options]"
-   echo "--store           [enable] or [disable ]" 
+   echo "--store           [enable] or [disable ]"
+   echo "-s,--status       Displays the status of all  applications" 
    echo "-d,--domain       Set a remote server domain.( Default is localhost )" 1>&2; exit 1;
 }
 
@@ -116,6 +117,9 @@ do
       store="$2"
       shift
       ;;
+      -s|--satus)
+      status="TRUE"
+      ;;
       -d|--domain)
       domain="$2"
       shift
@@ -129,7 +133,14 @@ do
 done
 
 
+if [ $status ];then
 
+  [ "$(ps aux | grep "store enable"| grep "guestbook" | grep -v 'grep' | awk '{print $2}')" ] && echo "guestbook active" || echo "guestbook inactive"
+
+  [ "$(ps aux | grep "store enable"| grep "etherpad" | grep -v 'grep' | awk '{print $2}')" ] && echo "etherpad active" || echo "etherpad inactive"
+
+  [ "$(ps aux | grep "store enable"| grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "farmadate active" || echo "framadate inactive" 
+fi
 
 if [ $store ];then
   id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)

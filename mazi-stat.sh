@@ -8,7 +8,7 @@
 # -u,--users     Display online users 
 #
 
-set -x
+#set -x
 
 #### Functions ####
 usage() { echo "Usage: sudo sh mazi-stat.sh  [options]" 
@@ -21,7 +21,8 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
           echo "-s,--storage      Displays the percentage of used storage"
           echo "-n,--network      Displays the Download/Upload speed" 
           echo "--store           [enable] or [disable ]"
-          echo "-d,--domain       Set a remote server domain.( Default is localhost )" 1>&2; exit 1; 
+          echo "-d,--domain       Set a remote server domain.( Default is localhost )"
+          echo "--status          Displays the status of store " 1>&2; exit 1; 
 }
 
 users_fun() {
@@ -110,15 +111,18 @@ do
       -c|--cpu)
       cpu_arg="TRUE"
       ;;
-      -r|-ram)
+      -r|--ram)
       ram_arg="TRUE"
       ;;
-      -s|-storage)
+      -s|--storage)
       storage_arg="TRUE"
       ;;
       -n|--network)
       network_arg="TRUE"
       interval="60"
+      ;;
+      --status)
+      status="TRUE"
       ;;
       --store)
       store="$2"
@@ -136,6 +140,15 @@ do
   shift #past argument or value
 done
 
+
+if [ $status ];then
+  [ "$(ps aux | grep "store enable" | grep "\-t \|\--temp "| grep -v 'grep')" ] && echo "temperature active" || echo "temperature inactive"   
+  [ "$(ps aux | grep "store enable" | grep "\-u \|\--users "| grep -v 'grep')" ] && echo "users active" || echo "users inactive"  
+  [ "$(ps aux | grep "store enable" | grep "\-c \|\--cpu "| grep -v 'grep')" ] && echo "cpu active" || echo "cpu inactive"  
+  [ "$(ps aux | grep "store enable" | grep "\-r \|\--ram "| grep -v 'grep')" ] && echo "ram active" || echo "ram inactive"  
+  [ "$(ps aux | grep "store enable" | grep "\-s \|\--storage "| grep -v 'grep')" ] && echo "storage active" || echo "storage inactive"  
+  [ "$(ps aux | grep "store enable" | grep "\-n \|\--network "| grep -v 'grep')" ] && echo "network active" || echo "network inactive"  
+fi
 
 if [ $store ];then 
   if [ $store = "enable" ];then
@@ -165,4 +178,4 @@ else
 fi
 
 
-set +x 
+#set +x 
