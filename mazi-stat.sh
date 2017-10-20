@@ -151,10 +151,11 @@ if [ $status ];then
 fi
 
 if [ $store ];then 
+  id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
+  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register) 
+  curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/statistics
+ 
   if [ $store = "enable" ];then
-    id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
-    [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register) 
-    curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/statistics
     data_fun
     curl -s -X POST --data "$data" http://$domain:4567/update/statistics
 
@@ -169,6 +170,9 @@ if [ $store ];then
   elif [ $store = "disable" ];then
     Pid=$(ps aux | grep -F "store enable" | grep -v 'grep' | awk '{print $2}' )
     [ $Pid ] && kill $Pid && echo " disable"
+
+  elif [ $store = "flush" ];then
+    curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)', "device_id":'$id'}' http://$domain:4567/flush/statistics   
   else
     echo "WRONG ARGUMENT"
     usage

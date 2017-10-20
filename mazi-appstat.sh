@@ -146,7 +146,7 @@ if [ $store ];then
   id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
   [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register)
   for i in $apps; do 
-      curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/$i &
+      curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/$i
   done
 
   if [ $store = "enable" ];then
@@ -155,6 +155,10 @@ if [ $store ];then
     done
   elif [ $store = "disable" ];then
     disable $i 
+  elif [ $store = "flush" ];then
+    for i in $apps; do
+       curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)', "device_id":'$id'}' http://$domain:4567/flush/$i 
+    done  
   else
    echo "WRONG ARGUMENT"
    usage
