@@ -7,8 +7,8 @@ usage() {
    echo "-n,--name         Set the name of the application"
    echo ""
    echo "[options]"
-   echo "--store           [enable] or [disable ]"
-   echo "-s,--status       Displays the status of all  applications" 
+   echo "--store           [enable] , [disable] or [flush]"
+   echo "--status          Displays the status of store process" 
    echo "-d,--domain       Set a remote server domain.( Default is localhost )" 1>&2; exit 1;
 }
 

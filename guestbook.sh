@@ -34,7 +34,7 @@ delTag() {
    sudo sed -i "/MAZI toolkit Guestbook/a \                tags: []" $path/../config.js  
     
  else
-   
+   echo "specific tag"
  fi
 
 }

@@ -155,7 +155,7 @@ sudo sh mazi-stat.sh [options]
 -s,--storage              Displays the percentage of the available storage
 -n,--network              Displays the Download/Upload speed
 -d,--domain               Set a remote server domain.( Default is localhost )
--s,--status               Displays the status of store process
+--status                  Displays the status of store process
 --store                   [enable] , [disable ] or [flush]
 
 ```
@@ -174,8 +174,8 @@ sudo sh mazi-appstat.sh [Application name] [options]
 
 [options]
 --store                   [enable] , [disable ] or [flush]
+--status                  Displays the status of store process
 -d,--domain               Set a remote server domain.(Default is localhost)
--s,--status               Displays the status of store process
 ```
 
 ## License

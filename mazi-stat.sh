@@ -20,9 +20,9 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
           echo "-r,--ram          Displays the RAM usage"
           echo "-s,--storage      Displays the percentage of used storage"
           echo "-n,--network      Displays the Download/Upload speed" 
-          echo "--store           [enable] or [disable ]"
           echo "-d,--domain       Set a remote server domain.( Default is localhost )"
-          echo "--status          Displays the status of store " 1>&2; exit 1; 
+          echo "--store           [enable] , [disable ] or [flush]"   
+          echo "--status          Displays the status of store process" 1>&2; exit 1; 
 }
 
 users_fun() {
