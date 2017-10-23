@@ -154,6 +154,10 @@ sudo sh mazi-stat.sh [options]
 -r,--ram                  Displays the RAM usage
 -s,--storage              Displays the percentage of the available storage
 -n,--network              Displays the Download/Upload speed
+-d,--domain               Set a remote server domain.( Default is localhost )
+-s,--status               Displays the status of store process
+--store                   [enable] , [disable ] or [flush]
+
 ```
 
 ### mazi-appstat.sh ###
@@ -169,8 +173,9 @@ sudo sh mazi-appstat.sh [Application name] [options]
 -n,--name          Set the name of the application
 
 [options]
---store            [enable] or [disable ]
--d,--domain        Set a remote server domain.(Default is localhost)
+--store                   [enable] , [disable ] or [flush]
+-d,--domain               Set a remote server domain.(Default is localhost)
+-s,--status               Displays the status of store process
 ```
 
 ## License
