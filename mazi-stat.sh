@@ -142,12 +142,12 @@ done
 
 
 if [ $status ];then
-  [ "$(ps aux | grep "store enable" | grep "\-t \|\--temp "| grep -v 'grep')" ] && echo "temperature active" || echo "temperature inactive"   
-  [ "$(ps aux | grep "store enable" | grep "\-u \|\--users "| grep -v 'grep')" ] && echo "users active" || echo "users inactive"  
-  [ "$(ps aux | grep "store enable" | grep "\-c \|\--cpu "| grep -v 'grep')" ] && echo "cpu active" || echo "cpu inactive"  
-  [ "$(ps aux | grep "store enable" | grep "\-r \|\--ram "| grep -v 'grep')" ] && echo "ram active" || echo "ram inactive"  
-  [ "$(ps aux | grep "store enable" | grep "\-s \|\--storage "| grep -v 'grep')" ] && echo "storage active" || echo "storage inactive"  
-  [ "$(ps aux | grep "store enable" | grep "\-n \|\--network "| grep -v 'grep')" ] && echo "network active" || echo "network inactive"  
+  [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-t \|\--temp "| grep -v 'grep')" ] && echo "temperature active" || echo "temperature inactive"   
+  [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-u \|\--users "| grep -v 'grep')" ] && echo "users active" || echo "users inactive"  
+  [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-c \|\--cpu "| grep -v 'grep')" ] && echo "cpu active" || echo "cpu inactive"  
+  [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-r \|\--ram "| grep -v 'grep')" ] && echo "ram active" || echo "ram inactive"  
+  [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-s \|\--storage "| grep -v 'grep')" ] && echo "storage active" || echo "storage inactive"  
+  [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-n \|\--network "| grep -v 'grep')" ] && echo "network active" || echo "network inactive"  
 fi
 
 if [ $store ];then 
