@@ -117,7 +117,7 @@ do
       store="$2"
       shift
       ;;
-      -s|--satus)
+      -s|--status)
       status="TRUE"
       ;;
       -d|--domain)
