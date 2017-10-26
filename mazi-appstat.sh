@@ -88,8 +88,8 @@ store(){
 }
 
 disable(){
-   NAME=$1
-   Pid=$(ps aux | grep "store enable"| grep "$NAME" | grep -v 'grep' | awk '{print $2}')
+
+   Pid=$(ps aux | grep "mazi-appstat" | grep -v 'grep' | awk '{print $2}')
    for i in $Pid; do
      kill $i 
      echo "disable"
@@ -100,7 +100,6 @@ disable(){
 conf="/etc/mazi/mazi.conf"
 interval="10"
 domain="localhost"
-Disapps="etherpad guestbook framadate"
  #Database
 username=$(jq -r ".username" /etc/mazi/sql.conf)
 password=$(jq -r ".password" /etc/mazi/sql.conf)
@@ -136,11 +135,11 @@ done
 
 if [ $status ];then
 
-  [ "$(ps aux | grep "store enable"| grep "guestbook" | grep -v 'grep' | awk '{print $2}')" ] && echo "guestbook active" || echo "guestbook inactive"
+  [ "$(ps aux | grep "mazi-appstat"| grep "guestbook" | grep -v 'grep' | awk '{print $2}')" ] && echo "guestbook active" || echo "guestbook inactive"
 
-  [ "$(ps aux | grep "store enable"| grep "etherpad" | grep -v 'grep' | awk '{print $2}')" ] && echo "etherpad active" || echo "etherpad inactive"
+  [ "$(ps aux | grep "mazi-appstat"| grep "etherpad" | grep -v 'grep' | awk '{print $2}')" ] && echo "etherpad active" || echo "etherpad inactive"
 
-  [ "$(ps aux | grep "store enable"| grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "farmadate active" || echo "framadate inactive" 
+  [ "$(ps aux | grep "mazi-appstat"| grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "farmadate active" || echo "framadate inactive" 
 fi
 
 if [ $store ];then
@@ -156,7 +155,7 @@ if [ $store ];then
        store $i &  
     done
   elif [ $store = "disable" ];then
-    disable $Disapps 
+    disable
   elif [ $store = "flush" ];then
     for i in $apps; do
        curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)', "device_id":'$id'}' http://$domain:4567/flush/$i 
