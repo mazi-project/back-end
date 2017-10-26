@@ -168,7 +168,7 @@ if [ $store ];then
     done
 
   elif [ $store = "disable" ];then
-    Pid=$(ps aux | grep -F "store enable" | grep -v 'grep' | awk '{print $2}' )
+    Pid=$(ps aux | grep -F "store enable" | grep "mazi-stat.sh" |grep -v 'grep' | awk '{print $2}' )
     [ $Pid ] && kill $Pid && echo " disable"
 
   elif [ $store = "flush" ];then
