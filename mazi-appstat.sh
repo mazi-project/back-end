@@ -7,7 +7,8 @@ usage() {
    echo "-n,--name         Set the name of the application"
    echo ""
    echo "[options]"
-   echo "--store           [enable] or [disable ]" 
+   echo "--store           [enable] , [disable] or [flush]"
+   echo "--status          Displays the status of store process" 
    echo "-d,--domain       Set a remote server domain.( Default is localhost )" 1>&2; exit 1;
 }
 
@@ -74,13 +75,34 @@ data_guestbook() {
   echo $data
 }
 
+store(){
+   NAME=$1
+   while [ true ]; do
+     target_time=$(( $(date +%s)  + $interval ))
+     data_$NAME
+     curl -s -X POST --data "$data" http://$domain:4567/update/$NAME
+     current_time=$(date +%s)
+     sleep_time=$(( $target_time - $current_time ))
+     [ $sleep_time -gt 0 ] && sleep $sleep_time
+   done
+}
+
+disable(){
+   NAME=$1
+   Pid=$(ps aux | grep "store enable"| grep "$NAME" | grep -v 'grep' | awk '{print $2}')
+   for i in $Pid; do
+     kill $i 
+     echo "disable"
+   done
+}
+
 ##### Initialization ######
 conf="/etc/mazi/mazi.conf"
 interval="10"
 domain="localhost"
  #Database
-username=$(jq -r ".username" /etc/mazi/sql.json)
-password=$(jq -r ".password" /etc/mazi/sql.json)
+username=$(jq -r ".username" /etc/mazi/sql.conf)
+password=$(jq -r ".password" /etc/mazi/sql.conf)
 
 while [ $# -gt 0 ]
 do
@@ -88,12 +110,15 @@ do
   key="$1"
   case $key in
       -n|--name)
-      name="$2"
+      apps="$2"
       shift
       ;;
       --store)
       store="$2"
       shift
+      ;;
+      -s|--satus)
+      status="TRUE"
       ;;
       -d|--domain)
       domain="$2"
@@ -108,30 +133,38 @@ do
 done
 
 
+if [ $status ];then
+
+  [ "$(ps aux | grep "store enable"| grep "guestbook" | grep -v 'grep' | awk '{print $2}')" ] && echo "guestbook active" || echo "guestbook inactive"
+
+  [ "$(ps aux | grep "store enable"| grep "etherpad" | grep -v 'grep' | awk '{print $2}')" ] && echo "etherpad active" || echo "etherpad inactive"
+
+  [ "$(ps aux | grep "store enable"| grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "farmadate active" || echo "framadate inactive" 
+fi
+
 if [ $store ];then
   id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
   [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register)
-  curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/$name
+  for i in $apps; do 
+      curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/$i
+  done
 
   if [ $store = "enable" ];then
-     while [ true ]; do
-       target_time=$(( $(date +%s)  + $interval ))
-       data_$name
-       curl -s -X POST --data "$data" http://$domain:4567/update/$name
-       current_time=$(date +%s)
-       sleep_time=$(( $target_time - $current_time ))
-       [ $sleep_time -gt 0 ] && sleep $sleep_time
-     done
+    for i in $apps; do
+       store $i &  
+    done
   elif [ $store = "disable" ];then
-   Pid=$(ps aux | grep "store enable"| grep "$name" | grep -v 'grep' | awk '{print $2}' )
-   [ $Pid ] && kill $Pid && echo " disable"
+    disable $i 
+  elif [ $store = "flush" ];then
+    for i in $apps; do
+       curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)', "device_id":'$id'}' http://$domain:4567/flush/$i 
+    done  
   else
    echo "WRONG ARGUMENT"
    usage
 
   fi
 fi
-
 
 
 
