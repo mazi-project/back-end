@@ -100,6 +100,7 @@ disable(){
 conf="/etc/mazi/mazi.conf"
 interval="10"
 domain="localhost"
+Disapps="etherpad guestbook framadate"
  #Database
 username=$(jq -r ".username" /etc/mazi/sql.conf)
 password=$(jq -r ".password" /etc/mazi/sql.conf)
@@ -145,16 +146,17 @@ fi
 if [ $store ];then
   id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
   [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register)
-  for i in $apps; do 
-      curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/$i
-  done
+
 
   if [ $store = "enable" ];then
+    for i in $apps; do 
+       curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/$i
+    done
     for i in $apps; do
        store $i &  
     done
   elif [ $store = "disable" ];then
-    disable $i 
+    disable $Disapps 
   elif [ $store = "flush" ];then
     for i in $apps; do
        curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)', "device_id":'$id'}' http://$domain:4567/flush/$i 
