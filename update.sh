@@ -1,6 +1,5 @@
 #!bin/bash
 
-set -x
 #configuration of rc.local file 
 
 sudo sed -i '/ifdown wlan0/,/ifconfig wlan0 10.0.0.1/d' /etc/rc.local
@@ -29,6 +28,3 @@ sudo install-wifi -u 8188eu
 sudo install-wifi -u 8812au
 sudo install-wifi -u mt7610
 sudo install-wifi -u 8188eu
-
-
-set +x 
