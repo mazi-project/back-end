@@ -152,8 +152,8 @@ fi
 
 if [ $store ];then 
   id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
-  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register) 
-  curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/statistics
+  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register) 
+  curl -s -X POST http://$domain:4567/create/statistics
  
   if [ $store = "enable" ];then
     data_fun

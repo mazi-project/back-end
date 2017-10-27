@@ -147,12 +147,12 @@ fi
 
 if [ $store ];then
   id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
-  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register)
+  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
 
 
   if [ $store = "enable" ];then
     for i in $apps; do 
-       curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/$i
+       curl -s -X POST http://$domain:4567/create/$i
     done
     for i in $apps; do
        store $i &  
