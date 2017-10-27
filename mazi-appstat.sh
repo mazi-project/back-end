@@ -139,11 +139,10 @@ if [ $status ];then
 
   [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "etherpad" | grep -v 'grep' | awk '{print $2}')" ] && echo "etherpad active" || echo "etherpad inactive"
 
-<<<<<<< HEAD
   [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "farmadate active" || echo "framadate inactive" 
-=======
+
   [ "$(ps aux | grep "mazi-appstat"| grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "framadate active" || echo "framadate inactive" 
->>>>>>> 952ee7eff5f7060df3dfbac78ad886a75f66f7fd
+
 fi
 
 if [ $store ];then
