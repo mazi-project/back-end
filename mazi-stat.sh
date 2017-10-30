@@ -70,6 +70,9 @@ data_fun(){
  [ $network_arg ] && network_fun && echo "Download $download $download_unit " && echo "Upload $upload $upload_unit "
  echo ""
 
+}
+
+store_data(){
  TIME=$(date  "+%H%M%S%d%m%y") 
  data='{"deployment":'$(jq ".deployment" $conf)',
         "device_id":'$id',
@@ -87,7 +90,7 @@ data_fun(){
 ###### Initialization ######
 path="/root/back-end"
 log="/etc/mazi"
-interval="10"
+interval="60"
 conf="/etc/mazi/mazi.conf"
 domain="localhost"
 
@@ -154,17 +157,21 @@ if [ $store ];then
   id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
   [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register) 
   curl -s -X POST http://$domain:4567/create/statistics
- 
+  
   if [ $store = "enable" ];then
     data_fun
+    store_data
     curl -s -X POST --data "$data" http://$domain:4567/update/statistics
+    [ $users_arg ] && curl -s -X POST --data "$data" http://$domain:4567/update/users
 
     while [ true ]; do
       target_time=$(( $(date +%s)  + $interval ))
       data_fun
       current_time=$(date +%s)
       [ $(($target_time - $current_time)) -gt 0 ] && sleep $(($target_time - $current_time)) 
-      curl -s -X POST --data "$data" http://$domain:4567/update/statistics   
+      store_data
+      curl -s -X POST --data "$data" http://$domain:4567/update/statistics
+      [ $users_arg ] && curl -s -X POST --data "$data" http://$domain:4567/update/users   
     done
 
   elif [ $store = "disable" ];then
@@ -172,7 +179,8 @@ if [ $store ];then
     [ $Pid ] && kill $Pid && echo " disable"
 
   elif [ $store = "flush" ];then
-    curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)', "device_id":'$id'}' http://$domain:4567/flush/statistics   
+    curl -s -X POST --data '{"device_id":'$id'}' http://$domain:4567/flush/statistics  
+    curl -s -X POST --data '{"device_id":'$id'}' http://$domain:4567/flush/users 
   else
     echo "WRONG ARGUMENT"
     usage

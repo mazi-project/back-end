@@ -98,7 +98,7 @@ disable(){
 
 ##### Initialization ######
 conf="/etc/mazi/mazi.conf"
-interval="10"
+interval="60"
 domain="localhost"
  #Database
 username=$(jq -r ".username" /etc/mazi/sql.conf)
@@ -141,7 +141,6 @@ if [ $status ];then
 
   [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "farmadate active" || echo "framadate inactive" 
 
-  [ "$(ps aux | grep "mazi-appstat"| grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "framadate active" || echo "framadate inactive" 
 
 fi
 
@@ -161,7 +160,7 @@ if [ $store ];then
     disable
   elif [ $store = "flush" ];then
     for i in $apps; do
-       curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)', "device_id":'$id'}' http://$domain:4567/flush/$i 
+       curl -s -X POST --data '{"device_id":'$id'}' http://$domain:4567/flush/$i 
     done  
   else
    echo "WRONG ARGUMENT"
