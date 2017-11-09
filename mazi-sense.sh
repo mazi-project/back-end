@@ -110,7 +110,7 @@ if [ $STORE ]; then
 
    if [ ! $ID ];then
       device_id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
-      [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/deployment/register)
+      [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
       ID=$(curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)',"sensor_name":"'$NAME'","ip":"'$IP'","device_id":"'$device_id'"}' http://$domain:4567/sensor/register)
    fi
    curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/$NAME
