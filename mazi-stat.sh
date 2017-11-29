@@ -61,16 +61,24 @@ network_fun(){
  upload_unit=$(echo $result | awk '{print $6}')
 }
 
+SD_fun(){
+ SDname=$(lsblk | grep "^mm" | awk '{print $1}')
+ SDsize=$(parted /dev/$SDname print | grep "Disk /dev/$SDname" | awk '{print $NF}')
+}
+
+
 data_fun(){
  [ $users_arg ] && users_fun && echo "wifi users: $users"
  [ $temp_arg ] && temp_fun && echo "temp: $temp'C"
  [ $cpu_arg ] && cpu_fun && echo "cpu: $cpu%"
  [ $ram_arg ] && ram_fun && echo "ram: $ram%"
+ [ $sd_arg ] && SD_fun && echo "SD size: $SDsize"
  [ $storage_arg ] && storage_fun && echo "storage: $storage%"
  [ $network_arg ] && network_fun && echo "Download $download $download_unit " && echo "Upload $upload $upload_unit "
  echo ""
 
 }
+
 
 store_data(){
  TIME=$(date  "+%H%M%S%d%m%y") 
@@ -130,6 +138,9 @@ do
       --store)
       store="$2"
       shift
+      ;;
+      --sd)
+      sd_arg="TRUE"
       ;;
       -d|--domain)      
       domain="$2"
