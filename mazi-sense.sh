@@ -106,14 +106,14 @@ fi
 ##### Register the ID of sensor #####
 if [ $STORE ]; then
    #### Take the ID of sensor ####
-   ID=$(curl -s -X GET --data '{"deployment":'$(jq ".deployment" $conf)',"sensor_name":"'$NAME'","ip":"'$IP'"}' http://$domain:4567/sensors/id) 
+   ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\"}" http://$domain:4567/sensors/id)
 
    if [ ! $ID ];then
       device_id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
       [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
-      ID=$(curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)',"sensor_name":"'$NAME'","ip":"'$IP'","device_id":"'$device_id'"}' http://$domain:4567/sensor/register)
+      ID=$(curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensor/register)
    fi
-   curl -s -X POST --data '{"deployment":'$(jq ".deployment" $conf)'}' http://$domain:4567/create/$NAME
+   curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf)}" http://$domain:4567/create/$NAME
 fi
 
 endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
@@ -129,7 +129,7 @@ case $NAME in
      ##### STORE OPTION #####
      if [ $STORE ]; then
         TIME=$(date  "+%H%M%S%d%m%y")
-        curl -X POST --data '{"deployment":'$(jq ".deployment" $conf)',"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":'$TIME'}' http://$domain:4567/update/$NAME
+        curl -H 'Content-Type: application/json'  -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/$NAME
      fi
      sleep $interval
      [ $(date +%s) -ge $endTime ] && exit 0; 
@@ -146,7 +146,7 @@ case $NAME in
      ##### STORE OPTION #####
      if [ $STORE ]; then
         TIME=$(date  "+%H%M%S%d%m%y")
-        curl -X POST --data '{"deployment":'$(jq ".deployment" $conf)',"sensor_id":'$ID',"value":{"temp":'$temp',"hum":'$hum'},"date":'$TIME'}' http://$domain:4567/update/$NAME
+        curl -H 'Content-Type: application/json'  -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/$NAME
      fi
      sleep $interval
      [ $(date +%s) -ge $endTime ] && exit 0; 
@@ -159,3 +159,4 @@ case $NAME in
    usage
    ;;
 esac
+
