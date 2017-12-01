@@ -173,6 +173,7 @@ if [ $store ];then
     data_fun
     store_data
     curl -s -X POST --data "$data" http://$domain:4567/update/statistics
+    [ $users_arg ] && curl -s -X POST --data "$data" http://$domain:4567/update/users
 
     while [ true ]; do
       target_time=$(( $(date +%s)  + $interval ))
@@ -181,6 +182,7 @@ if [ $store ];then
       [ $(($target_time - $current_time)) -gt 0 ] && sleep $(($target_time - $current_time)) 
       store_data
       curl -s -X POST --data "$data" http://$domain:4567/update/statistics
+      [ $users_arg ] && curl -s -X POST --data "$data" http://$domain:4567/update/users 
     done
 
   elif [ $store = "disable" ];then
