@@ -75,7 +75,8 @@ data_fun(){
  [ $temp_arg ] && temp_fun && echo "temp: $temp'C"
  [ $cpu_arg ] && cpu_fun && echo "cpu: $cpu%"
  [ $ram_arg ] && ram_fun && echo "ram: $ram%"
- [ $sd_arg ] && SD_fun && echo "SD size: $SDsize" && echo "expand: $expand"
+ [ $exp ] && raspi-config --expand-rootfs  &&  echo "The file system have been expanded"
+ [ $SDinfo ] && SD_fun && echo "SD size: $SDsize" && echo "expand: $expand"
  [ $storage_arg ] && storage_fun && echo "storage: $storage%"
  [ $network_arg ] && network_fun && echo "Download $download $download_unit " && echo "Upload $upload $upload_unit "
  echo ""
@@ -143,7 +144,10 @@ do
       shift
       ;;
       --sd)
-      sd_arg="TRUE"
+      if [ $# -ge 2 ];then
+         [ $2 = "expand" ] && exp="TRUE" && shift
+      fi
+      [ $exp ] || SDinfo="TRUE"
       ;;
       -d|--domain)      
       domain="$2"
