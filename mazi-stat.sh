@@ -63,8 +63,11 @@ network_fun(){
 
 SD_fun(){
  SDname=$(lsblk | grep "^mm" | awk '{print $1}')
- SDsize=$(parted /dev/$SDname print | grep "Disk /dev/$SDname" | awk '{print $NF}')
-}
+ SDsize=$(parted /dev/$SDname unit $unit print | grep "Disk /dev/$SDname" | awk '{print $NF}')
+ size=$(parted /dev/$SDname unit B print | grep "Disk /dev/$SDname" | awk '{print $NF}'|tr -dc '0-9') 
+ UseSize=$(parted /dev/$SDname unit B print | awk '/Number/{y=1;next}y' | awk '{print $3}' | sort -h | tail -1 |tr -dc '0-9')
+ [ $(expr $size % $UseSize) -le "100" ] && expand="Yes" || expand="No"
+ }
 
 
 data_fun(){
@@ -72,7 +75,7 @@ data_fun(){
  [ $temp_arg ] && temp_fun && echo "temp: $temp'C"
  [ $cpu_arg ] && cpu_fun && echo "cpu: $cpu%"
  [ $ram_arg ] && ram_fun && echo "ram: $ram%"
- [ $sd_arg ] && SD_fun && echo "SD size: $SDsize"
+ [ $sd_arg ] && SD_fun && echo "SD size: $SDsize" && echo "expand: $expand"
  [ $storage_arg ] && storage_fun && echo "storage: $storage%"
  [ $network_arg ] && network_fun && echo "Download $download $download_unit " && echo "Upload $upload $upload_unit "
  echo ""
@@ -101,7 +104,7 @@ log="/etc/mazi"
 interval="60"
 conf="/etc/mazi/mazi.conf"
 domain="localhost"
-
+unit="GB"
 if [ "$(sh $path/current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
@@ -144,6 +147,10 @@ do
       ;;
       -d|--domain)      
       domain="$2"
+      shift
+      ;;
+      --unit)
+      unit="$2"
       shift
       ;;
       *)
@@ -202,3 +209,4 @@ fi
 
 
 #set +x 
+
