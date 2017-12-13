@@ -18,7 +18,9 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
           echo "-u,--users        Displays the total online users"
           echo "-c,--cpu          Displays the CPU usage" 
           echo "-r,--ram          Displays the RAM usage"
-          echo "-s,--storage      Displays the percentage of used storage"
+          echo "-s,--storage      Displays the used storage in MB and (%) "
+          echo "     [unit]       Units are  KB, MB and GB.( Default is MB )"
+          echo "--sd              Displays information of SD card"
           echo "-n,--network      Displays the Download/Upload speed" 
           echo "-d,--domain       Set a remote server domain.( Default is localhost )"
           echo "--store           [enable] , [disable ] or [flush]"   
@@ -51,7 +53,8 @@ ram_fun(){
 }
 
 storage_fun(){
-   storage=$(df -h | grep root | awk '{print $5}'| grep -o '[0-9]*\.*[0-9]*')
+      storage=$(df -$unit | grep root | awk '{print $3}'| grep -o '[0-9]*\.*[0-9]*')
+      storagePer=$(df -h | grep root | awk '{print $5}'| grep -o '[0-9]*\.*[0-9]*')
 }
 network_fun(){
  result="$(speedtest-cli | grep -e Upload: -e Download:)"
@@ -62,8 +65,7 @@ network_fun(){
 }
 
 SD_fun(){
- SDname=$(lsblk | grep "^mm" | awk '{print $1}')
- SDsize=$(parted /dev/$SDname unit $unit print | grep "Disk /dev/$SDname" | awk '{print $NF}')
+ SDsize=$(parted /dev/$SDname unit GB print | grep "Disk /dev/$SDname" | awk '{print $NF}')
  size=$(parted /dev/$SDname unit B print | grep "Disk /dev/$SDname" | awk '{print $NF}'|tr -dc '0-9') 
  UseSize=$(parted /dev/$SDname unit B print | awk '/Number/{y=1;next}y' | awk '{print $3}' | sort -h | tail -1 |tr -dc '0-9')
  [ $(expr $size % $UseSize) -le "100" ] && expand="Yes" || expand="No"
@@ -77,7 +79,7 @@ data_fun(){
  [ $ram_arg ] && ram_fun && echo "ram: $ram%"
  [ $exp ] && raspi-config --expand-rootfs  &&  echo "The file system have been expanded"
  [ $SDinfo ] && SD_fun && echo "SD size: $SDsize" && echo "expand: $expand"
- [ $storage_arg ] && storage_fun && echo "storage: $storage%"
+ [ $storage_arg ] && storage_fun && echo "storage: $storage$unit_form ($storagePer%)"
  [ $network_arg ] && network_fun && echo "Download $download $download_unit " && echo "Upload $upload $upload_unit "
  echo ""
 
@@ -93,7 +95,7 @@ store_data(){
         "temp":"'$temp'",
         "cpu":"'$cpu'",
         "ram":"'$ram'",
-        "storage":"'$storage'",
+        "storage":"'$storagePer'",
         "network":{"upload":"'$upload'","upload_unit":"'$upload_unit'","download":"'$download'","download_unit":"'$download_unit'"} }'
 
 
@@ -105,7 +107,10 @@ log="/etc/mazi"
 interval="60"
 conf="/etc/mazi/mazi.conf"
 domain="localhost"
-unit="GB"
+SDname=$(lsblk | grep "^mm" | awk '{print $1}')
+unit_form="MB"
+unit="m"
+RESPONSE=response.txt
 if [ "$(sh $path/current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
@@ -131,6 +136,17 @@ do
       ;;
       -s|--storage)
       storage_arg="TRUE"
+        case $2 in
+        KB)
+        unit="k" && unit_form="KB" && shift 
+        ;;
+        MB)
+        unit="m" && unit_form="MB" && shift
+        ;;
+        GB)
+        unit="h" && unit_form="GB" && shift
+        ;;
+        esac
       ;;
       -n|--network)
       network_arg="TRUE"
@@ -151,10 +167,6 @@ do
       ;;
       -d|--domain)      
       domain="$2"
-      shift
-      ;;
-      --unit)
-      unit="$2"
       shift
       ;;
       *)
@@ -183,8 +195,8 @@ if [ $store ];then
   if [ $store = "enable" ];then
     data_fun
     store_data
-    curl -s -X POST --data "$data" http://$domain:4567/update/statistics
-    [ $users_arg ] && curl -s -X POST --data "$data" http://$domain:4567/update/users
+    curl -s -X POST --data "$data" http://$domain:4567/update/statistics -o $RESPONSE
+    [ $users_arg ] && curl -s -X POST --data "$data" http://$domain:4567/update/users -o $RESPONSE
 
     while [ true ]; do
       target_time=$(( $(date +%s)  + $interval ))
@@ -192,8 +204,8 @@ if [ $store ];then
       current_time=$(date +%s)
       [ $(($target_time - $current_time)) -gt 0 ] && sleep $(($target_time - $current_time)) 
       store_data
-      curl -s -X POST --data "$data" http://$domain:4567/update/statistics
-      [ $users_arg ] && curl -s -X POST --data "$data" http://$domain:4567/update/users 
+      curl -s -X POST --data "$data" http://$domain:4567/update/statistics -o $RESPONSE
+      [ $users_arg ] && curl -s -X POST --data "$data" http://$domain:4567/update/users -o $RESPONSE 
     done
 
   elif [ $store = "disable" ];then
@@ -213,4 +225,5 @@ fi
 
 
 #set +x 
+
 
