@@ -89,7 +89,7 @@ data_fun(){
 store_data(){
  TIME=$(date  "+%H%M%S%d%m%y") 
  data='{"deployment":'$(jq ".deployment" $conf)',
-        "device_id":'$id',
+        "device_id":"$id",
         "date":'$TIME',
         "users":"'$users'",
         "temp":"'$temp'",
@@ -98,6 +98,17 @@ store_data(){
         "storage":"'$storagePer'",
         "network":{"upload":"'$upload'","upload_unit":"'$upload_unit'","download":"'$download'","download_unit":"'$download_unit'"} }'
 
+
+}
+
+
+status_call() {
+  response=$(tac /etc/mazi/rest.log| grep "$1" | awk -v FS="($1:|http_code:)" '{print $2}')
+  http_code=$(tac /etc/mazi/rest.log| grep "$1" | head -1 | awk '{print $NF}')
+  [ "$http_code" = "200" -a "$response" = " OK " ] && call_st="OK" && error=""
+  [ "$http_code" = "000" ] && call_st="ERROR" && error="Connection refused"
+  [ "$http_code" = "200" -a "$response" != " OK " ] && call_st="ERROR :" && error="$response"
+  [ "$http_code" = "500" ] && call_st="ERROR :" && error="The server encountered an unexpected condition which prevented it from fulfilling the request"
 
 }
 
@@ -110,7 +121,6 @@ domain="localhost"
 SDname=$(lsblk | grep "^mm" | awk '{print $1}')
 unit_form="MB"
 unit="m"
-RESPONSE=response.txt
 if [ "$(sh $path/current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
@@ -127,15 +137,19 @@ do
       ;;
       -t|--temp)
       temp_arg="TRUE"
+      hardware="TRUE"
       ;; 
       -c|--cpu)
       cpu_arg="TRUE"
+      hardware="TRUE"
       ;;
       -r|--ram)
       ram_arg="TRUE"
+      hardware="TRUE"
       ;;
       -s|--storage)
       storage_arg="TRUE"
+      hardware="TRUE"
         case $2 in
         KB)
         unit="k" && unit_form="KB" && shift 
@@ -150,7 +164,7 @@ do
       ;;
       -n|--network)
       network_arg="TRUE"
-      interval="60"
+      hardware="TRUE"
       ;;
       --status)
       status="TRUE"
@@ -179,12 +193,14 @@ done
 
 
 if [ $status ];then
+  status_call hardware
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-t \|\--temp "| grep -v 'grep')" ] && echo "temperature active" || echo "temperature inactive"   
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-u \|\--users "| grep -v 'grep')" ] && echo "users active" || echo "users inactive"  
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-c \|\--cpu "| grep -v 'grep')" ] && echo "cpu active" || echo "cpu inactive"  
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-r \|\--ram "| grep -v 'grep')" ] && echo "ram active" || echo "ram inactive"  
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-s \|\--storage "| grep -v 'grep')" ] && echo "storage active" || echo "storage inactive"  
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-n \|\--network "| grep -v 'grep')" ] && echo "network active" || echo "network inactive"  
+  [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep -v 'grep')" ] && echo "hardware active $call_st $error" || echo "hardware inactive $call_st $error"
 fi
 
 if [ $store ];then 
@@ -193,10 +209,14 @@ if [ $store ];then
   curl -s -X POST http://$domain:4567/create/statistics
   
   if [ $store = "enable" ];then
+    [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "hardware:" /etc/mazi/rest.log)" ] && echo "hardware:" >> /etc/mazi/rest.log
     data_fun
     store_data
-    curl -s -X POST --data "$data" http://$domain:4567/update/statistics -o $RESPONSE
-    [ $users_arg ] && curl -s -X POST --data "$data" http://$domain:4567/update/users -o $RESPONSE
+    [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/statistics)
+    [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/users) 
+    http_code=$(echo $response | tail -c 4)
+    body=$(echo $response| rev | cut -c 4- | rev )
+    sed -i "/hardware/c\hardware: $body http_code: $http_code" /etc/mazi/rest.log
 
     while [ true ]; do
       target_time=$(( $(date +%s)  + $interval ))
@@ -204,8 +224,12 @@ if [ $store ];then
       current_time=$(date +%s)
       [ $(($target_time - $current_time)) -gt 0 ] && sleep $(($target_time - $current_time)) 
       store_data
-      curl -s -X POST --data "$data" http://$domain:4567/update/statistics -o $RESPONSE
-      [ $users_arg ] && curl -s -X POST --data "$data" http://$domain:4567/update/users -o $RESPONSE 
+      [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/statistics)
+      [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/users)
+      http_code=$(echo $response | tail -c 4)
+      body=$(echo $response| rev | cut -c 4- | rev )
+      sed -i "/hardware/c\hardware: $body http_code: $http_code" /etc/mazi/rest.log
+
     done
 
   elif [ $store = "disable" ];then

@@ -3,7 +3,7 @@
 #This script manages all available  sensors 
 #
 # Usage: sudo sh mazi-sense.sh [senseName] [options]
-
+#set  -x
 usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]"
 	  echo ""
 	  echo "[SenseName]"
@@ -16,6 +16,7 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "  -i , --interval                    Seconds between periodic measurement"
           echo "  -a , --available                   Displays the status of the available sensors"
           echo "  -D , --domain                      Set a remote server domain.( Default is localhost )"
+          echo "  --status                           Displays the status of store process"
           echo ""
 	  echo "[SensorOptions]"
 	  echo "  {sht11}"
@@ -25,6 +26,18 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "  {sensehat}"
           echo "  -t , --temperature                 Get the Temperature "
           echo "  -h , --humidity                    Get the Humidity" 1>&2; exit 1; }
+
+
+
+status_call() {
+  response=$(tac /etc/mazi/rest.log| grep "$1" | awk -v FS="($1:|http_code:)" '{print $2}')
+  http_code=$(tac /etc/mazi/rest.log| grep "$1" | head -1 | awk '{print $NF}')
+  [ "$http_code" = "200" -a "$response" = " OK " ] && call_st="OK" && error=""
+  [ "$http_code" = "000" ] && call_st="ERROR" && error="Connection refused"
+  [ "$http_code" = "200" -a "$response" != " OK " ] && call_st="ERROR :" && error="$response"
+  [ "$http_code" = "500" ] && call_st="ERROR :" && error="The server encountered an unexpected condition which prevented it from fulfilling the request"
+
+}
 
 ##### Initialization  ######
 DUR="0"     #initialization of duration 
@@ -67,6 +80,9 @@ do
         domain="$2"
         shift
         ;;
+        --status)
+        status="TRUE"
+        ;;
         *)
         # unknown option
         usage
@@ -87,6 +103,15 @@ if [ $SCAN ];then
    fi
    exit 0;
 fi
+
+if [ $status ];then
+  status_call sensehat
+  [ "$(ps aux | grep "store" | grep "mazi-sense.sh" | grep "\-n sensehat "| grep -v 'grep')" ] && echo "sensehat active $call_st $error" || echo "sensehat inactive"
+  exit 0;
+fi
+
+
+
 
 #### Check the sensor name ####
 if [ $NAME ];then
@@ -119,6 +144,7 @@ fi
 endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
 case $NAME in
    sensehat)
+   [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "sensehat:" /etc/mazi/rest.log)" ] && echo "sensehat:" >> /etc/mazi/rest.log
 
    while [ true ]; do
      echo "$NAME"
@@ -129,7 +155,11 @@ case $NAME in
      ##### STORE OPTION #####
      if [ $STORE ]; then
         TIME=$(date  "+%H%M%S%d%m%y")
-        curl -H 'Content-Type: application/json'  -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/$NAME
+         response=$(curl -s -H 'Content-Type: application/json' -w %{http_code} -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/$NAME)
+         http_code=$(echo $response | tail -c 4)
+         body=$(echo $response| rev | cut -c 4- | rev )
+         sed -i "/sensehat/c\sensehat: $body http_code: $http_code" /etc/mazi/rest.log
+
      fi
      sleep $interval
      [ $(date +%s) -ge $endTime ] && exit 0; 
@@ -146,7 +176,7 @@ case $NAME in
      ##### STORE OPTION #####
      if [ $STORE ]; then
         TIME=$(date  "+%H%M%S%d%m%y")
-        curl -H 'Content-Type: application/json'  -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/$NAME
+        curl -s -H 'Content-Type: application/json'  -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/$NAME
      fi
      sleep $interval
      [ $(date +%s) -ge $endTime ] && exit 0; 
@@ -159,4 +189,6 @@ case $NAME in
    usage
    ;;
 esac
+
+#set +x
 
