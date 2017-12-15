@@ -30,8 +30,10 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
 
 
 status_call() {
-  response=$(tac /etc/mazi/rest.log| grep "$1" | awk -v FS="($1:|http_code:)" '{print $2}')
-  http_code=$(tac /etc/mazi/rest.log| grep "$1" | head -1 | awk '{print $NF}')
+  if [ -f /etc/mazi/rest.log ];then
+    response=$(tac /etc/mazi/rest.log| grep "$1" | awk -v FS="($1:|http_code:)" '{print $2}')
+    http_code=$(tac /etc/mazi/rest.log| grep "$1" | head -1 | awk '{print $NF}')
+  fi
   [ "$http_code" = "200" -a "$response" = " OK " ] && call_st="OK" && error=""
   [ "$http_code" = "000" ] && call_st="ERROR" && error="Connection refused"
   [ "$http_code" = "200" -a "$response" != " OK " ] && call_st="ERROR :" && error="$response"

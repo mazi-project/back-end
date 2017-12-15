@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#set -x
 usage() { 
    echo "Usage: sudo sh mazi-appstat.sh [Application name] [options]" 
    echo " " 
@@ -80,7 +80,10 @@ store(){
    while [ true ]; do
      target_time=$(( $(date +%s)  + $interval ))
      data_$NAME
-     curl -s -X POST --data "$data" http://$domain:4567/update/$NAME
+     response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/$NAME)
+     http_code=$(echo $response | tail -c 4)
+     body=$(echo $response| rev | cut -c 4- | rev )
+     sed -i "/$NAME/c\\$NAME: $body http_code: $http_code" /etc/mazi/rest.log
      current_time=$(date +%s)
      sleep_time=$(( $target_time - $current_time ))
      [ $sleep_time -gt 0 ] && sleep $sleep_time
@@ -95,6 +98,21 @@ disable(){
      echo "disable"
    done
 }
+
+status_call() {
+  error=""
+  call_st=""
+  if [ -f /etc/mazi/rest.log ];then
+    response=$(tac /etc/mazi/rest.log| grep "$1" | awk -v FS="($1:|http_code:)" '{print $2}')
+    http_code=$(tac /etc/mazi/rest.log| grep "$1" | head -1 | awk '{print $NF}')
+  fi
+  [ "$http_code" = "200" -a "$response" = " OK " ] && call_st="OK" && error=""
+  [ "$http_code" = "000" ] && call_st="ERROR" && error="Connection refused"
+  [ "$http_code" = "200" -a "$response" != " OK " ] && call_st="ERROR :" && error="$response"
+  [ "$http_code" = "500" ] && call_st="ERROR :" && error="The server encountered an unexpected condition which prevented it from fulfilling the request"
+
+}
+
 
 ##### Initialization ######
 conf="/etc/mazi/mazi.conf"
@@ -134,12 +152,12 @@ done
 
 
 if [ $status ];then
-
-  [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "guestbook" | grep -v 'grep' | awk '{print $2}')" ] && echo "guestbook active" || echo "guestbook inactive"
-
-  [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "etherpad" | grep -v 'grep' | awk '{print $2}')" ] && echo "etherpad active" || echo "etherpad inactive"
-
-  [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "farmadate active" || echo "framadate inactive" 
+  status_call guestbook
+  [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "guestbook" | grep -v 'grep' | awk '{print $2}')" ] && echo "guestbook active $call_st $error" || echo "guestbook inactive $call_st $error"
+  status_call etherpad 
+  [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "etherpad" | grep -v 'grep' | awk '{print $2}')" ] && echo "etherpad active $call_st $error" || echo "etherpad inactive $call_st $error"
+  status_call framadate
+  [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "farmadate active $call_st $error" || echo "framadate inactive $call_st $error" 
 
 
 fi
@@ -150,7 +168,9 @@ if [ $store ];then
 
 
   if [ $store = "enable" ];then
+   
     for i in $apps; do 
+       [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "$i:" /etc/mazi/rest.log)" ] && echo "$i:" >> /etc/mazi/rest.log
        curl -s -X POST http://$domain:4567/create/$i
     done
     for i in $apps; do
@@ -172,5 +192,4 @@ fi
 
 
 
-
-
+#set +x

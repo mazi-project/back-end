@@ -81,7 +81,6 @@ data_fun(){
  [ $SDinfo ] && SD_fun && echo "SD size: $SDsize" && echo "expand: $expand"
  [ $storage_arg ] && storage_fun && echo "storage: $storage$unit_form ($storagePer%)"
  [ $network_arg ] && network_fun && echo "Download $download $download_unit " && echo "Upload $upload $upload_unit "
- echo ""
 
 }
 
@@ -103,8 +102,10 @@ store_data(){
 
 
 status_call() {
-  response=$(tac /etc/mazi/rest.log| grep "$1" | awk -v FS="($1:|http_code:)" '{print $2}')
-  http_code=$(tac /etc/mazi/rest.log| grep "$1" | head -1 | awk '{print $NF}')
+  if [ -f /etc/mazi/rest.log ];then
+    response=$(tac /etc/mazi/rest.log| grep "$1" | awk -v FS="($1:|http_code:)" '{print $2}')
+    http_code=$(tac /etc/mazi/rest.log| grep "$1" | head -1 | awk '{print $NF}')
+  fi
   [ "$http_code" = "200" -a "$response" = " OK " ] && call_st="OK" && error=""
   [ "$http_code" = "000" ] && call_st="ERROR" && error="Connection refused"
   [ "$http_code" = "200" -a "$response" != " OK " ] && call_st="ERROR :" && error="$response"
