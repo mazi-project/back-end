@@ -18,7 +18,9 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
           echo "-u,--users        Displays the total online users"
           echo "-c,--cpu          Displays the CPU usage" 
           echo "-r,--ram          Displays the RAM usage"
-          echo "-s,--storage      Displays the percentage of used storage"
+          echo "-s,--storage      Displays the used storage in MB and (%) "
+          echo "     [unit]       Units are  KB, MB and GB.( Default is MB )"
+          echo "--sd              Displays information of SD card"
           echo "-n,--network      Displays the Download/Upload speed" 
           echo "-d,--domain       Set a remote server domain.( Default is localhost )"
           echo "--store           [enable] , [disable ] or [flush]"   
@@ -51,7 +53,8 @@ ram_fun(){
 }
 
 storage_fun(){
-   storage=$(df -h | grep root | awk '{print $5}'| grep -o '[0-9]*\.*[0-9]*')
+      storage=$(df -$unit | grep root | awk '{print $3}'| grep -o '[0-9]*\.*[0-9]*')
+      storagePer=$(df -h | grep root | awk '{print $5}'| grep -o '[0-9]*\.*[0-9]*')
 }
 network_fun(){
  result="$(speedtest-cli | grep -e Upload: -e Download:)"
@@ -62,9 +65,11 @@ network_fun(){
 }
 
 SD_fun(){
- SDname=$(lsblk | grep "^mm" | awk '{print $1}')
- SDsize=$(parted /dev/$SDname print | grep "Disk /dev/$SDname" | awk '{print $NF}')
-}
+ SDsize=$(parted /dev/$SDname unit GB print | grep "Disk /dev/$SDname" | awk '{print $NF}')
+ size=$(parted /dev/$SDname unit B print | grep "Disk /dev/$SDname" | awk '{print $NF}'|tr -dc '0-9') 
+ UseSize=$(parted /dev/$SDname unit B print | awk '/Number/{y=1;next}y' | awk '{print $3}' | sort -h | tail -1 |tr -dc '0-9')
+ [ $(expr $size % $UseSize) -le "100" ] && expand="Yes" || expand="No"
+ }
 
 
 data_fun(){
@@ -72,10 +77,10 @@ data_fun(){
  [ $temp_arg ] && temp_fun && echo "temp: $temp'C"
  [ $cpu_arg ] && cpu_fun && echo "cpu: $cpu%"
  [ $ram_arg ] && ram_fun && echo "ram: $ram%"
- [ $sd_arg ] && SD_fun && echo "SD size: $SDsize"
- [ $storage_arg ] && storage_fun && echo "storage: $storage%"
+ [ $exp ] && raspi-config --expand-rootfs  &&  echo "The file system have been expanded"
+ [ $SDinfo ] && SD_fun && echo "SD size: $SDsize" && echo "expand: $expand"
+ [ $storage_arg ] && storage_fun && echo "storage: $storage$unit_form ($storagePer%)"
  [ $network_arg ] && network_fun && echo "Download $download $download_unit " && echo "Upload $upload $upload_unit "
- echo ""
 
 }
 
@@ -83,15 +88,28 @@ data_fun(){
 store_data(){
  TIME=$(date  "+%H%M%S%d%m%y") 
  data='{"deployment":'$(jq ".deployment" $conf)',
-        "device_id":'$id',
+        "device_id":"$id",
         "date":'$TIME',
         "users":"'$users'",
         "temp":"'$temp'",
         "cpu":"'$cpu'",
         "ram":"'$ram'",
-        "storage":"'$storage'",
+        "storage":"'$storagePer'",
         "network":{"upload":"'$upload'","upload_unit":"'$upload_unit'","download":"'$download'","download_unit":"'$download_unit'"} }'
 
+
+}
+
+
+status_call() {
+  if [ -f /etc/mazi/rest.log ];then
+    response=$(tac /etc/mazi/rest.log| grep "$1" | awk -v FS="($1:|http_code:)" '{print $2}')
+    http_code=$(tac /etc/mazi/rest.log| grep "$1" | head -1 | awk '{print $NF}')
+  fi
+  [ "$http_code" = "200" -a "$response" = " OK " ] && call_st="OK" && error=""
+  [ "$http_code" = "000" ] && call_st="ERROR" && error="Connection refused"
+  [ "$http_code" = "200" -a "$response" != " OK " ] && call_st="ERROR :" && error="$response"
+  [ "$http_code" = "500" ] && call_st="ERROR :" && error="The server encountered an unexpected condition which prevented it from fulfilling the request"
 
 }
 
@@ -101,7 +119,9 @@ log="/etc/mazi"
 interval="60"
 conf="/etc/mazi/mazi.conf"
 domain="localhost"
-
+SDname=$(lsblk | grep "^mm" | awk '{print $1}')
+unit_form="MB"
+unit="m"
 if [ "$(sh $path/current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
@@ -118,19 +138,34 @@ do
       ;;
       -t|--temp)
       temp_arg="TRUE"
+      hardware="TRUE"
       ;; 
       -c|--cpu)
       cpu_arg="TRUE"
+      hardware="TRUE"
       ;;
       -r|--ram)
       ram_arg="TRUE"
+      hardware="TRUE"
       ;;
       -s|--storage)
       storage_arg="TRUE"
+      hardware="TRUE"
+        case $2 in
+        KB)
+        unit="k" && unit_form="KB" && shift 
+        ;;
+        MB)
+        unit="m" && unit_form="MB" && shift
+        ;;
+        GB)
+        unit="h" && unit_form="GB" && shift
+        ;;
+        esac
       ;;
       -n|--network)
       network_arg="TRUE"
-      interval="60"
+      hardware="TRUE"
       ;;
       --status)
       status="TRUE"
@@ -140,7 +175,10 @@ do
       shift
       ;;
       --sd)
-      sd_arg="TRUE"
+      if [ $# -ge 2 ];then
+         [ $2 = "expand" ] && exp="TRUE" && shift
+      fi
+      [ $exp ] || SDinfo="TRUE"
       ;;
       -d|--domain)      
       domain="$2"
@@ -156,12 +194,14 @@ done
 
 
 if [ $status ];then
+  status_call hardware
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-t \|\--temp "| grep -v 'grep')" ] && echo "temperature active" || echo "temperature inactive"   
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-u \|\--users "| grep -v 'grep')" ] && echo "users active" || echo "users inactive"  
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-c \|\--cpu "| grep -v 'grep')" ] && echo "cpu active" || echo "cpu inactive"  
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-r \|\--ram "| grep -v 'grep')" ] && echo "ram active" || echo "ram inactive"  
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-s \|\--storage "| grep -v 'grep')" ] && echo "storage active" || echo "storage inactive"  
   [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep "\-n \|\--network "| grep -v 'grep')" ] && echo "network active" || echo "network inactive"  
+  [ "$(ps aux | grep "store enable" | grep "mazi-stat.sh" | grep -v 'grep')" ] && echo "hardware active $call_st $error" || echo "hardware inactive $call_st $error"
 fi
 
 if [ $store ];then 
@@ -170,9 +210,14 @@ if [ $store ];then
   curl -s -X POST http://$domain:4567/create/statistics
   
   if [ $store = "enable" ];then
+    [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "hardware:" /etc/mazi/rest.log)" ] && echo "hardware:" >> /etc/mazi/rest.log
     data_fun
     store_data
-    curl -s -X POST --data "$data" http://$domain:4567/update/statistics
+    [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/statistics)
+    [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/users) 
+    http_code=$(echo $response | tail -c 4)
+    body=$(echo $response| rev | cut -c 4- | rev )
+    sed -i "/hardware/c\hardware: $body http_code: $http_code" /etc/mazi/rest.log
 
     while [ true ]; do
       target_time=$(( $(date +%s)  + $interval ))
@@ -180,7 +225,12 @@ if [ $store ];then
       current_time=$(date +%s)
       [ $(($target_time - $current_time)) -gt 0 ] && sleep $(($target_time - $current_time)) 
       store_data
-      curl -s -X POST --data "$data" http://$domain:4567/update/statistics
+      [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/statistics)
+      [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/users)
+      http_code=$(echo $response | tail -c 4)
+      body=$(echo $response| rev | cut -c 4- | rev )
+      sed -i "/hardware/c\hardware: $body http_code: $http_code" /etc/mazi/rest.log
+
     done
 
   elif [ $store = "disable" ];then
@@ -200,3 +250,5 @@ fi
 
 
 #set +x 
+
+
