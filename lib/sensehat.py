@@ -3,6 +3,10 @@ import time
 from sense_hat import SenseHat
 import sys
 sense = SenseHat()
+magnetometer = False
+gyroscope = False
+accelerometer = False
+
 
 def usage():
     print('Usage python sensehat.py [options]')
@@ -58,24 +62,35 @@ while ( args > 1):
     pressure = sense.get_pressure()
     print("{0:.1f}".format(pressure))
   elif(sys.argv[args] == "-m" or sys.argv[args] == "--magnetometer"):
-    sense.set_imu_config(True, False, False)
-    north = sense.get_compass()
-    print("{0:.1f}".format(north))
+    magnetometer = True
+    mvsensor = True
   elif(sys.argv[args] == "-g" or sys.argv[args] == "--gyroscope"):
-    sense.set_imu_config(False, True, False)
-    gyro_only = sense.get_gyroscope()
-    print("pitch: {pitch}".format(**sense.gyro))
-    print("yaw: {yaw}".format(**sense.gyro))
-    print("roll: {roll}".format(**sense.gyro))
-
+    gyroscope = True
+    mvsensor = True  
   elif(sys.argv[args] == "-ac" or sys.argv[args] == "--accelerometer"):
-    sense.set_imu_config(False, False, True)
-    raw = sense.get_accelerometer_raw()
-    print("x: {x}".format(**raw))
-    print("y: {y}".format(**raw))
-    print("z: {z}".format(**raw))
-  else:
-    usage()
+    accelerometer = True
+    mvsensor = True
+
+
+
+if(mvsensor == True):
+  while True:
+    if(magnetometer == True):
+      sense.set_imu_config(True, False, False) 
+      north = sense.get_compass()
+      print("direction {0:.1f}".format(north))
+    if(gyroscope == True):
+      sense.set_imu_config(False, True, False)
+      gyro_only = sense.get_gyroscope()
+      print("pitch: {pitch}".format(**sense.gyro))
+      print("yaw: {yaw}".format(**sense.gyro))
+      print("roll: {roll}".format(**sense.gyro))  
+    if(accelerometer == True):
+      sense.set_imu_config(False, False, True) 
+      raw = sense.get_accelerometer_raw() 
+      print("ac_x: {x}".format(**raw))
+      print("ac_y: {y}".format(**raw))
+      print("ac_z: {z}".format(**raw))
 
 
 

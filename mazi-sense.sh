@@ -171,9 +171,10 @@ case $NAME in
      [ $TEMP ] && temp="$(python $path_sense/$NAME.py $TEMP)" && echo "The Temperature is: $temp"
      [ $HUM ] && hum="$(python $path_sense/$NAME.py $HUM)" &&  echo "The Humidity is: $hum"
      [ $PRE ] && pressure="$(python $path_sense/$NAME.py $PRE)" && echo  "The pressure is: $pressure Millibars."
-     [ $MAG ] &&  magneto="$(python $path_sense/$NAME.py $MAG)" && echo  "direction: $magneto"
-     [ $GYR ] && gyroscope="$(python $path_sense/$NAME.py $GYR)" && echo  "$gyroscope"
-     [ $ACC ] && accelero="$(python $path_sense/$NAME.py $ACC)" && echo  "$accelero"
+  #   [ $MAG ] &&  magneto="$(python $path_sense/$NAME.py $MAG)" && echo  "direction: $magneto"
+  #   [ $GYR ] && gyroscope="$(python $path_sense/$NAME.py $GYR)" && echo  "$gyroscope"
+  #   [ $ACC ] && accelero="$(python $path_sense/$NAME.py $ACC)" && echo  "$accelero"
+     python $path_sense/$NAME".py" $GYR $MAG $ACC
      ##### STORE OPTION #####
      if [ $STORE ]; then
         TIME=$(date  "+%H%M%S%d%m%y")
