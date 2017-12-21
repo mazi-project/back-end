@@ -64,11 +64,16 @@ while ( args > 1):
   elif(sys.argv[args] == "-g" or sys.argv[args] == "--gyroscope"):
     sense.set_imu_config(False, True, False)
     gyro_only = sense.get_gyroscope()
-    print("pitch: {pitch}, roll: {roll}, yaw: {yaw}".format(**sense.gyro))
+    print("pitch: {pitch}".format(**sense.gyro))
+    print("yaw: {yaw}".format(**sense.gyro))
+    print("roll: {roll}".format(**sense.gyro))
+
   elif(sys.argv[args] == "-ac" or sys.argv[args] == "--accelerometer"):
     sense.set_imu_config(False, False, True)
     raw = sense.get_accelerometer_raw()
-    print("x: {x}, y: {y}, z: {z}".format(**raw))
+    print("x: {x}".format(**raw))
+    print("y: {y}".format(**raw))
+    print("z: {z}".format(**raw))
   else:
     usage()
 
