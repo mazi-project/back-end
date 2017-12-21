@@ -22,6 +22,12 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
 	  echo "  {sht11}"
   	  echo "  -t , --temperature                 Get the Temperature "
 	  echo "  -h , --humidity                    Get the Humidity" 
+          echo "  -p , --pressure                    Get the current pressure in Millibars."
+          echo "  -m , --magnetometer                Get the direction of North"
+          echo "  -g , --gyroscope                   Get a dictionary object indexed by the strings x, y and z." 
+          echo "                                     The values are Floats representing the angle of the axis in degrees"
+          echo "  -ac , --accelerometer               Get a dictionary object indexed by the strings x, y and z."
+          echo "                                     The values are Floats representing the acceleration intensity of the axis in Gs"
           echo ""
           echo "  {sensehat}"
           echo "  -t , --temperature                 Get the Temperature "
@@ -66,6 +72,18 @@ do
         ;;
         -h|--humidity)
         HUM="$1"
+        ;;
+        -p|--pressure)
+        PRE="$1"
+        ;;
+        -m|--magnetometer)
+        MAG="$1"
+        ;;
+        -g|--gyroscope)
+        GYR="$1"
+        ;;
+        -ac|--accelerometer)
+        ACC="$1"
         ;;
         -d|--duration)
         DUR="$2"
@@ -150,10 +168,12 @@ case $NAME in
 
    while [ true ]; do
      echo "$NAME"
-     temp="$(python $path_sense/$NAME.py $TEMP)"
-     hum="$(python $path_sense/$NAME.py $HUM)"
-     [ $TEMP ] && echo "The Temperature is: $temp"
-     [ $HUM ] &&  echo "The Humidity is: $hum"
+     [ $TEMP ] && temp="$(python $path_sense/$NAME.py $TEMP)" && echo "The Temperature is: $temp"
+     [ $HUM ] && hum="$(python $path_sense/$NAME.py $HUM)" &&  echo "The Humidity is: $hum"
+     [ $PRE ] && pressure="$(python $path_sense/$NAME.py $PRE)" && echo  "The pressure is: $pressure Millibars."
+     [ $MAG ] &&  magneto="$(python $path_sense/$NAME.py $MAG)" && echo  "The direction of North: $magneto"
+     [ $GYR ] && gyroscope="$(python $path_sense/$NAME.py $GYR)" && echo  "$gyroscope"
+     [ $ACC ] && accelero="$(python $path_sense/$NAME.py $ACC)" && echo  "$accelero"
      ##### STORE OPTION #####
      if [ $STORE ]; then
         TIME=$(date  "+%H%M%S%d%m%y")

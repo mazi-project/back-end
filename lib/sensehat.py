@@ -5,11 +5,11 @@ import sys
 sense = SenseHat()
 
 def usage():
-    print 'Usage python sensehat.py [options]'
-    print ' '
-    print '[options]'
-    print '-h , --humidity                 Displays the Humidity '
-    print '-t , --temperature              Displays the Temperature'
+    print('Usage python sensehat.py [options]')
+    print(' ')
+    print('[options]')
+    print('-h , --humidity                 Displays the Humidity ')
+    print('-t , --temperature              Displays the Temperature')
 
 
 
@@ -42,7 +42,7 @@ def correct_temp():
 
 args = len(sys.argv)
 if (args == 1):
-  print "0"
+  print("0")
 while ( args > 1):
   args -= 1
 
@@ -54,6 +54,21 @@ while ( args > 1):
     humidity = sense.get_humidity()
     calchum=humidity*(2.5-0.029*temp)
     print("{0:.1f}".format(calchum))
+  elif(sys.argv[args] == "-p" or sys.argv[args] == "--pressure"):
+    pressure = sense.get_pressure()
+    print("{0:.1f}".format(pressure))
+  elif(sys.argv[args] == "-m" or sys.argv[args] == "--magnetometer"):
+    sense.set_imu_config(True, False, False)
+    north = sense.get_compass()
+    print("{0:.1f}".format(north))
+  elif(sys.argv[args] == "-g" or sys.argv[args] == "--gyroscope"):
+    sense.set_imu_config(False, True, False)
+    gyro_only = sense.get_gyroscope()
+    print(sense.gyro)
+  elif(sys.argv[args] == "-ac" or sys.argv[args] == "--accelerometer"):
+    sense.set_imu_config(False, False, True)
+    raw = sense.get_accelerometer_raw()
+    print("x: {x}, y: {y}, z: {z}".format(**raw))
   else:
     usage()
 
