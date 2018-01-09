@@ -174,7 +174,7 @@ case $NAME in
   #   [ $MAG ] &&  magneto="$(python $path_sense/$NAME.py $MAG)" && echo  "direction: $magneto"
   #   [ $GYR ] && gyroscope="$(python $path_sense/$NAME.py $GYR)" && echo  "$gyroscope"
   #   [ $ACC ] && accelero="$(python $path_sense/$NAME.py $ACC)" && echo  "$accelero"
-     python $path_sense/$NAME".py" $GYR $MAG $ACC
+     [ "$GYR" -o "$MAG" -o "$ACC" ] && python $path_sense/$NAME".py" $GYR $MAG $ACC
      ##### STORE OPTION #####
      if [ $STORE ]; then
         TIME=$(date  "+%H%M%S%d%m%y")
@@ -214,4 +214,5 @@ case $NAME in
 esac
 
 #set +x
+
 
