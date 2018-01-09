@@ -88,7 +88,7 @@ data_fun(){
 store_data(){
  TIME=$(date  "+%H%M%S%d%m%y") 
  data='{"deployment":'$(jq ".deployment" $conf)',
-        "device_id":"$id",
+        "device_id":"'$id'",
         "date":'$TIME',
         "users":"'$users'",
         "temp":"'$temp'",
@@ -250,5 +250,4 @@ fi
 
 
 #set +x 
-
 

@@ -158,7 +158,7 @@ if [ $STORE ]; then
       [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
       ID=$(curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensor/register)
    fi
-   curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf)}" http://$domain:4567/create/$NAME
+   curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf)}" http://$domain:4567/create/measurements
 fi
 
 endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
@@ -174,11 +174,11 @@ case $NAME in
   #   [ $MAG ] &&  magneto="$(python $path_sense/$NAME.py $MAG)" && echo  "direction: $magneto"
   #   [ $GYR ] && gyroscope="$(python $path_sense/$NAME.py $GYR)" && echo  "$gyroscope"
   #   [ $ACC ] && accelero="$(python $path_sense/$NAME.py $ACC)" && echo  "$accelero"
-     python $path_sense/$NAME".py" $GYR $MAG $ACC
+     [ "$GYR" -o "$MAG" -o "$ACC" ] && python $path_sense/$NAME".py" $GYR $MAG $ACC
      ##### STORE OPTION #####
      if [ $STORE ]; then
         TIME=$(date  "+%H%M%S%d%m%y")
-         response=$(curl -s -H 'Content-Type: application/json' -w %{http_code} -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/$NAME)
+         response=$(curl -s -H 'Content-Type: application/json' -w %{http_code} -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/measurements)
          http_code=$(echo $response | tail -c 4)
          body=$(echo $response| rev | cut -c 4- | rev )
          sed -i "/sensehat/c\sensehat: $body http_code: $http_code" /etc/mazi/rest.log
@@ -199,7 +199,7 @@ case $NAME in
      ##### STORE OPTION #####
      if [ $STORE ]; then
         TIME=$(date  "+%H%M%S%d%m%y")
-        curl -s -H 'Content-Type: application/json'  -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/$NAME
+        curl -s -H 'Content-Type: application/json'  -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/measurements
      fi
      sleep $interval
      [ $(date +%s) -ge $endTime ] && exit 0; 
@@ -214,4 +214,5 @@ case $NAME in
 esac
 
 #set +x
+
 

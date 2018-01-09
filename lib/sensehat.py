@@ -6,7 +6,7 @@ sense = SenseHat()
 magnetometer = False
 gyroscope = False
 accelerometer = False
-
+mvsensor=False
 
 def usage():
     print('Usage python sensehat.py [options]')
