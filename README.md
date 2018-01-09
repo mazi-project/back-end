@@ -71,12 +71,19 @@ sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]
 -d , --duration              Duration in seconds to take a measurement
 -i , --interval              Seconds between periodic measurement
 -a , --available             Displays the status of the available sensors
---domain                     Set a remote server domain.( Default is localhost )
+-D,--domain                  Set a remote server domain.( Default is localhost )
+--status                     Displays the status of store process
 
 [SensorOptions]
 {sht11}
 -t , --temperature            Get the Temperature
 -h , --humidity               Get the Humidity
+-p , --pressure               Get the current pressure in Millibars.
+-m , --magnetometer           Get the direction of North
+-g , --gyroscope              Get a dictionary object indexed by the strings x, y and z
+                              The values are Floats representing the angle of the axis in degrees
+-ac , --accelerometer         Get a dictionary object indexed by the strings x, y and z
+                              The values are Floats representing the acceleration intensity of the axis in Gs
 
 {sensehat}
 -t , --temperature             Get the Temperature
@@ -152,7 +159,9 @@ sudo sh mazi-stat.sh [options]
 -u,--users                Displays the total online users
 -c,--cpu                  Displays the CPU usage
 -r,--ram                  Displays the RAM usage
--s,--storage              Displays the percentage of the available storage
+-s,--storage              Displays the used storage in MB and (%) 
+           [unit]       Units are  KB, MB and GB.( Default is MB )
+ --sd              Displays information of SD card
 -n,--network              Displays the Download/Upload speed
 -d,--domain               Set a remote server domain.( Default is localhost )
 --status                  Displays the status of store process
