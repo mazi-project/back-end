@@ -126,7 +126,7 @@ fi
 
 if [ $status ];then
   status_call sensehat
-  [ "$(ps aux | grep "store" | grep "mazi-sense.sh" | grep "\-n sensehat "| grep -v 'grep')" ] && echo "sensehat active $call_st $error" || echo "sensehat inactive"
+  [ "$(ps aux | grep "store\|\-s" | grep "mazi-sense.sh" | grep "\-n sensehat "| grep -v 'grep')" ] && echo "sensehat active $call_st $error" || echo "sensehat inactive"
   exit 0;
 fi
 
@@ -214,5 +214,6 @@ case $NAME in
 esac
 
 #set +x
+
 
 
