@@ -75,7 +75,7 @@ sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]
 --status                     Displays the status of store process
 
 [SensorOptions]
-{sht11}
+{sensehat}
 -t , --temperature            Get the Temperature
 -h , --humidity               Get the Humidity
 -p , --pressure               Get the current pressure in Millibars.
@@ -85,7 +85,7 @@ sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]
 -ac , --accelerometer         Get a dictionary object indexed by the strings x, y and z
                               The values are Floats representing the acceleration intensity of the axis in Gs
 
-{sensehat}
+{sht11}
 -t , --temperature             Get the Temperature
 -h , --humidity                Get the Humidity
 ```
