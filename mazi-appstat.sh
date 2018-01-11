@@ -23,11 +23,11 @@ data_etherpad() {
   
    TIME=$(date  "+%H%M%S%d%m%y")
    data='{"deployment":'$(jq ".deployment" $conf)',
-          "device_id":'$id',
+          "device_id":"'$id'",
           "date":'$TIME',
           "pads":"'$pads'",
           "users":"'$users'",
-          "datasize":'$datasize'}'
+          "datasize":"'$datasize'"}'
   echo $data
 }
 
@@ -43,7 +43,7 @@ data_framadate() {
 
    TIME=$(date  "+%H%M%S%d%m%y")
    data='{"deployment":'$(jq ".deployment" $conf)',
-          "device_id":'$id',
+          "device_id":"'$id'",
           "date":'$TIME',
           "polls":"'$polls'",
           "comments":"'$comments'",
@@ -66,12 +66,12 @@ data_guestbook() {
 
    TIME=$(date  "+%H%M%S%d%m%y")
    data='{"deployment":'$(jq ".deployment" $conf)',
-          "device_id":'$id',
+          "device_id":"'$id'",
           "date":'$TIME',
-          "submissions":'$submissions',
-          "comments":'$comments',
-          "images":'$images',
-          "datasize":'$datasize'}'
+          "submissions":"'$submissions'",
+          "comments":"'$comments'",
+          "images":"'$images'",
+          "datasize":"'$datasize'"}'
   echo $data
 }
 
