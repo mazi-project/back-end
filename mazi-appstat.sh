@@ -157,7 +157,7 @@ if [ $status ];then
   status_call etherpad 
   [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "etherpad" | grep -v 'grep' | awk '{print $2}')" ] && echo "etherpad active $call_st $error" || echo "etherpad inactive $call_st $error"
   status_call framadate
-  [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "farmadate active $call_st $error" || echo "framadate inactive $call_st $error" 
+  [ "$(ps aux | grep "mazi-appstat"| grep "store enable" | grep "framadate" | grep -v 'grep' | awk '{print $2}')" ] && echo "framadate active $call_st $error" || echo "framadate inactive $call_st $error" 
 
 
 fi
