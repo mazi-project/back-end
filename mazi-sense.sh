@@ -3,7 +3,7 @@
 #This script manages all available  sensors 
 #
 # Usage: sudo sh mazi-sense.sh [senseName] [options]
-#set  -x
+set  -x
 usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]"
 	  echo ""
 	  echo "[SenseName]"
@@ -174,14 +174,14 @@ case $NAME in
   #   [ $MAG ] &&  magneto="$(python $path_sense/$NAME.py $MAG)" && echo  "direction: $magneto"
   #   [ $GYR ] && gyroscope="$(python $path_sense/$NAME.py $GYR)" && echo  "$gyroscope"
   #   [ $ACC ] && accelero="$(python $path_sense/$NAME.py $ACC)" && echo  "$accelero"
-     [ "$GYR" -o "$MAG" -o "$ACC" ] && python $path_sense/$NAME".py" $GYR $MAG $ACC
+     [ "$MAG" -o "$GYR" = "-g" -o "$ACC" ] && python $path_sense/$NAME".py" $GYR $MAG $ACC
      ##### STORE OPTION #####
      if [ $STORE ]; then
         TIME=$(date  "+%H%M%S%d%m%y")
          response=$(curl -s -H 'Content-Type: application/json' -w %{http_code} -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/measurements)
          http_code=$(echo $response | tail -c 4)
          body=$(echo $response| rev | cut -c 4- | rev )
-         sed -i "/sensehat/c\sensehat: $body http_code: $http_code" /etc/mazi/rest.log
+         sed -i "/sensehat/c\sensehat: $body $domain http_code: $http_code" /etc/mazi/rest.log
 
      fi
      sleep $interval
@@ -213,7 +213,7 @@ case $NAME in
    ;;
 esac
 
-#set +x
+set +x
 
 
 
