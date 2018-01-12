@@ -13,6 +13,9 @@ usage() {
 }
 
 data_etherpad() {
+   sqlerr=$(mysql -u$username -p$password -e 'exit' 2>&1)
+   [ -n "$sqlerr" ] && sed -i "/etherpad/c\\etherpad: Database Access Denied localhost http_code: 200" /etc/mazi/rest.log && exit 0;  
+ 
    users=$(mysql -u$username -p$password etherpad -e 'select store.value from store' |grep -o '"padIDs":{".*":.*}}' | wc -l)
 
    pads=$(mysql -u$username -p$password etherpad -e 'select store.key from store' |grep -Eo '^pad:[^:]+' |sed -e 's/pad://' |sort |uniq -c |sort -rn |awk '(count+=1) {if ($1!="2") { print count}}' |tail -1)
@@ -20,7 +23,7 @@ data_etherpad() {
    datasize=$(echo "SELECT ROUND(SUM(data_length + index_length), 2)  as Size_in_B FROM information_schema.TABLES 
           WHERE table_schema = 'etherpad';" | mysql -u$username -p$password)
    datasize=$(echo $datasize | awk '{print $NF}')
-  
+
    TIME=$(date  "+%H%M%S%d%m%y")
    data='{"deployment":'$(jq ".deployment" $conf)',
           "device_id":"'$id'",
@@ -32,6 +35,9 @@ data_etherpad() {
 }
 
 data_framadate() {
+   sqlerr=$(mysql -u$username -p$password -e 'exit' 2>&1)
+   [ -n "$sqlerr" ] && sed -i "/etherpad/c\\etherpad: Database Access Denied localhost http_code: 200" /etc/mazi/rest.log && exit 0;
+
    polls=$(echo "SELECT COUNT(*) FROM fd_poll WHERE active = '1';" | mysql -u$username -p$password framadate)
    polls=$(echo $polls | awk '{print $NF}')   
 
@@ -83,7 +89,7 @@ store(){
      response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/$NAME)
      http_code=$(echo $response | tail -c 4)
      body=$(echo $response| rev | cut -c 4- | rev )
-     sed -i "/$NAME/c\\$NAME: $body http_code: $http_code" /etc/mazi/rest.log
+     sed -i "/$NAME/c\\$NAME: $body $domain http_code: $http_code" /etc/mazi/rest.log
      current_time=$(date +%s)
      sleep_time=$(( $target_time - $current_time ))
      [ $sleep_time -gt 0 ] && sleep $sleep_time
@@ -109,7 +115,7 @@ status_call() {
   [ "$http_code" = "200" -a "$response" = " OK " ] && call_st="OK" && error=""
   [ "$http_code" = "000" ] && call_st="ERROR:" && error="Connection refused"
   [ "$http_code" = "200" -a "$response" != " OK " ] && call_st="ERROR:" && error="$response"
-  [ "$http_code" = "500" ] && call_st="ERROR:" && error="The server encountered an unexpected condition which prevented it from fulfilling the request"
+  [ "$http_code" = "500" ] && call_st="ERROR:" && error="The server encountered an unexpected condition which prevented it from fulfilling the request."
 
 }
 

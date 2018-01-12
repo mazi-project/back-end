@@ -217,7 +217,7 @@ if [ $store ];then
     [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/users) 
     http_code=$(echo $response | tail -c 4)
     body=$(echo $response| rev | cut -c 4- | rev )
-    sed -i "/hardware/c\hardware: $body http_code: $http_code" /etc/mazi/rest.log
+    sed -i "/hardware/c\hardware: $body $domain http_code: $http_code" /etc/mazi/rest.log
 
     while [ true ]; do
       target_time=$(( $(date +%s)  + $interval ))
@@ -229,7 +229,7 @@ if [ $store ];then
       [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/users)
       http_code=$(echo $response | tail -c 4)
       body=$(echo $response| rev | cut -c 4- | rev )
-      sed -i "/hardware/c\hardware: $body http_code: $http_code" /etc/mazi/rest.log
+      sed -i "/hardware/c\hardware: $body $domain http_code: $http_code" /etc/mazi/rest.log
 
     done
 
