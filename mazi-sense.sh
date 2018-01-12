@@ -3,7 +3,7 @@
 #This script manages all available  sensors 
 #
 # Usage: sudo sh mazi-sense.sh [senseName] [options]
-set  -x
+#set  -x
 usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]"
 	  echo ""
 	  echo "[SenseName]"
@@ -213,7 +213,7 @@ case $NAME in
    ;;
 esac
 
-set +x
+#set +x
 
 
 
