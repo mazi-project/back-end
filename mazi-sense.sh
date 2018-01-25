@@ -43,9 +43,9 @@ status_call() {
     response=$(tac /etc/mazi/rest.log| grep "$1" | awk -v FS="($1:|http_code:)" '{print $2}')
     http_code=$(tac /etc/mazi/rest.log| grep "$1" | head -1 | awk '{print $NF}')
   fi
-  [ "$http_code" = "200" -a "$response" = " OK " ] && call_st="OK" && error=""
+  [ "$http_code" = "200" -a "$(echo $response | grep "OK")" ] && call_st="OK" && error=""
   [ "$http_code" = "000" ] && call_st="ERROR:" && error="Connection refused"
-  [ "$http_code" = "200" -a "$response" != " OK " ] && call_st="ERROR:" && error="$response"
+  [ "$http_code" = "200" -a ! "$(echo $response | grep "OK")" ] && call_st="ERROR:" && error="$response"
   [ "$http_code" = "500" ] && call_st="ERROR:" && error="The server encountered an unexpected condition which prevented it from fulfilling the request"
 }
 
@@ -75,7 +75,7 @@ sensor_id(){
  fi
 
  ### Create the table measurements or update it with new types of sensors
- curl -s -H "Content-Type: application/json" -H 'Accept: application/json' -X POST -d "{\"senstypes\":$senstypes}" http://$domain:4567/create/measurements > nul
+ curl -s -H "Content-Type: application/json" -H 'Accept: application/json' -X POST -d "{\"senstypes\":$senstypes}" http://$domain:4567/create/measurements > /dev/null
 }
 
 
@@ -95,6 +95,12 @@ available_fun(){
 
 
 status_fun(){
+  read -a sensors <<<$(find lib/ -maxdepth 1 -name "*.py" -exec basename \{} .py \;)
+  for s in ${sensors[@]}
+  do
+     var=$(python lib/$s.py --detect)
+     [ "$var" == "$s" ] &&  NAME=$s
+  done
   status_call $NAME
   [ "$(ps aux | grep "store\|\-s" | grep "mazi-sense.sh" | grep "\-n $NAME "| grep -v 'grep')" ] && echo "$NAME active $call_st $error" || echo "$NAME inactive"
   exit 0;
@@ -104,7 +110,7 @@ store(){
    response=$(curl -s -H 'Content-Type: application/json' -w %{http_code} -X POST --data "$data" http://$domain:4567/update/measurements)
    http_code=$(echo $response | tail -c 4)
    body=$(echo $response| rev | cut -c 4- | rev )
-   sed -i "/$NAME/c\$NAME: $body $domain http_code: $http_code" /etc/mazi/rest.log
+   sed -i "/$NAME/c\\$NAME: $body $domain http_code: $http_code" /etc/mazi/rest.log
 }
 
 
