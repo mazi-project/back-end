@@ -44,7 +44,7 @@ def help_message():
 
 def detect():
   if os.path.exists("/proc/device-tree/hat/product"):
-    print 'sensehat'
+    print('sensehat')
 
 
 

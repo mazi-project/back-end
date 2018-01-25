@@ -87,7 +87,7 @@ available_fun(){
  do
     var=$(python lib/$s.py --detect 2>&1)
     if [ "$var" == "$s" ];then
-       SERVICE="$(ps -ef | grep $s | grep -v 'grep')"
+       SERVICE="$(ps -ef | grep $s | grep -v 'grep'| grep -v '\-m\|\-ac\|\-g')"
        [ "$SERVICE" != "" ] && echo "$s active $IP" || echo "$s inactive $IP"
     fi
  done
@@ -103,7 +103,7 @@ status_fun(){
      [ "$var" == "$s" ] &&  NAME=$s
   done
   status_call $NAME
-  [ "$(ps aux | grep "store\|\-s" | grep "mazi-sense.sh" | grep "\-n $NAME "| grep -v 'grep')" ] && echo "$NAME active $call_st $error" || echo "$NAME inactive"
+  [ "$(ps aux | grep "store\|\-s" | grep "mazi-sense.sh" | grep "\-n $NAME "| grep -v 'grep'| grep -v '\-m\|\-ac\|\-g')" ] && echo "$NAME active $call_st $error" || echo "$NAME inactive"
   exit 0;
 }
 
