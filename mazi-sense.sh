@@ -53,7 +53,7 @@ status_call() {
 make_data(){
  
 
- TIME=$(date  "+%Y-%m-%d %H:%M:S")
+ TIME=$(date  "+%Y-%m-%d %H:%M:%S")
  read -a values <<<$(python lib/$NAME.py ${argum[@]})
  data='{'$(echo $(printf "\"%s\":\"%s\", "  "${values[@]}"))'
         "time":"'$TIME'",
