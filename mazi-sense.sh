@@ -6,6 +6,7 @@
 #set  -x
 
 ##### Initialization  ######
+cd /root/back-end
 DUR="0"     #initialization of duration
 interval="0"     #initialization of interval
 domain="localhost"
