@@ -4,6 +4,17 @@
 #
 # Usage: sudo sh mazi-sense.sh [senseName] [options]
 #set  -x
+
+##### Initialization  ######
+DUR="0"     #initialization of duration
+interval="0"     #initialization of interval
+domain="localhost"
+conf="/etc/mazi/mazi.conf"
+path_sense="/root/back-end/lib"
+IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')"
+i=0
+
+#### Functions ####
 usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]"
 	  echo ""
 	  echo "[SenseName]"
@@ -19,16 +30,8 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "  --status                           Displays the status of store process"
           echo ""
 	  echo "[SensorOptions]"
-	  echo "  {sht11}"
-  	  echo "  -t , --temperature                 Get the Temperature "
-	  echo "  -h , --humidity                    Get the Humidity" 
-          echo "  -p , --pressure                    Get the current pressure in Millibars."
-          echo "  -m , --magnetometer                Get the direction of North"
-          echo "  -g , --gyroscope                   Get a dictionary object indexed by the strings x, y and z." 
-          echo "                                     The values are Floats representing the angle of the axis in degrees"
-          echo "  -ac , --accelerometer               Get a dictionary object indexed by the strings x, y and z."
-          echo "                                     The values are Floats representing the acceleration intensity of the axis in Gs"
-          echo ""
+          python $path_sense/sensehat.py --help
+	  echo ""
           echo "  {sensehat}"
           echo "  -t , --temperature                 Get the Temperature "
           echo "  -h , --humidity                    Get the Humidity" 1>&2; exit 1; }
@@ -44,16 +47,70 @@ status_call() {
   [ "$http_code" = "000" ] && call_st="ERROR:" && error="Connection refused"
   [ "$http_code" = "200" -a "$response" != " OK " ] && call_st="ERROR:" && error="$response"
   [ "$http_code" = "500" ] && call_st="ERROR:" && error="The server encountered an unexpected condition which prevented it from fulfilling the request"
-
 }
 
-##### Initialization  ######
-DUR="0"     #initialization of duration 
-interval="0"     #initialization of interval 
-domain="localhost"
-conf="/etc/mazi/mazi.conf"
-path_sense="/root/back-end/lib"
-IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')"
+make_data(){
+ 
+
+ TIME=$(date  "+%Y-%m-%d %H:%M:S")
+ read -a values <<<$(python lib/$NAME.py ${argum[@]})
+ data='{'$(echo $(printf "\"%s\":\"%s\", "  "${values[@]}"))'
+        "time":"'$TIME'",
+        "sensor_id":"'$ID'"}'
+
+ echo ${values[@]}
+}
+
+sensor_id(){
+ ##### Sensors types ###########
+ read -a senstypes <<<$(python lib/$NAME.py ${argum[@]} | awk '{print $1}')
+ senstypes="$(printf '%s\n' "${senstypes[@]}" | jq -R . | jq -s .)"
+
+ ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\"}" http://$domain:4567/sensors/id)
+ ### Register the sensor ####
+ if [ ! $ID ];then
+    device_id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
+    [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
+    ID=$(curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensor/register)
+ fi
+
+ ### Create the table measurements or update it with new types of sensors
+ curl -s -H "Content-Type: application/json" -H 'Accept: application/json' -X POST -d "{\"senstypes\":$senstypes}" http://$domain:4567/create/measurements > nul
+}
+
+
+available_fun(){
+
+ read -a sensors <<<$(find lib/ -maxdepth 1 -name "*.py" -exec basename \{} .py \;)
+ for s in ${sensors[@]}
+ do
+    var=$(python lib/$s.py --detect)
+    if [ "$var" == "$s" ];then
+       SERVICE="$(ps -ef | grep $s | grep -v 'grep')"
+       [ "$SERVICE" != "" ] && echo "$s active $IP" || echo "$s inactive $IP"
+    fi
+ done
+ exit 0;
+}
+
+
+status_fun(){
+  status_call $NAME
+  [ "$(ps aux | grep "store\|\-s" | grep "mazi-sense.sh" | grep "\-n $NAME "| grep -v 'grep')" ] && echo "$NAME active $call_st $error" || echo "$NAME inactive"
+  exit 0;
+}
+
+store(){
+   response=$(curl -s -H 'Content-Type: application/json' -w %{http_code} -X POST --data "$data" http://$domain:4567/update/measurements)
+   http_code=$(echo $response | tail -c 4)
+   body=$(echo $response| rev | cut -c 4- | rev )
+   sed -i "/$NAME/c\$NAME: $body $domain http_code: $http_code" /etc/mazi/rest.log
+}
+
+
+########################################
+#              main                    #
+########################################
 
 while [ $# -gt 0 ]
 do
@@ -67,24 +124,6 @@ do
         -s|--store)
         STORE="true"
         ;;
-        -t|--temperature)
-        TEMP="$1"
-        ;;
-        -h|--humidity)
-        HUM="$1"
-        ;;
-        -p|--pressure)
-        PRE="$1"
-        ;;
-        -m|--magnetometer)
-        MAG="$1"
-        ;;
-        -g|--gyroscope)
-        GYR="$1"
-        ;;
-        -ac|--accelerometer)
-        ACC="$1"
-        ;;
         -d|--duration)
         DUR="$2"
         shift
@@ -94,126 +133,66 @@ do
         shift
         ;;
         -a|--available)
-        SCAN="$1"
+        available_fun
 	;;
         -D|--domain)
         domain="$2"
         shift
         ;;
         --status)
-        status="TRUE"
+        status_fun
+        ;;
+        --help)
+        usage
         ;;
         *)
-        # unknown option
-        usage
+        #receives the sensor argumnets
+        argum[$i]=$1
+        i=$(($i+1))
         ;;
    esac
    shift     #past argument or value
 done
 
-##### Scan for available sensors  ######
-if [ $SCAN ];then
-   if [ -f "/proc/device-tree/hat/product" ]; then
-      SERVICE="$(ps -ef | grep sensehat | grep -v 'grep')"
-      if [ "$SERVICE" != "" ]; then
-         echo "sensehat active $IP"
-      else
-         echo "sensehat inactive $IP" 
-      fi
-   fi
-   exit 0;
-fi
-
-if [ $status ];then
-  status_call sensehat
-  [ "$(ps aux | grep "store\|\-s" | grep "mazi-sense.sh" | grep "\-n sensehat "| grep -v 'grep')" ] && echo "sensehat active $call_st $error" || echo "sensehat inactive"
-  exit 0;
-fi
-
-
-
-
-#### Check the sensor name ####
-if [ $NAME ];then
-   if [ $NAME != "sensehat" -a $NAME != "sht11" ];then
-     echo "Invalid sensor name"
-     echo ""
-     usage 
-     exit 0;
-   fi
-else
+#####Check the sensor name######
+if [ ! $NAME ];then
     echo "Please complete the sensor name"
     echo ""
     usage 
     exit 0;
 fi
+################################
 
-##### Register the ID of sensor #####
-if [ $STORE ]; then
-   #### Take the ID of sensor ####
-   ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\"}" http://$domain:4567/sensors/id)
+### Take the sensor's ID #####
+[ $STORE ] && sensor_id
 
-   if [ ! $ID ];then
-      device_id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
-      [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
-      ID=$(curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensor/register)
-   fi
-   curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf)}" http://$domain:4567/create/measurements
+
+endTime=$(( $(date +%s) + $DUR )) # Calculate the script's Duration.
+
+[ ! -f /etc/mazi/rest.log -o ! "$(grep -R "$NAME:" /etc/mazi/rest.log)" ] && echo "$NAME:" >> /etc/mazi/rest.log
+
+#### move sensors of sensehat####
+if [ $NAME = "sensehat" ];then
+  for item in ${argum[@]}
+  do
+    if [ "-m" == "$item" -o "-g" == "$item" -o "-ac" == "$item" ]; then
+        mv_sensors="TRUE"
+    fi
+  done
+  [ $mv_sensors ] && python lib/$NAME.py ${argum[@]}
+
 fi
 
-endTime=$(( $(date +%s) + $DUR )) # Calculate end time.
-case $NAME in
-   sensehat)
-   [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "sensehat:" /etc/mazi/rest.log)" ] && echo "sensehat:" >> /etc/mazi/rest.log
 
-   while [ true ]; do
-     echo "$NAME"
-     [ $TEMP ] && temp="$(python $path_sense/$NAME.py $TEMP)" && echo "The Temperature is: $temp"
-     [ $HUM ] && hum="$(python $path_sense/$NAME.py $HUM)" &&  echo "The Humidity is: $hum"
-     [ $PRE ] && pressure="$(python $path_sense/$NAME.py $PRE)" && echo  "The pressure is: $pressure Millibars."
-  #   [ $MAG ] &&  magneto="$(python $path_sense/$NAME.py $MAG)" && echo  "direction: $magneto"
-  #   [ $GYR ] && gyroscope="$(python $path_sense/$NAME.py $GYR)" && echo  "$gyroscope"
-  #   [ $ACC ] && accelero="$(python $path_sense/$NAME.py $ACC)" && echo  "$accelero"
-     [ "$MAG" -o "$GYR" = "-g" -o "$ACC" ] && python $path_sense/$NAME".py" $GYR $MAG $ACC
-     ##### STORE OPTION #####
-     if [ $STORE ]; then
-        TIME=$(date  "+%H%M%S%d%m%y")
-         response=$(curl -s -H 'Content-Type: application/json' -w %{http_code} -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/measurements)
-         http_code=$(echo $response | tail -c 4)
-         body=$(echo $response| rev | cut -c 4- | rev )
-         sed -i "/sensehat/c\sensehat: $body $domain http_code: $http_code" /etc/mazi/rest.log
-
-     fi
-     sleep $interval
-     [ $(date +%s) -ge $endTime ] && exit 0; 
-   done
-   ;;
-   sht11)
-
-   while [ true ]; do
-     echo "$NAME"
-     temp="$(python $path_sense/$NAME.py $TEMP)"
-     hum="$(python $path_sense/$NAME.py $HUM)"
-     [ $TEMP ] && echo "The Temperature is: $temp"
-     [ $HUM ] && echo "The Humidity is: $hum"
-     ##### STORE OPTION #####
-     if [ $STORE ]; then
-        TIME=$(date  "+%H%M%S%d%m%y")
-        curl -s -H 'Content-Type: application/json'  -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_id\":\"$ID\",\"value\":{\"temp\":\"$temp\",\"hum\":\"$hum\"},\"date\":\"$TIME\"}" http://$domain:4567/update/measurements
-     fi
-     sleep $interval
-     [ $(date +%s) -ge $endTime ] && exit 0; 
-   done
-   ;;
-   *)
-
-   echo "Wrong name of sensor"
-   echo ""
-   usage
-   ;;
-esac
-
+while [ true ]; do
+ echo "$NAME"
+ make_data
+ #### STORE OPTION #####
+ [ $STORE ] && store
+ sleep $interval
+ [ $(date +%s) -ge $endTime ] && exit 0; 
+done
+ 
 #set +x
-
 
 

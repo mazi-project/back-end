@@ -1,41 +1,52 @@
-#!/usr/bin/python
-from contextlib import contextmanager
+#!/usr/bin/pytho
+import sys
 import warnings
 
-def sht11():
+def help_message():
+    print 'Usage python sht11.py [options]'
+    print ' '
+    print '[options]'
+    print '--help                          Displays this usage message '
+    print '--detect                        Displays if the sensor is connected on Raspberry Pi'
+    print '-h , --humidity                 Displays the Humidity '
+    print '-t , --temperature              Displays the Temperature'    
+
+def sht11( sensor ):
+ try:
+  warnings.filterwarnings("ignore")
   from sht1x.Sht1x import Sht1x as SHT1x
-  import sys
-  dataPin = 35
-  clkPin = 33
+  dataPin = 5
+  clkPin = 3
   sht1x = SHT1x(dataPin, clkPin, SHT1x.GPIO_BOARD)
 
+  if (sensor == "humidity"):
+    mesurement = sht1x.read_humidity()
+  elif (sensor == "temperature"): 
+    mesurement = sht1x.read_temperature_C()
 
-  def usage():
-      print 'Usage python sht11.py [options]'
-      print ' '
-      print '[options]'
-      print '-h , --humidity                 Displays the Humidity '
-      print '-t , --temperature              Displays the Temperature'    
+  return mesurement
+ except:
+  return "false"  
+ 
+def detect():
+   var = sht11("temperature")
+   if (type(var) == int or type(var) == float):
+     print 'sht11'
 
-   
-  args = len(sys.argv)
-  if (args == 1):
-     print "0"
-  while ( args > 1):
-     args -= 1   
+if __name__ == '__main__':
 
-     if(sys.argv[args] == "-h" or sys.argv[args] == "--humidity"):
-        humidity = sht1x.read_humidity()  
-        print("{0:.2f}".format(humidity))
+   args = len(sys.argv)
+   while ( args > 1):
+     args -= 1
+
+     if(sys.argv[args] == "--help"):
+        help_message()
+     elif(sys.argv[args] == "--detect"):
+        detect()
      elif(sys.argv[args] == "-t" or sys.argv[args] == "--temperature"):
-        temperature = sht1x.read_temperature_C()
-        print("{0:.2f}".format(temperature))
-     else:
-        usage()
+       temperature = sht11("temperature")
+       print ("temperature %.1f" % temperature)
+     elif(sys.argv[args] == "-h" or sys.argv[args] == "--humidity"):
+       humidity = sht11("humidity")
+       print ("humidity %.1f" % humidity)
 
-
-try:
-  warnings.filterwarnings("ignore")
-  sht11()
-except:
-  pass
