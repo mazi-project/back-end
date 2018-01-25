@@ -30,11 +30,11 @@ usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOption
           echo "  --status                           Displays the status of store process"
           echo ""
 	  echo "[SensorOptions]"
-          python $path_sense/sensehat.py --help
-	  echo ""
-          echo "  {sensehat}"
-          echo "  -t , --temperature                 Get the Temperature "
-          echo "  -h , --humidity                    Get the Humidity" 1>&2; exit 1; }
+          read -a sensors <<<$(find lib/ -maxdepth 1 -name "*.py")
+          for s in ${sensors[@]}
+          do
+             python $s --help
+          done                     1>&2; exit 1; }
 
 
 

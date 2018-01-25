@@ -3,13 +3,12 @@ import sys
 import warnings
 
 def help_message():
-    print 'Usage python sht11.py [options]'
     print ' '
-    print '[options]'
-    print '--help                          Displays this usage message '
-    print '--detect                        Displays if the sensor is connected on Raspberry Pi'
-    print '-h , --humidity                 Displays the Humidity '
-    print '-t , --temperature              Displays the Temperature'    
+    print 'sht11'
+    print '  --help                          Displays this usage message '
+    print '  --detect                        Displays if the sensor is connected on Raspberry Pi'
+    print '  -h , --humidity                 Displays the Humidity '
+    print '  -t , --temperature              Displays the Temperature'    
 
 def sht11( sensor ):
  try:

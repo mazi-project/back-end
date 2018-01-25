@@ -27,9 +27,8 @@ def get_smooth(x):
 
 
 def help_message():
-    print('Usage python sensehat.py [options]')
     print(' ')
-    print('[options]')
+    print('sensehat')
     print('  --help                          Displays this usage message')
     print('  --detect                        Displays if the sensor is connected on the Raspberry Pi')
     print('  -h , --humidity                 Displays the Humidity ')
