@@ -84,7 +84,7 @@ available_fun(){
  read -a sensors <<<$(find lib/ -maxdepth 1 -name "*.py" -exec basename \{} .py \;)
  for s in ${sensors[@]}
  do
-    var=$(python lib/$s.py --detect)
+    var=$(python lib/$s.py --detect 2>&1)
     if [ "$var" == "$s" ];then
        SERVICE="$(ps -ef | grep $s | grep -v 'grep')"
        [ "$SERVICE" != "" ] && echo "$s active $IP" || echo "$s inactive $IP"
