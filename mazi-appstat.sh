@@ -98,11 +98,13 @@ store(){
 
 disable(){
 
-   Pid=$(ps aux | grep "mazi-appstat" | grep -v 'grep' | awk '{print $2}')
-   for i in $Pid; do
+   Pid=$(ps aux| grep -F "store enable" | grep "mazi-appstat" |grep -v 'grep' |awk '{print $2}')
+   for i in $Pid
+   do
      kill $i 
      echo "disable"
    done
+   exit 0;
 }
 
 status_call() {
@@ -194,8 +196,5 @@ if [ $store ];then
 
   fi
 fi
-
-
-
 
 #set +x
