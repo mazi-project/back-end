@@ -67,13 +67,12 @@ sensor_id(){
  read -a senstypes <<<$(python lib/$NAME.py ${argum[@]} | awk '{print $1}')
  senstypes="$(printf '%s\n' "${senstypes[@]}" | jq -R . | jq -s .)"
 
- ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\"}" http://$domain:4567/sensors/id)
+ device_id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
+ [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
+
+ ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensors/id)
  ### Register the sensor ####
- if [ ! $ID ];then
-    device_id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
-    [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
-    ID=$(curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensor/register)
- fi
+ [ ! $ID ] && ID=$(curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensor/register)
 
  ### Create the table measurements or update it with new types of sensors
  curl -s -H "Content-Type: application/json" -H 'Accept: application/json' -X POST -d "{\"senstypes\":$senstypes}" http://$domain:4567/create/measurements > /dev/null
