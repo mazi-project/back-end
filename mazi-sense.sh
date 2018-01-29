@@ -59,6 +59,7 @@ make_data(){
         "time":"'$TIME'",
         "sensor_id":"'$ID'"}'
 
+ echo "$NAME"
  echo ${values[@]}
 }
 
@@ -191,14 +192,14 @@ fi
 
 
 while [ true ]; do
- echo "$NAME"
- make_data
+ target_time=$(( $(date +%s)  + $interval ))
+ make_data 
  #### STORE OPTION #####
- [ $STORE ] && store
- sleep $interval
+ [ $STORE ] && store &
+ current_time=$(date +%s)
+ [ $(($target_time - $current_time)) -gt 0 ] && sleep $(($target_time - $current_time))
  [ $(date +%s) -ge $endTime ] && exit 0; 
 done
  
 #set +x
-
 
