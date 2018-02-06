@@ -1,9 +1,7 @@
-# MAZI back-end
-These scripts have been created in order to serve the requirements of the MAZI project. Most of these scripts they are used from administration and user interface of mazi toolkit.
-Below is a short guide to show you, how you can execute these scripts from the command line in order to modify your mazi toolkit.
+# MAZI backend
+The MAZI Backend has been designed and developed in order to handle low-level communication between the MAZI toolkit's hardware and the MAZI Portal. Moreover, it can be used by developers or advanced MAZI toolkit users to configure a MAZI Zone or build one from scratch. You can find below a guide on how to execute these scripts from the command line in order to modify your MAZI Zone.
 
-You can clone this repository into a [MAZI zone image] (http://nitlab.inf.uth.gr/mazi-img/) and configure accordingly your MAZI zone.
-
+You can clone this repository into a [MAZI Zone image] (http://nitlab.inf.uth.gr/mazi-img/) and configure accordingly your MAZI Zone.
 
 
 ## Prerequirements
@@ -18,7 +16,7 @@ $ apt-get install jq
 ## Guide
 
 ### mazi-antenna.sh ###
-This script is responsible to detect if you have connected any USB dongle on raspberry pi board. In addition, you can manage this dongle in order to connect raspberry pi to a wifi network 
+This script is responsible to detect if you have connected any USB dongle on Raspberry pi board. In addition, you can manage this dongle in order to connect raspberry pi to a wifi network 
 
 Usage:
 ```

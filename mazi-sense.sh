@@ -59,6 +59,7 @@ make_data(){
         "time":"'$TIME'",
         "sensor_id":"'$ID'"}'
 
+ echo "$NAME"
  echo ${values[@]}
 }
 
@@ -173,8 +174,6 @@ fi
 [ $STORE ] && sensor_id
 
 
-endTime=$(( $(date +%s) + $DUR )) # Calculate the script's Duration.
-
 [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "$NAME:" /etc/mazi/rest.log)" ] && echo "$NAME:" >> /etc/mazi/rest.log
 
 #### move sensors of sensehat####
@@ -189,16 +188,16 @@ if [ $NAME = "sensehat" ];then
 
 fi
 
-
+endTime=$(( $(date +%s) + $DUR )) # Calculate the script's Duration.
 while [ true ]; do
- echo "$NAME"
- make_data
+ target_time=$(( $(date +%s)  + $interval ))
+ make_data 
  #### STORE OPTION #####
- [ $STORE ] && store
- sleep $interval
+ [ $STORE ] && store &
+ current_time=$(date +%s)
+ [ $(($target_time - $current_time)) -gt 0 ] && sleep $(($target_time - $current_time))
  [ $(date +%s) -ge $endTime ] && exit 0; 
 done
  
 #set +x
-
 
