@@ -67,6 +67,12 @@ done
 
 
 if [ $disc ]; then
+        sudo sed -i '/network={/d' $path
+        sudo sed -i '/ssid=/d' $path
+        sudo sed -i '/psk=/d' $path
+        sudo sed -i '/key_mgmt=NONE/d' $path
+        sudo sed -i '/}/d' $path
+
         WPAid=$(sudo ps aux | grep wpa_supplicant | awk '{print $2}')
         DHCPid=$(sudo ps aux | grep "dhcpcd $intface"| awk '{print $2}')      
         if [ "$WPAid" ];then 
