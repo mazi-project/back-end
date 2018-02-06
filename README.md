@@ -89,7 +89,8 @@ Usage:
 sudo sh mazi-app.sh  [options] <application>
 
 [options]
--a, --action [start,stop,status] <application>     Controls	the	status	of	the	installed	applications
+-a, --action [start,stop,status] <application>    Controls the status of the installed applications
+
 ```
 
 ### mazi-domain.sh ###
@@ -110,7 +111,7 @@ Usage:
 ```
 sudo sh internet.sh [options]
 [options]
--m,--mode  [offline/dual/managed]   Sets	the	mode	of	the	Wi-Fi	Access	Point
+-m,--mode  [offline/dual/managed]   Sets the mode of the Wi-Fi Access Point
 ```
 
 ### mazi-current.sh ###
@@ -126,7 +127,7 @@ sudo sh mazi-current.sh  [options]
 -p,--password                Shows the password of the Wi-Fi network
 -s,-ssid                     Shows the name of the Wi-Fi network
 -d,--domain                  Shows the network domain of the MAZI Portal
--w,--wifi                    Shows	the	device	that	broadcasts	the	Wi-Fi	AP	(pi	or	OpenWRT	router)	
+-w,--wifi                    Shows the device that broadcasts the Wi-Fi AP (pi or OpenWRT router)
 ```
 
 ### mazi-router.sh ###
@@ -138,7 +139,7 @@ sudo sh mazi-router.sh [options]
 [options]
 -s,--status                  Displays if the OpenWRT router exists 
 -a,--activate                Activates	the	OpenWRT	router	as	the	Wi-Fi	AP	of	this	MAZI	Zon
--d,--deactivate              Disconnects	the	router	and	restores	the	initial	settings	of	the	Raspberry	pi	built-in	Wi-Fi	module
+-d,--deactivate              Disconnects the router and restores the initial settings of the Raspberry pi built-in Wi-Fi module
 ```
 
 ### mazi-stat.sh ###
@@ -157,7 +158,7 @@ sudo sh mazi-stat.sh [options]
 -n,--network                          Displays the Download/Upload speed
 -d,--domain                           Set a remote server domain (default is localhost)
 --status                              Shows the status of store process
---store [enable,disable,flush]        Controls	the	status	of	the	storage	process
+--store [enable,disable,flush]        Controls the status of the storage process
 
 ```
 
@@ -172,9 +173,9 @@ sudo sh mazi-appstat.sh [Application name] [options]
 -n,--name                            The name of the application
 
 [options]
---store [enable,disable,flush]       Controls	the	status	of	the	storage	process
---status                             Shows	the	status	of	storage	process	
--d,--domain                          Sets	the	server	domain	to	be	used	for	storage	(default	is	localhost)
+--store [enable,disable,flush]       Controls the status of the storage process
+--status                             Shows the status of storage process 
+-d,--domain                          Sets the server domain to be used for storage (default is localhost)
 ```
 
 ## License
