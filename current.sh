@@ -1,26 +1,20 @@
 #!/bin/bash 
 
-#This script returns the current network settings
-#
-# Usage: sudo sh current.sh  [options]
-# 
-# [options]
-# -i,--interface [wlan0,wlan1]    Print interface  
-# -s,--ssid                       Print name of your WIFI network
-# -c,--channel                    Print channel number
-# -p,--password                   Print WiFi password
-# -m,--mode                       Print MAZI zone mode
+#The mazi-current.sh script displays the settings of the Wi-Fi Access Point that has been created in this MAZI Zone.
+#You can view information such as the name , the password and the channel of the Wi-Fi Access Point. You can also see
+#the domain you are using for the portal page, as well as the active interface that broadcast the Wi-Fi Access Point-
+#in case you have plugged in an OpenWRT router. Finally, this script informs you about the mode of your Wi-Fi Access Point.
 
 usage() { echo "Usage: sudo sh current.sh  [options]" 
           echo " " 
           echo "[options]" 
-          echo "-i,--interface [wlan0,wlan1]    Displays the interface name"
-          echo "-s,--ssid                       Displays the name of your WIFI network"
-          echo "-c,--channel                    Displays the number of channel"
-          echo "-p,--password                   Displays the WiFi password"
-          echo "-d,--domain                     Displays the new domain of toolkit"
-          echo "-m,--mode                       Displays the network mode"
-          echo "-w,--wifi                       Displays the device which broadcast the local WiFi network" 1>&2; exit 1; }
+          echo "-i,--interface                  Displays the name of the active wireless interface"
+          echo "-s,--ssid                       Shows the name of the Wi-Fi network"
+          echo "-c,--channel                    Shows the Wi-Fi channel in use"
+          echo "-p,--password                   Shows the pasword of the  Wi-Fi network"
+          echo "-d,--domain                     Shows the network domain of the MAZI Portal"
+          echo "-m,--mode                       Shows the mode of the Wi-Fi network"
+          echo "-w,--wifi                       Shows the device that broadcaststhe Wi-Fi AP (pi or OpenWRT router)" 1>&2; exit 1; }
 
 
 WRT="10.0.2.2"

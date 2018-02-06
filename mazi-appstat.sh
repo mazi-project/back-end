@@ -1,15 +1,20 @@
 #!/bin/bash
+
+#The mazi-appstat.sh script enables the collection of statistical data from the application installed on the Raspberry Pi 
+#and the storage of these data in a local or remote database. In addition , you have the ability to flush these data from 
+#tha database in case you do not need them. At the moment, you can collect data from the following applications, Guestbook,Etherpad
+#and Framadate. 
 #set -x
 usage() { 
    echo "Usage: sudo sh mazi-appstat.sh [Application name] [options]" 
    echo " " 
    echo "[Application name]"
-   echo "-n,--name         Set the name of the application"
+   echo "-n,--name         The name of the application"
    echo ""
-   echo "[options]"
-   echo "--store           [enable] , [disable] or [flush]"
-   echo "--status          Displays the status of store process" 
-   echo "-d,--domain       Set a remote server domain.( Default is localhost )" 1>&2; exit 1;
+   echo "-d,--domain                          Sets the server domain to be used for storage (default is localhost)[options]"
+   echo "--store [enable,disable,flush]       Controls the status of the storage process"
+   echo "--status                             Shows the status of storage process " 
+   echo "-d,--domain                          Sets the server domain to be used for storage (default is localhost)" 1>&2; exit 1;
 }
 
 data_etherpad() {

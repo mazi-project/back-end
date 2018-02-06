@@ -1,11 +1,13 @@
 #!/bin/bash  
 
-#This script resets the mazi_admin password of the portal
-#
-# Usage: mazi-resetpswd.sh 
+#In case you have forgotten your MAZI Portal administrator password, this script enables its recovery. Once you run 
+#the mazi-resetpswd.sh, the password change back to the default "1234" and then you can access the MAZI Portal and 
+#change it through the first-contact page.
 
 
-usage() { echo "This script resets the mazi_admin password of the portal"
+usage() { echo "In case you have forgotten your MAZI Portal administrator password, this script enables its recovery. Once you run" 
+          echo "the mazi-resetpswd.sh, the password change back to the default "1234" and then you can access the MAZI Portal and"
+          echo "change it through the first-contact page."
           echo ""
           echo "Usage: mazi-resetpswd.sh "  1>&2; exit 1; }
 

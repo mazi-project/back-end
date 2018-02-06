@@ -1,30 +1,26 @@
 #!/bin/bash
 
-#This script displays the total online users in the local network 
-#
-# Usage: sudo sh mazi-stat.sh  [options]
-# 
-# [options]
-# -u,--users     Display online users 
-#
-
+#The mazi-stat.sh script enables the observation of system activity data of the Raspberry Pi such as the CPU temperature,
+#the CPU usage, the RAM usage, the Storage usage, the Download/Upload speed and the number of users connected to the Wi-Fi network.
+# You can also see information about the SD card such as capacity and whether or not the filesystem has been expanded.
+# Another functionality is the storage of these data in a local or remote database. In addition, you have the ability to flush these data
+# from the database in case you do not need them.
 #set -x
 
 #### Functions ####
 usage() { echo "Usage: sudo sh mazi-stat.sh  [options]" 
           echo " " 
           echo "[options]"
-          echo "-t,--temp         Displays the CPU core temperature" 
-          echo "-u,--users        Displays the total online users"
-          echo "-c,--cpu          Displays the CPU usage" 
-          echo "-r,--ram          Displays the RAM usage"
-          echo "-s,--storage      Displays the used storage in MB and (%) "
-          echo "     [unit]       Units are  KB, MB and GB.( Default is MB )"
-          echo "--sd              Displays information of SD card"
-          echo "-n,--network      Displays the Download/Upload speed" 
-          echo "-d,--domain       Set a remote server domain.( Default is localhost )"
-          echo "--store           [enable] , [disable ] or [flush]"   
-          echo "--status          Displays the status of store process" 1>&2; exit 1; 
+          echo "-t,--temp                              Displays the CPU core temperature" 
+          echo "-u,--users                             Displays the number of connected users"
+          echo "-c,--cpu                               Displays the CPU usage" 
+          echo "-r,--ram                               Displays the RAM usage"
+          echo "-s,--storage                           Displays the card storage in use"
+          echo "--sd                                   Displays information about the SD card"
+          echo "-n,--network                           Displays the Download/Upload speed" 
+          echo "-d,--domain                            Set a remote server domain. (default is localhost)"
+          echo "--store [enable,disable,flush]         Controls the status of the stor process" 
+          echo "--status                               Shows the status of the storage process" 1>&2; exit 1; 
 }
 
 users_fun() {

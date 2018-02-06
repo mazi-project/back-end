@@ -1,13 +1,15 @@
 #!/bin/bash
+#The mazi-router.sh script is used for the management of the OpenWrt Router connected to this MAZI Zone. After connecting an OpenWrt router
+# this	script	is able	to detect it and control the status of the connection, (activate/deactivate).
+
 #set -x
 usage(){
-        echo "mazi-router.sh configures OpenWrt router as external antenna of raspberry pi which broadcasts the local WiFi network mazizone "
         echo "Usage: sh mazi-router.sh [options] " 
         echo ""
         echo "[options]"
-        echo "-s,--status         Displays the status of router OpenWrt"
-        echo "-a,--activate       Starts the process to configure the OpenWrt router "
-        echo "-d,--deactivate     Restores the initial settings" 1>&2; exit 1;}
+        echo "-s,--status         Displays if the OpenWRT router exists"
+        echo "-a,--activate       Activates the OpenWRT router as the Wi-Fi AP of this MAZI Zone "
+        echo "-d,--deactivate     Discannects the router and restores the initial settings of the Raspberry pi built-in Wi-Fi module" 1>&2; exit 1;}
 
 
 hostapd="/etc/hostapd/hostapd.conf"

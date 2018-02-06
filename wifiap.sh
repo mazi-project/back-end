@@ -1,25 +1,14 @@
 #!/bin/bash  
 
-#This script modifies a variety of wireless network settings
-#
-# Usage: sudo sh wifiap.sh  [options]
-# 
-# [options]
-# -i,--interface [wlan0,wlan1]    Set interface name 
-# -s,--ssid                       Set the name of your WiFi network
-# -c,--channel                    Set channel number
-# -p,--password                   Set your passphrase (WiFi password)
-# -w,--wpa  [OFF/off]             Turn off wireless network security
-# -r,--router                     Modifies the wireless network settings of OpenWrt router
-
+#The mazi-wifi.sh script is responsible for creating the Wi-Fi Access Point on the Raspberry Pi. With this script, you can 
+#also modify the settings of your Wi-Fi Access Point.
 #set -x
 usage() { echo "Usage: sudo sh wifiap.sh  [options]" 
           echo " " 
           echo "[options]" 
-#          echo "-i,--interface [wlan0,wlan1]    Set interface name"
-          echo "-s,--ssid                        Set the name of your WiFi network"
-          echo "-c,--channel                     Set channel number"
-          echo "-p,--password                    Set your passphrase (WiFi password)"
+          echo "-s,--ssid                        Sets the name of the Wi-Fi network"
+          echo "-c,--channel                     Sets the Wi-Fi channel"
+          echo "-p,--password                    Sets the Wi-Fi password"
           echo "-w,--wpa  [OFF/off]              Turn off wireless network security" 1>&2; exit 1; }
 
 

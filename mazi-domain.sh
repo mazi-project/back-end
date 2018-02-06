@@ -1,8 +1,6 @@
 #!/bin/bash
 
-#This script changes the domain of mazi toolkit
-#
-# Usage: mazi-domain.sh -d <new domain>
+#The mazi-domain.sh script enables the modification of the MAZI Portal's domain and the change of the splash page.
 
 ###### Initialization ######
 hosts="/etc/hosts"
@@ -13,8 +11,8 @@ usage() { echo "This script changes the domain of mazi toolkit"
           echo ""
           echo "Usage: mazi-domain.sh [options]"
           echo "[options]"
-          echo "-d,--domain  <new domain>             Set a new Domain of portal page"
-          echo "-s,--splash  <application>/<portal>   Set a application or portal as a basic page"  1>&2; exit 1; }
+          echo "-d,--domain <new domain>             Set a new network  domain of the portal"
+          echo "-s,--splash <application>/<portal>   Set a new spalsh page"  1>&2; exit 1; }
 
 while [ $# -gt 0 ]
 do

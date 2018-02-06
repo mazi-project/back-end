@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#This script manages all available  sensors 
-#
-# Usage: sudo sh mazi-sense.sh [senseName] [options]
-#set  -x
+#The mazi-sense.sh has been created in order to manage various sensors connected to the Raspberry Pi.
+#This script can detect the connected sensor devices and consequently collect measurements  periodically with 
+#a specific duration and interval between measurements. In addition, it can store these measurements in a local
+#or remote database and check the status of the storage procedure, as well.
 
 ##### Initialization  ######
 cd /root/back-end
@@ -19,15 +19,14 @@ i=0
 usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]"
 	  echo ""
 	  echo "[SenseName]"
-	  echo "  -n,--name                         Set the name of the sensor"
-	  echo "                                        {sht11,sensehat....}"
+	  echo "  -n,--name                         The name of the sensor"
           echo ""
 	  echo "[Options]"
-          echo "  -s , --store                       Store the measurements in the Database"
-          echo "  -d , --duration                    Duration in seconds to take a measurement"
-          echo "  -i , --interval                    Seconds between periodic measurement"
+          echo "  -s , --store                       Stores the measurements in the database"
+          echo "  -d , --duration                    Duration in seconds to take a measurements"
+          echo "  -i , --interval                    Seconds between periodic measurements"
           echo "  -a , --available                   Displays the status of the available sensors"
-          echo "  -D , --domain                      Set a remote server domain.( Default is localhost )"
+          echo "  -D , --domain                      Sets a remote server domain (default is localhost)"
           echo "  --status                           Displays the status of store process"
           echo ""
 	  echo "[SensorOptions]"

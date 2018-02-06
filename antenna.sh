@@ -1,25 +1,20 @@
 #!/bin/bash  
 
-#This script set up the second antenna 
-#
-# Usage: sudo sh antenna.sh  [options]
-# 
-# [options]
-# -a,--active                     Displays if we have second wifi dongle antena 
-# -s,--ssid                       Set the name of  WIFI network
-# -p,--password                   Set the password of WIFI network
+#The mazi-antenna.sh script has	been created in	order to manage	an external USB	adapter	that is	connected to the Raspberry Pi.
+# This	script	is able	to check if a USB adapter is connected to the Raspberry	Pi. In addition, you can discover the available networks
+# in range and connect to one of them. Finally,	you can	disconnect the USB adapter from	the connected Wi-Fi network.
 #
 
 
 usage() { echo "Usage: sudo sh antenna.sh  [options]" 
 	  echo ""
           echo "[options]"
-	  echo " -a,--active                     Displays if we have second wifi dongle antena" 
-          echo " -s,--ssid                       Set the name of  WIFI network"
-          echo " -p,--password                   Set the password of WIFI network"
-          echo " -l,--list                       Displays the list of available wifi"
-          echo " -h,--hidden                     Connect to hidden network"
-          echo " -d,--disconnect                 Disconnect from network " 1>&2; exit 1; }
+	  echo " -a,--active                     Shows if a USB Wi-Fi adapter exists" 
+          echo " -s,--ssid                       Sets the SSID of the Wi-Fi network"
+          echo " -p,--password                   Sets the password of the Wi-Fi network"
+          echo " -l,--list                       Displays a list of the available Wi-Fi networks in range"
+          echo " -h,--hidden                     Connect to hidden Wi-Fi network"
+          echo " -d,--disconnect                 Disconnect the USB adapter from Wi-Fi network " 1>&2; exit 1; }
 
 
 path="/etc/wpa_supplicant/wpa_supplicant.conf"
