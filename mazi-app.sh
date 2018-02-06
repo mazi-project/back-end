@@ -28,6 +28,7 @@ case $key in
          sudo service mazi-princess $2 | grep "Active" |awk '{print $2}'
          ;;
          mazi-board)
+         sudo service mongodb $2  2>&1 >/dev/null
          sudo service mazi-board $2 | grep "Active" |awk '{print $2}'
          ;;
          *)
