@@ -16,36 +16,36 @@ $ apt-get install jq
 ## Guide
 
 ### mazi-antenna.sh ###
-This script is responsible to detect if you have connected any USB dongle on Raspberry pi board. In addition, you can manage this dongle in order to connect raspberry pi to a wifi network 
+The	mazi-antenna.sh	script	has	been	created	in	order	to	manage	an	external	USB	adapter	that	is	connected	to	the	Raspberry	Pi.	This	script	is	able	to	check	if	a	USB	adapter	is	connected	to	the	Raspberry	Pi.	In	addition,	you	can	discover	the	available	networks	in	range	and	connect	to	one	of	them.	Finally,	you	can	disconnect	the	USB	adapter	from	the	connected	Wi-Fi	network.
 
 Usage:
 ```
 sudo sh mazi-antenna.sh  [options]
 [options]
--a,--active                 Shows if the wifi dongle exists
--s,--ssid                   Set the name of wifi network
--p,--password               Set the password of wifi network
--l,--list                   Displays the list of available wifi
--h,--hidden                 Connect to hidden network
--d,--disconnect             Disconnect from network
+-a,--active                 Shows if a USB Wi-Fi adapter exists
+-s,--ssid                   Sets the SSID of the Wi-Fi network
+-p,--password               Sets the password of the Wi-Fi network
+-l,--list                   Displays a list of the available Wi-Fi networks in range
+-h,--hidden                 Connect to hidden Wi-Fi network
+-d,--disconnect             Disconnect the USB adapter from Wi-Fi network
 
 ```
 
 ### mazi-wifi.sh ###
-The mazi-wifi.sh detects the device which you have defined to executed the Wireless Access Point (OWRT router or Raspberry Pi). Also, you have the ability to modify the configuration of wifi AP, for example, you can change the ssid, channel, etc.
+The	mazi-wifi.sh	script	is	responsible	for	creating	the	Wi-Fi	Access	Point	on	the	Raspberry	Pi.	With	this	script,	you	can	also	modify	the	settings	of	your	Wi-Fi	Access	Point.
 
 Usage:
 ```
 sudo sh mazi-wifiap.sh  [options]
  [options]
--s,--ssid                    Set the name of your WiFi network
--c,--channel                 Set channel number
--p,--password                Set your passphrase (WiFi password)
--w,--wpa  [OFF/off]          Turn off wireless network security
+-s,--ssid                    Sets the name of the Wi-Fi network
+-c,--channel                 Sets the Wi-Fi channel
+-p,--password                Sets the Wi-Fi password
+-w,--wpa  [OFF/off]          Turns off wireless network security
 ```
 
 ### mazi-resetpswd.sh ###
-In case you have forgotten your administrator password, you have the ability to restore them with this script. Once you will run the mazi-resetpaswrd.sh, the administrator password change to "1234", now you can change your code to whatever you want.
+In	case	you	have	forgotten	your	MAZI	Portal	administrator	password,	this	script	enables	its	recovery.	Once	you	run	the	mazi-resetpswd.sh,	the	password	changes	back	to	the	default	"1234"	and	then	you	can	access	the	MAZI	Portal	and	change	it	through	the	first-contact	page.
 
 Usage:
 ```
@@ -53,136 +53,128 @@ sudo sh mazi-resetpswd.sh
 ```
 
 ### mazi-sense.sh ###
-This script can detect the type of sensor which is connected to your raspberry pi board. You have the choice to request the measurements of the sensor periodically and for a specific duration. One more functionality is that to send the measurements via a rest API in a local database or in a remote database through the --domain argument.
-
-> Note: The available sensor is the sensehat and sht11.
+The	mazi-sense.sh	script	has	been	created	in	order	to	manage	various	sensors	connected	to	the	Raspberry	Pi.	This	script	can	detect	the	connected	sensor	devices	and	consequently	collect	measurements	periodically	with	a	specific	duration	and	interval	between	measurements.	In	addition,	it	can	store	these	measurements	in	a	local	or	remote	database	and	check	the	status	of	the	storage	procedure,	as	well.	
 
 Usage:
 ```
-sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]
+sudo bash mazi-sense.sh [SenseName] [Options] [SensorOptions]
 
 [SenseName]
--n,--name                    Set the name of the sensor
+-n,--name                    The name of the sensor
 
 [Options]
--s , --store                 Store the measurements in the Database
--d , --duration              Duration in seconds to take a measurement
--i , --interval              Seconds between periodic measurement
+-s , --store                 Stores the measurements in the database
+-d , --duration              Duration in seconds to take a measurements
+-i , --interval              Seconds between periodic measurements
 -a , --available             Displays the status of the available sensors
--D,--domain                  Set a remote server domain.( Default is localhost )
+-D,--domain                  Sets a remote server domain (default is localhost)
 --status                     Displays the status of store process
 
 [SensorOptions]
-{sensehat}
 -t , --temperature            Get the Temperature
 -h , --humidity               Get the Humidity
--p , --pressure               Get the current pressure in Millibars.
+-p , --pressure               Get the current pressure in Millibars
 -m , --magnetometer           Get the direction of North
 -g , --gyroscope              Get a dictionary object indexed by the strings x, y and z
                               The values are Floats representing the angle of the axis in degrees
 -ac , --accelerometer         Get a dictionary object indexed by the strings x, y and z
                               The values are Floats representing the acceleration intensity of the axis in Gs
-
-{sht11}
--t , --temperature             Get the Temperature
--h , --humidity                Get the Humidity
 ```
 
 ### mazi-app.sh ###
-You can easily start, stop or control the status of an application with this script. 
-> Note: this script has been created only for, etherpad, mazi-board, mazi-princess.
+The	mazi-app.sh	script	enables	the	control	of	the	status	of	the	installed	applications	such	as	the	Etherpad,	the	Guestbook,	the	LimeSurvey	and	the	Interview-archive.	You	can	start,	stop	or	display	the	status	of	the	above	applications.	
 
 Usage:
 ```
 sudo sh mazi-app.sh  [options] <application>
 
 [options]
--a, --action [start,stop,status] <application>     Set the action and name of application
+-a, --action [start,stop,status] <application>     Controls	the	status	of	the	installed	applications
 ```
 
 ### mazi-domain.sh ###
-You have the choice to change the current domain (portal.mazizone.eu) to whatever you want or to set as the default page a specific application.
-> Note: The current applications is guestbook, etherpad, framadate, nextcloud, wordpress or portal for the user interface of mazi toolkit.
+The	mazi-domain.sh	script	enables	the	modification	of	the	MAZI	Portal’s	domain	and	the	change	of	the	splash	page.
 
 Usage:
 ```
 sudo sh mazi-domain.sh [options]
 [options]
--d,--domain              Set a new Domain of portal page
--s,--splash              Set a application or portal as a basic page
+-d,--domain              Sets a new network domain of the portal
+-s,--splash              Sets a new splash page
 ```
 
 ### mazi-internet.sh ###
-You have the ability to choose between three modes, offline, dual and restricted. In offline mode, users haven't access to the internet and they redirect to the user interface of the portal. In dual mode, raspberry pi provides internet to users. If you want to browse the user interface of the portal, you should go to  the portal.mazizone.eu .The restricted mode hasn't implemented yet.
+The	mazi-internet.sh	script	is	able	to	modify	the	mode	of	your	Wi-Fi	Access	Point	–	currently	-	between	offline	and	dual	as	the	managed	mode	has	not	been	implemented	yet.	In	the	offline	mode,	clients	of	the	Wi-Fi	Access	Point	have	not	access	to	the	Internet	and	are	permanently	redirected	to	the	Portal	splash	page.	In	the	dual	mode,	the	Raspberry	Pi	provides	Internet	access	through	either	the	Ethernet	cable	or	an	external	USB	Wi-Fi	adapter.
 
 Usage:
 ```
-sudo sh internet.sh -m      <offline/dual/restricted>
+sudo sh internet.sh [options]
+[options]
+-m,--mode  [offline/dual/managed]   Sets	the	mode	of	the	Wi-Fi	Access	Point
 ```
 
 ### mazi-current.sh ###
-This script is responsible to display the current configuration of the raspberry pi board. For example, it has the ability to display the current ssid, channel, mode, etc.
+The	mazi-current.sh	script	displays	the	settings	of	the	Wi-Fi	Access	Point	that	has	been	created	in	this	MAZI	Zone.	You	can	view	information	such	as	the	name,	the	password	and	the	channel	of	the	Wi-Fi	Access	Point.	You	can	also	see	the	domain	you	are	using	for	the	portal	page,	as	well	as	the	active	interface	that	broadcasts	the	Wi-Fi	Access	Point	-	in	case	you	have	plugged	in	an	OpenWRT	router.	Finally,	this	script	informs	you	about	the	mode	of	your	Wi-Fi	Access	Point	(offline,	dual,	managed).
 
 Usage:
 ```
 sudo sh mazi-current.sh  [options]
 [options]
--i,--interface               Shows the name of the interface
--c,--channel                 Shows the channel to use
--m,--mode                    Shows the mode of Access Point
--p,--password                Shows the password of the Access Point
--s,-ssid                     Shows the name of the WiFi Access Point
--d,--domain                  Shows the new domain of toolkit
+-i,--interface               Shows the name of the active wireless interface
+-c,--channel                 Shows the Wi-Fi channel in use
+-m,--mode                    Shows the mode of the Wi-Fi network
+-p,--password                Shows the password of the Wi-Fi network
+-s,-ssid                     Shows the name of the Wi-Fi network
+-d,--domain                  Shows the network domain of the MAZI Portal
+-w,--wifi                    Shows	the	device	that	broadcasts	the	Wi-Fi	AP	(pi	or	OpenWRT	router)	
 ```
 
 ### mazi-router.sh ###
-The mazi-router.sh configures OpenWrt router as an external antenna of raspberry pi which broadcasts the local WiFi network mazizone
+The	mazi-router.sh	script	is	used	for	the	management	of	the	OpenWrt	Router	connected	to	this	MAZI	Zone.	After	connecting	an	OpenWrt	Router	this	script	is	able	to	detect	it	and	control	the	status	of	the	connection,	(activate/deactivate).	
 
 Usage:
 ```
 sudo sh mazi-router.sh [options]
 [options]
--s,--status                  Displays the status of router OpenWrt 
--a,--activate                Starts the process to configure the OpenWrt router
--d,--deactivate              Restores the initial settings
+-s,--status                  Displays if the OpenWRT router exists 
+-a,--activate                Activates	the	OpenWRT	router	as	the	Wi-Fi	AP	of	this	MAZI	Zon
+-d,--deactivate              Disconnects	the	router	and	restores	the	initial	settings	of	the	Raspberry	pi	built-in	Wi-Fi	module
 ```
+
 ### mazi-stat.sh ###
-This script provides the statistics information about the raspberry pi board, like board temperature, CPU usage, etc. One more functionality is that to send the measurements through a rest API in a local database or in a remote database through the --domain argument.
+The	mazi-stat.sh	script	enables	the	observation	of	system	activity	data	of	the	Raspberry	Pi	such	as	the	CPU	temperature,	the	CPU	usage,	the	RAM	usage,	the	Storage	usage,	the	Download/Upload	speed	and	the	number	of	users	connected	to	the	Wi-Fi	network.	You	can	also	see	information	about	the	SD	card	such	as	capacity	and	whether	or	not	the	filesystem	has	been	expanded.	Another	functionality	is	the	storage of	these	data	in	a	local	or	remote	database.	In	addition,	you	have	the	ability	to	flush	these	data	from	the	database	in	case	you	do	not	need	them.	
 
 Usage:
 ```
 sudo sh mazi-stat.sh [options]
 [options]
--t,--temp                 Displays the CPU core temperature
--u,--users                Displays the total online users
--c,--cpu                  Displays the CPU usage
--r,--ram                  Displays the RAM usage
--s,--storage              Displays the used storage in MB and (%) 
-           [unit]       Units are  KB, MB and GB.( Default is MB )
- --sd              Displays information of SD card
--n,--network              Displays the Download/Upload speed
--d,--domain               Set a remote server domain.( Default is localhost )
---status                  Displays the status of store process
---store                   [enable] , [disable ] or [flush]
+-t,--temp                             Displays the CPU core temperature
+-u,--users                            Displays the number of connected users
+-c,--cpu                              Displays the CPU usage
+-r,--ram                              Displays the RAM usage
+-s,--storage                          Displays the card storage in use 
+--sd                                  Displays information about the SD card
+-n,--network                          Displays the Download/Upload speed
+-d,--domain                           Set a remote server domain (default is localhost)
+--status                              Shows the status of store process
+--store [enable,disable,flush]        Controls	the	status	of	the	storage	process
 
 ```
 
 ### mazi-appstat.sh ###
-This script provides the ability to collect statistics measurements from a set of applications,  and then to write these measurements in a local or remote database. 
-
-> Note: The available applications are these, guestbook, etherpad and framadate
+The	mazi-appstat.sh	script	enables	the	collection	of	statistical	data	from	the	applications	installed	on	the	Raspberry	Pi	and	the	storage	of	these	data	in	a	local	or	remote	database.	In	addition,	you	have	the	ability	to	flush	these	data	from	the	database	in	case	you do	not	need	them.	At	the	moment,	you	can	collect	data	from	the	following	applications,	Guestbook,	Etherpad	and	Framadate.	
 
 Usage:
 ```
 sudo sh mazi-appstat.sh [Application name] [options]
 
 [Application name]
--n,--name          Set the name of the application
+-n,--name                            The name of the application
 
 [options]
---store                   [enable] , [disable ] or [flush]
---status                  Displays the status of store process
--d,--domain               Set a remote server domain.(Default is localhost)
+--store [enable,disable,flush]       Controls	the	status	of	the	storage	process
+--status                             Shows	the	status	of	storage	process	
+-d,--domain                          Sets	the	server	domain	to	be	used	for	storage	(default	is	localhost)
 ```
 
 ## License
