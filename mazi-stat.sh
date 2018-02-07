@@ -203,13 +203,13 @@ fi
 if [ $store ];then 
   id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
   [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register) 
-  curl -s -X POST http://$domain:4567/create/statistics
+  curl -s -X POST http://$domain:4567/create/system
   
   if [ $store = "enable" ];then
     [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "hardware:" /etc/mazi/rest.log)" ] && echo "hardware:" >> /etc/mazi/rest.log
     data_fun
     store_data
-    [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/statistics)
+    [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/system)
     [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/users) 
     http_code=$(echo $response | tail -c 4)
     body=$(echo $response| rev | cut -c 4- | rev )
@@ -221,7 +221,7 @@ if [ $store ];then
       current_time=$(date +%s)
       [ $(($target_time - $current_time)) -gt 0 ] && sleep $(($target_time - $current_time)) 
       store_data
-      [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/statistics)
+      [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/system)
       [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/users)
       http_code=$(echo $response | tail -c 4)
       body=$(echo $response| rev | cut -c 4- | rev )
@@ -234,7 +234,7 @@ if [ $store ];then
     [ $Pid ] && kill $Pid && echo " disable"
 
   elif [ $store = "flush" ];then
-    curl -s -X POST --data '{"device_id":'$id'}' http://$domain:4567/flush/statistics  
+    curl -s -X POST --data '{"device_id":'$id'}' http://$domain:4567/flush/system
     curl -s -X POST --data '{"device_id":'$id'}' http://$domain:4567/flush/users 
   else
     echo "WRONG ARGUMENT"
