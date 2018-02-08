@@ -20,7 +20,7 @@ usage() {
 data_etherpad() {
    sqlerr=$(mysql -u$username -p$password -e 'exit' 2>&1)
    [ -n "$sqlerr" ] && sed -i "/etherpad/c\\etherpad: Database Access Denied localhost http_code: 200" /etc/mazi/rest.log && exit 0;  
- 
+
    users=$(mysql -u$username -p$password etherpad -e 'select store.value from store' |grep -o '"padIDs":{".*":.*}}' | wc -l)
 
    pads=$(mysql -u$username -p$password etherpad -e 'select store.key from store' |grep -Eo '^pad:[^:]+' |sed -e 's/pad://' |sort |uniq -c |sort -rn |awk '(count+=1) {if ($1!="2") { print count}}' |tail -1)
@@ -29,13 +29,17 @@ data_etherpad() {
           WHERE table_schema = 'etherpad';" | mysql -u$username -p$password)
    datasize=$(echo $datasize | awk '{print $NF}')
 
+   application_id=$(sqlite3 /root/portal/database/inventory.db "SELECT id FROM applications WHERE name='Etherpad';")
+   click_counter=$( sqlite3 /root/portal/database/inventory.db "SELECT SUM(click_counter) FROM application_instances WHERE application_id='$application_id';")
+
    TIME=$(date  "+%H%M%S%d%m%y")
    data='{"deployment":'$(jq ".deployment" $conf)',
           "device_id":"'$id'",
           "date":'$TIME',
           "pads":"'$pads'",
           "users":"'$users'",
-          "datasize":"'$datasize'"}'
+          "datasize":"'$datasize'",
+          "click_counter":"'$click_counter'"}'
   echo $data
 }
 
@@ -52,13 +56,18 @@ data_framadate() {
    comments=$(echo "SELECT COUNT(*) FROM fd_comment;" | mysql -u$username -p$password framadate)
    comments=$(echo $comments | awk '{print $NF}')
 
+   application_id=$(sqlite3 /root/portal/database/inventory.db "SELECT id FROM applications WHERE name='FramaDate';")
+   click_counter=$( sqlite3 /root/portal/database/inventory.db "SELECT SUM(click_counter) FROM application_instances WHERE application_id='$application_id';")
+
+
    TIME=$(date  "+%H%M%S%d%m%y")
    data='{"deployment":'$(jq ".deployment" $conf)',
           "device_id":"'$id'",
           "date":'$TIME',
           "polls":"'$polls'",
           "comments":"'$comments'",
-          "votes":"'$votes'"}'
+          "votes":"'$votes'",
+          "click_counter":"'$click_counter'"}'
    echo $data
 }
 
@@ -75,6 +84,10 @@ data_guestbook() {
    datasize=$(mongo letterbox --eval "printjson(db.stats().dataSize)")
    datasize=$(echo $datasize | awk '{print $NF}')
 
+   application_id=$(sqlite3 /root/portal/database/inventory.db "SELECT id FROM applications WHERE name='GuestBook';")
+   click_counter=$( sqlite3 /root/portal/database/inventory.db "SELECT SUM(click_counter) FROM application_instances WHERE application_id='$application_id';")
+
+
    TIME=$(date  "+%H%M%S%d%m%y")
    data='{"deployment":'$(jq ".deployment" $conf)',
           "device_id":"'$id'",
@@ -82,7 +95,8 @@ data_guestbook() {
           "submissions":"'$submissions'",
           "comments":"'$comments'",
           "images":"'$images'",
-          "datasize":"'$datasize'"}'
+          "datasize":"'$datasize'",
+          "click_counter":"'$click_counter'"}'
   echo $data
 }
 
