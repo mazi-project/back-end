@@ -5,6 +5,7 @@
 #the domain you are using for the portal page, as well as the active interface that broadcast the Wi-Fi Access Point-
 #in case you have plugged in an OpenWRT router. Finally, this script informs you about the mode of your Wi-Fi Access Point.
 
+#set -x
 usage() { echo "Usage: sudo sh current.sh  [options]" 
           echo " " 
           echo "[options]" 
@@ -112,7 +113,7 @@ if [ "$PASSWORD" = "YES" ]; then
      fi  
   else
      paswd=$(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')
-     if [ "$pswd" != "" ];then
+     if [ "$paswd" != "" ];then
          key=$(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')
      fi
   fi 
@@ -134,3 +135,4 @@ if [ "$DEVICE" ];then
   echo "device $dev"
 fi
 
+#set +x
