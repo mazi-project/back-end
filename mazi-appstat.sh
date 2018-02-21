@@ -17,6 +17,35 @@ usage() {
    echo "-d,--domain                          Sets the server domain to be used for storage (default is localhost)" 1>&2; exit 1;
 }
 
+data_nextcloud(){
+  datasize=0
+  files=0
+  users=$(curl -s --http1.1 -u admin:mazizone -X GET http://local.mazizone.eu/nextcloud/ocs/v1.php/cloud/users?format=json -H "OCS-APIRequest: true" | jq '.ocs.data.users'|jq -c '.[]'| sed 's/\"//g')
+  for row in $users;do
+    files=$(($files + $(sudo -u www-data php /var/www/html/nextcloud/occ files:scan --path=/$row/files -n|tail -2 | head -n 1 | awk '{print $4}')))
+    datasize=$(($datasize + $(curl -s --http1.1 -u admin:mazizone -X GET http://local.mazizone.eu/nextcloud/ocs/v1.php/cloud/users/$row\?format=json -H "OCS-APIRequest: true"| jq '.ocs.data.quota.used') ))
+  done
+
+  downloads=$(echo "SELECT COUNT(*) FROM oc_activity WHERE subject LIKE 'public_shared_file_downloaded' OR subject='public_shared_folder_downloaded' ;" | mysql -u$username -p$password nextcloud)
+  downloads=$(echo $downloads | awk '{print $NF}')
+
+  application_id=$(sqlite3 /root/portal/database/inventory.db "SELECT id FROM applications WHERE name='NextCloud';")
+  click_counter=$( sqlite3 /root/portal/database/inventory.db "SELECT SUM(click_counter) FROM application_instances WHERE application_id='$application_id';")
+  
+  users_num=$(curl -s --http1.1 -u admin:mazizone -X GET http://local.mazizone.eu/nextcloud/ocs/v1.php/cloud/users?format=json -H "OCS-APIRequest: true" |  jq '.ocs.data.users'| jq length)
+
+  TIME=$(date  "+%H%M%S%d%m%y")
+  data='{"deployment":'$(jq ".deployment" $conf)',
+          "device_id":"'$id'",
+          "date":'$TIME',
+          "users":"'$users_num'",
+          "datasize":"'$datasize'",
+          "files":"'$files'",
+          "downloads":"'$downloads'",
+          "click_counter":"'$click_counter'"}'
+  echo $data
+}
+
 data_etherpad() {
    sqlerr=$(mysql -u$username -p$password -e 'exit' 2>&1)
    [ -n "$sqlerr" ] && sed -i "/etherpad/c\\etherpad: Database Access Denied localhost http_code: 200" /etc/mazi/rest.log && exit 0;  
