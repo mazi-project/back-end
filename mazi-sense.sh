@@ -4,7 +4,7 @@
 #This script can detect the connected sensor devices and consequently collect measurements  periodically with 
 #a specific duration and interval between measurements. In addition, it can store these measurements in a local
 #or remote database and check the status of the storage procedure, as well.
-
+#set -x
 ##### Initialization  ######
 cd /root/back-end
 DUR="0"     #initialization of duration
@@ -51,7 +51,6 @@ status_call() {
 
 make_data(){
  
-
  TIME=$(date  "+%Y-%m-%d %H:%M:%S")
  read -a values <<<$(python lib/$NAME.py ${argum[@]})
  data='{'$(echo $(printf "\"%s\":\"%s\", "  "${values[@]}"))'
@@ -68,26 +67,35 @@ sensor_id(){
  senstypes="$(printf '%s\n' "${senstypes[@]}" | jq -R . | jq -s .)"
 
  device_id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
- [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
-
  ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensors/id)
- ### Register the sensor ####
- [ ! $ID ] && ID=$(curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensor/register)
 
  ### Create the table measurements or update it with new types of sensors
  curl -s -H "Content-Type: application/json" -H 'Accept: application/json' -X POST -d "{\"senstypes\":$senstypes}" http://$domain:4567/create/measurements > /dev/null
 }
 
+register_sensors(){
+ read -a sensors <<<$(find lib/ -maxdepth 1 -name "*.py" -exec basename \{} .py \;)
+ for name in ${sensors[@]};do
+   var=$(python lib/$name.py --detect 2>&1)
+   if [ "$var" == "$name" ];then
+      device_id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
+      [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
+
+      ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensors/id)
+      ### Register the sensor ####
+      [ ! $ID ] && curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensor/register
+   fi
+ done
+}
 
 available_fun(){
-
  read -a sensors <<<$(find lib/ -maxdepth 1 -name "*.py" -exec basename \{} .py \;)
- for s in ${sensors[@]}
+ for name in ${sensors[@]}
  do
-    var=$(python lib/$s.py --detect 2>&1)
-    if [ "$var" == "$s" ];then
-       SERVICE="$(ps -ef | grep $s | grep -v 'grep'| grep -v '\-m\|\-ac\|\-g')"
-       [ "$SERVICE" != "" ] && echo "$s active $IP" || echo "$s inactive $IP"
+    var=$(python lib/$name.py --detect 2>&1)
+    if [ "$var" == "$name" ];then
+       SERVICE="$(ps -ef | grep $name | grep -v 'grep'| grep -v '\-m\|\-ac\|\-g')"
+       [ "$SERVICE" != "" ] && echo "$name active $IP" || echo "$name inactive $IP"
     fi
  done
  exit 0;
@@ -96,13 +104,11 @@ available_fun(){
 
 status_fun(){
   read -a sensors <<<$(find lib/ -maxdepth 1 -name "*.py" -exec basename \{} .py \;)
-  for s in ${sensors[@]}
+  for name in ${sensors[@]}
   do
-     var=$(python lib/$s.py --detect 2>&1)
-     [ "$var" == "$s" ] &&  NAME=$s
+    status_call $name
+    [ "$(ps aux | grep "store\|\-s" | grep "mazi-sense.sh" | grep "\-n $name "| grep -v 'grep'| grep -v '\-m\|\-ac\|\-g')" ] && echo "$name active $call_st $error" || echo "$name inactive"
   done
-  status_call $NAME
-  [ "$(ps aux | grep "store\|\-s" | grep "mazi-sense.sh" | grep "\-n $NAME "| grep -v 'grep'| grep -v '\-m\|\-ac\|\-g')" ] && echo "$NAME active $call_st $error" || echo "$NAME inactive"
   exit 0;
 }
 
@@ -170,8 +176,8 @@ fi
 ################################
 
 ### Take the sensor's ID #####
+[ $STORE ] && register_sensors
 [ $STORE ] && sensor_id
-
 
 [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "$NAME:" /etc/mazi/rest.log)" ] && echo "$NAME:" >> /etc/mazi/rest.log
 
@@ -198,5 +204,4 @@ while [ true ]; do
  [ $(date +%s) -ge $endTime ] && exit 0; 
 done
  
-#set +x
-
+#set +
