@@ -83,7 +83,7 @@ register_sensors(){
 
       ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensors/id)
       ### Register the sensor ####
-      [ ! $ID ] && curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensor/register
+      [ ! $ID ] && curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensor/register > /dev/null
    fi
  done
 }
@@ -94,8 +94,9 @@ available_fun(){
  do
     var=$(python lib/$name.py --detect 2>&1)
     if [ "$var" == "$name" ];then
+       ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensors/id)
        SERVICE="$(ps -ef | grep $name | grep -v 'grep'| grep -v '\-m\|\-ac\|\-g')"
-       [ "$SERVICE" != "" ] && echo "$name active $IP" || echo "$name inactive $IP"
+       [ "$SERVICE" != "" ] && echo "$name active $IP $ID" || echo "$name inactive $IP $ID"
     fi
  done
  exit 0;
@@ -145,6 +146,7 @@ do
         shift
         ;;
         -a|--available)
+        register_sensors
         available_fun
 	;;
         -D|--domain)
@@ -176,7 +178,7 @@ fi
 ################################
 
 ### Take the sensor's ID #####
-[ $STORE ] && register_sensors
+#[ $STORE ] && register_sensors
 [ $STORE ] && sensor_id
 
 [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "$NAME:" /etc/mazi/rest.log)" ] && echo "$NAME:" >> /etc/mazi/rest.log
