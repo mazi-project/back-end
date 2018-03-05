@@ -14,6 +14,7 @@ conf="/etc/mazi/mazi.conf"
 path_sense="/root/back-end/lib"
 IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')"
 i=0
+port="7654"
 
 #### Functions ####
 usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]"
@@ -66,11 +67,11 @@ sensor_id(){
  read -a senstypes <<<$(python lib/$NAME.py ${argum[@]} | awk '{print $1}')
  senstypes="$(printf '%s\n' "${senstypes[@]}" | jq -R . | jq -s .)"
 
- device_id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
- ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensors/id)
+ device_id=$(curl -s -X GET -d @$conf http://$domain:$port/device/id)
+ ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$NAME\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:$port/sensors/id)
 
  ### Create the table measurements or update it with new types of sensors
- curl -s -H "Content-Type: application/json" -H 'Accept: application/json' -X POST -d "{\"senstypes\":$senstypes}" http://$domain:4567/create/measurements > /dev/null
+ curl -s -H "Content-Type: application/json" -H 'Accept: application/json' -X POST -d "{\"senstypes\":$senstypes}" http://$domain:$port/create/measurements > /dev/null
 }
 
 register_sensors(){
@@ -78,12 +79,12 @@ register_sensors(){
  for name in ${sensors[@]};do
    var=$(python lib/$name.py --detect 2>&1)
    if [ "$var" == "$name" ];then
-      device_id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
-      [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
+      device_id=$(curl -s -X GET -d @$conf http://$domain:$port/device/id)
+      [ ! $device_id ] && device_id=$(curl -s -X POST -d @$conf http://$domain:$port/monitoring/register)
 
-      ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensors/id)
+      ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:$port/sensors/id)
       ### Register the sensor ####
-      [ ! $ID ] && curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensor/register > /dev/null
+      [ ! $ID ] && curl -s -H 'Content-Type: application/json' -X POST --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:$port/sensor/register > /dev/null
    fi
  done
 }
@@ -94,7 +95,7 @@ available_fun(){
  do
     var=$(python lib/$name.py --detect 2>&1)
     if [ "$var" == "$name" ];then
-       ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:4567/sensors/id)
+       ID=$(curl -s -H 'Content-Type: application/json' -X GET --data "{\"deployment\":$(jq ".deployment" $conf),\"sensor_name\":\"$name\",\"ip\":\"$IP\",\"device_id\":\"$device_id\"}" http://$domain:$port/sensors/id)
        SERVICE="$(ps -ef | grep $name | grep -v 'grep'| grep -v '\-m\|\-ac\|\-g')"
        [ "$SERVICE" != "" ] && echo "$name active $IP $ID" || echo "$name inactive $IP $ID"
     fi
@@ -114,7 +115,7 @@ status_fun(){
 }
 
 store(){
-   response=$(curl -s -H 'Content-Type: application/json' -w %{http_code} -X POST --data "$data" http://$domain:4567/update/measurements)
+   response=$(curl -s -H 'Content-Type: application/json' -w %{http_code} -X POST --data "$data" http://$domain:$port/update/measurements)
    http_code=$(echo $response | tail -c 4)
    body=$(echo $response| rev | cut -c 4- | rev )
    sed -i "/$NAME/c\\$NAME: $body $domain http_code: $http_code" /etc/mazi/rest.log

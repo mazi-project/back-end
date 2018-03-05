@@ -118,6 +118,7 @@ domain="localhost"
 SDname=$(lsblk | grep "^mm" | awk '{print $1}')
 unit_form="MB"
 unit="m"
+port="7654"
 if [ "$(sh $path/current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
@@ -201,16 +202,16 @@ if [ $status ];then
 fi
 
 if [ $store ];then 
-  id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
-  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register) 
-  curl -s -X POST http://$domain:4567/create/system
+  id=$(curl -s -X GET -d @$conf http://$domain:$port/device/id)
+  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:$port/monitoring/register) 
+  curl -s -X POST http://$domain:$port/create/system
   
   if [ $store = "enable" ];then
     [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "hardware:" /etc/mazi/rest.log)" ] && echo "hardware:" >> /etc/mazi/rest.log
     data_fun
     store_data
-    [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/system)
-    [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/users) 
+    [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:$port/update/system)
+    [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:$port/update/users) 
     http_code=$(echo $response | tail -c 4)
     body=$(echo $response| rev | cut -c 4- | rev )
     sed -i "/hardware/c\hardware: $body $domain http_code: $http_code" /etc/mazi/rest.log
@@ -221,8 +222,8 @@ if [ $store ];then
       current_time=$(date +%s)
       [ $(($target_time - $current_time)) -gt 0 ] && sleep $(($target_time - $current_time)) 
       store_data
-      [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/system)
-      [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/users)
+      [ $hardware ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:$port/update/system)
+      [ $users_arg ] && response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:$port/update/users)
       http_code=$(echo $response | tail -c 4)
       body=$(echo $response| rev | cut -c 4- | rev )
       sed -i "/hardware/c\hardware: $body $domain http_code: $http_code" /etc/mazi/rest.log
@@ -234,8 +235,8 @@ if [ $store ];then
     [ $Pid ] && kill $Pid && echo " disable"
 
   elif [ $store = "flush" ];then
-    curl -s -X POST --data '{"device_id":'$id'}' http://$domain:4567/flush/system
-    curl -s -X POST --data '{"device_id":'$id'}' http://$domain:4567/flush/users 
+    curl -s -X POST --data '{"device_id":'$id'}' http://$domain:$port/flush/system
+    curl -s -X POST --data '{"device_id":'$id'}' http://$domain:$port/flush/users 
   else
     echo "WRONG ARGUMENT"
     usage

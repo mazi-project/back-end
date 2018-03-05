@@ -134,7 +134,7 @@ store(){
    while [ true ]; do
      target_time=$(( $(date +%s)  + $interval ))
      data_$NAME
-     response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:4567/update/$NAME)
+     response=$(curl -s -w %{http_code} -X POST --data "$data" http://$domain:$port/update/$NAME)
      http_code=$(echo $response | tail -c 4)
      body=$(echo $response| rev | cut -c 4- | rev )
      sed -i "/$NAME/c\\$NAME: $body $domain http_code: $http_code" /etc/mazi/rest.log
@@ -177,7 +177,7 @@ domain="localhost"
  #Database
 username=$(jq -r ".username" /etc/mazi/sql.conf)
 password=$(jq -r ".password" /etc/mazi/sql.conf)
-
+port="7654"
 while [ $# -gt 0 ]
 do
 
@@ -219,15 +219,15 @@ if [ $status ];then
 fi
 
 if [ $store ];then
-  id=$(curl -s -X GET -d @$conf http://$domain:4567/device/id)
-  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:4567/monitoring/register)
+  id=$(curl -s -X GET -d @$conf http://$domain:$port/device/id)
+  [ ! $id ] && id=$(curl -s -X POST -d @$conf http://$domain:$port/monitoring/register)
 
 
   if [ $store = "enable" ];then
    
     for i in $apps; do 
        [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "$i:" /etc/mazi/rest.log)" ] && echo "$i:" >> /etc/mazi/rest.log
-       curl -s -X POST http://$domain:4567/create/$i
+       curl -s -X POST http://$domain:$port/create/$i
     done
     for i in $apps; do
        store $i &  
@@ -236,7 +236,7 @@ if [ $store ];then
     disable
   elif [ $store = "flush" ];then
     for i in $apps; do
-       curl -s -X POST --data '{"device_id":'$id'}' http://$domain:4567/flush/$i 
+       curl -s -X POST --data '{"device_id":'$id'}' http://$domain:$port/flush/$i 
     done  
   else
    echo "WRONG ARGUMENT"
