@@ -1,13 +1,13 @@
 # MAZI backend
 The MAZI Backend has been designed and developed in order to handle low-level communication between the MAZI toolkit's hardware and the MAZI Portal. Moreover, it can be used by developers or advanced MAZI toolkit users to configure a MAZI Zone or build one from scratch. You can find below a guide on how to execute these scripts from the command line in order to modify your MAZI Zone.
 
-In case you are using one of the [MAZI Zone image] (http://nitlab.inf.uth.gr/mazi-img/), you can find the back-end scripts in the following folder
+In case you are using one of the [MAZI Zone image](http://nitlab.inf.uth.gr/mazi-img/), you can find the back-end scripts in the following folder
 ```
 cd /root/back-end
 ```
-Also, you can clone this repository into a [Raspbian image] (https://www.raspberrypi.org/downloads/) to build a MAZI Zone from scratch.
+Also, you can clone this repository into a [Raspbian image](https://www.raspberrypi.org/downloads/) to build a MAZI Zone from scratch.
 
-Check [here] (http://nitlab.inf.uth.gr/mazi-guides/)
+Check [here](http://nitlab.inf.uth.gr/mazi-guides/)
 
 
 
@@ -187,4 +187,4 @@ sudo sh mazi-appstat.sh [Application name] [options]
 
 ## License
 
-See the [LICENSE] (https://github.com/mazi-project/back-end/blob/master/LICENSE) file for license rights and limitations (MIT).
+See the [LICENSE](https://github.com/mazi-project/back-end/blob/master/LICENSE) file for license rights and limitations (MIT).
