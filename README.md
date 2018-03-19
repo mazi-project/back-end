@@ -6,7 +6,8 @@ In case you are using one of the [MAZI Zone image] (http://nitlab.inf.uth.gr/maz
 cd /root/back-end
 ```
 Also, you can clone this repository into a [Raspbian image] (https://www.raspberrypi.org/downloads/) to build a MAZI Zone from scratch.
-check [here] (http://nitlab.inf.uth.gr/mazi-guides/)
+
+Check [here] (http://nitlab.inf.uth.gr/mazi-guides/)
 
 
 
