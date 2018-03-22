@@ -48,6 +48,10 @@ sudo sh mazi-wifiap.sh  [options]
 -p,--password                Sets the Wi-Fi password
 -w,--wpa  [OFF/off]          Turns off wireless network security
 ```
+You can simply start (or restart the Wi-Fi Access Point if it is already started) without passing any argument.
+```
+sudo sh mazi-wifiap.sh
+```
 
 ### mazi-resetpswd.sh ###
 In	case	you	have	forgotten	your	MAZI	Portal	administrator	password,	this	script	enables	its	recovery.	Once	you	run	the	mazi-resetpswd.sh,	the	password	changes	back	to	the	default	"1234"	and	then	you	can	access	the	MAZI	Portal	and	change	it	through	the	first-contact	page.
