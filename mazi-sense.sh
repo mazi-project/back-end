@@ -179,7 +179,7 @@ fi
 ################################
 
 ### Take the sensor's ID #####
-#[ $STORE ] && register_sensors
+[ $STORE ] && register_sensors
 [ $STORE ] && sensor_id
 
 [ ! -f /etc/mazi/rest.log -o ! "$(grep -R "$NAME:" /etc/mazi/rest.log)" ] && echo "$NAME:" >> /etc/mazi/rest.log
