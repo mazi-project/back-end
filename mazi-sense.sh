@@ -17,7 +17,7 @@ i=0
 port="7654"
 
 #### Functions ####
-usage() { echo "Usage: sudo sh mazi-sense.sh [SenseName] [Options] [SensorOptions]"
+usage() { echo "Usage: sudo bash mazi-sense.sh [SenseName] [Options] [SensorOptions]"
 	  echo ""
 	  echo "[SenseName]"
 	  echo "  -n,--name                         The name of the sensor"
