@@ -16,6 +16,7 @@ $ apt-get install python-pip
 $ pip install speedtest-cli
 $ apt-get install sshpass
 $ apt-get install jq
+$ apt-get intsall sqlite3
 ```
 
 ## Guide
