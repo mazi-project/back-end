@@ -17,6 +17,8 @@ $ pip install speedtest-cli
 $ apt-get install sshpass
 $ apt-get install jq
 $ apt-get intsall sqlite3
+$ apt-get install batctl
+$ echo "batman-adv" >> /etc/modules
 ```
 
 ## Guide
