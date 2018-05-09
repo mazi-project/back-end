@@ -110,6 +110,7 @@ portal(){
     ip link set mtu 1500 dev $iface
     sudo service mazi-portal restart
     sudo service dnsmasq restart
+    sudo service dhcpcd restart
     sh mazi-wifi.sh
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   elif [ $(jq ".mesh" $conf) = '"gateway"' ];then
@@ -123,7 +124,6 @@ portal(){
     ## remove mesh configuration from dnsmaq.conf ##
     sudo sed -i '/interface=bat0/d' /etc/dnsmasq.conf
     sudo sed -i '/dhcp-range=192.168.1.10,192.168.1.200,255.255.255.0,12h/d' /etc/dnsmasq.conf
-    service dhcpcd start
     sudo service dnsmasq restart 
     sh mazi-wifi.sh
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
