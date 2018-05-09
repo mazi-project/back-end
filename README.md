@@ -190,6 +190,28 @@ sudo sh mazi-appstat.sh [Application name] [options]
 -d,--domain                          Sets the server domain to be used for storage (default is localhost)
 ```
 
+### mazi-mesh.sh ###
+With mazi-mesh.sh script you can expand the range of the Wi-Fi Access	Point by creating a mesh network. To be able to create a mesh network, you must have more than one Raspberry	Pi devices. One of these should be chosen as a gateway while the others as nodes. The Raspberry	Pi that was chosen as a gateway is the main node of our topology, as it hosts the Portal of the MAZI toolkit, forwards internet in the mesh network and provides IP to the other nodes and their clients through the DHCP server. The Raspberry	Pi that was chosen as a node is a relay of our mesh network, it redirects its clients to the gateway. Finally, you can restore the initial settings with the portal mode.
+
+Usage:
+```
+sudo bash mazi-mesh.sh [Mode] [Options]
+
+[Mode]
+  gateway                      Operates as a gateway node
+  node                         Operates as a relay node
+  portal                       Restore to the Portal settings
+
+[gateway Options]
+  -i, --interface              Set the interface of the mesh network
+  -s, --ssid                   Set the name of the mesh network
+
+[node Options]
+  -i, --interface              Set the interface of the mesh network
+  -s, --ssid                   Set the name of the mesh network
+  -b, --bridgeIface            Set the interface of the Wi-Fi Access Point
+```
+
 ## License
 
 See the [LICENSE](https://github.com/mazi-project/back-end/blob/master/LICENSE) file for license rights and limitations (MIT).
