@@ -91,7 +91,10 @@ node(){
   batctl bl 1
 
   [ $br_iface ] && sudo dhclient  br0 || sudo dhclient bat0
-  sh mazi-wifi.sh
+  id=$(ps aux | grep hostapd.conf| grep -v 'grep' | awk '{print $2}') 
+  [ "$id" ] && sudo kill $id
+  sleep 1
+  sudo hostapd -B /etc/hostapd/hostapd.conf
   echo $(cat $conf | jq '.+ {"mesh": "node"}') | sudo tee $conf
  
 }
@@ -120,7 +123,7 @@ portal(){
     ## remove mesh configuration from dnsmaq.conf ##
     sudo sed -i '/interface=bat0/d' /etc/dnsmasq.conf
     sudo sed -i '/dhcp-range=192.168.1.10,192.168.1.200,255.255.255.0,12h/d' /etc/dnsmasq.conf
-    service dhcpcd stop
+    service dhcpcd start
     sudo service dnsmasq restart 
     sh mazi-wifi.sh
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
