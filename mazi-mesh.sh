@@ -42,7 +42,11 @@ gateway(){
  ip link set up dev $iface
  ip link set up dev bat0
  ifconfig bat0 192.168.1.1
- ##configure dnsmasq from wlan1
+ ### configure /etc/hosts ####
+ domain=$(sh mazi-current.sh -d | awk '{print $NF}')
+ echo "192.168.1.1     $domain" >> /etc/hosts
+ echo "192.168.1.1     local.mazizone.eu"  >> /etc/hosts
+ ### configure dnsmasq for mesh interface ####
  echo "interface=bat0" >> /etc/dnsmasq.conf
  echo "dhcp-range=192.168.1.10,192.168.1.200,255.255.255.0,12h" >> /etc/dnsmasq.conf
  service dnsmasq restart
@@ -71,6 +75,7 @@ node(){
   ip link set up dev bat0
   batctl gw_mode client
   killall  dhclient
+  service dhcpcd stop  
 
   if [ $br_iface ];then 
      ip link add name br0 type bridge
@@ -91,6 +96,7 @@ node(){
  
 }
 portal(){
+ cd /root/back-end
  if [ $(jq ".mesh" $conf) = '"node"' ];then
     killall  dhclient
     ip link set down dev br0
@@ -101,7 +107,7 @@ portal(){
     ip link set mtu 1500 dev $iface
     sudo service mazi-portal restart
     sudo service dnsmasq restart
-    sh back-end/mazi-wifi.sh
+    sh mazi-wifi.sh
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   elif [ $(jq ".mesh" $conf) = '"gateway"' ];then
     killall  dhclient
@@ -109,11 +115,14 @@ portal(){
     ip link set down dev $iface
     batctl if del $iface
     ip link set mtu 1500 dev $iface
-    ## remove mesh configuration from dnsmaq.conf
+    ## remove mesh configutarion from /etc/hosts ##
+    sudo sed -i '/192.168.1.1/d' /etc/hosts
+    ## remove mesh configuration from dnsmaq.conf ##
     sudo sed -i '/interface=bat0/d' /etc/dnsmasq.conf
     sudo sed -i '/dhcp-range=192.168.1.10,192.168.1.200,255.255.255.0,12h/d' /etc/dnsmasq.conf
+    service dhcpcd stop
     sudo service dnsmasq restart 
-    sh back-end/mazi-wifi.sh
+    sh mazi-wifi.sh
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   fi
 }
