@@ -9,13 +9,15 @@
 usage() { echo "Usage: sudo sh current.sh  [options]" 
           echo " " 
           echo "[options]" 
-          echo "-i,--interface                  Displays the name of the active wireless interface"
-          echo "-s,--ssid                       Shows the name of the Wi-Fi network"
-          echo "-c,--channel                    Shows the Wi-Fi channel in use"
-          echo "-p,--password                   Shows the pasword of the  Wi-Fi network"
-          echo "-d,--domain                     Shows the network domain of the MAZI Portal"
-          echo "-m,--mode                       Shows the mode of the Wi-Fi network"
-          echo "-w,--wifi                       Shows the device that broadcaststhe Wi-Fi AP (pi or OpenWRT router)" 1>&2; exit 1; }
+          echo "-i,--interface  [wifi|internet]  Shows the interface that used for AP or for internet connection respectively."
+          echo "                wifi             Interface for Access Point"
+          echo "                internet         Interface for internet connection"
+          echo "-s,--ssid                        Shows the name of the Wi-Fi network"
+          echo "-c,--channel                     Shows the Wi-Fi channel in use"
+          echo "-p,--password                    Shows the pasword of the  Wi-Fi network"
+          echo "-d,--domain                      Shows the network domain of the MAZI Portal"
+          echo "-m,--mode                        Shows the mode of the Wi-Fi network"
+          echo "-w,--wifi                        Shows the device that broadcaststhe Wi-Fi AP (pi or OpenWRT router)" 1>&2; exit 1; }
 
 
 WRT="10.0.2.2"
@@ -27,7 +29,8 @@ key="$1"
 
 case $key in
     -i |--interface)
-    INTERFACE="YES"
+    INTERFACE="$2"
+    shift
     ;;
     -d |--domain)
     DOMAIN="YES"
@@ -67,13 +70,14 @@ if [ "$(ps aux | grep hostapd | grep -v 'grep')" ];then
 fi
 
 ## print interface
-if [ "$INTERFACE" = "YES" ]; then
+if [ $INTERFACE ]; then
   if [ "$ROUTER" ];then
-    intface="br-lan"
+   intface="br-lan"
   else
-    intface=$(grep 'interface' /etc/hostapd/hostapd.conf| sed 's/\interface=//g') 
+    [ $INTERFACE = "wifi" ] && intface=$(cat /etc/hostapd/replace.sed| grep "intface" | awk -F'[/|/]' '{print $3}') 
+    [ $INTERFACE = "internet" ] && intface=$(ps aux | grep wpa_supplicant | grep -o '\-i.*' | awk '{print $2}')
   fi
-  echo "interface $intface"
+  [ $intface ] && echo "interface $intface" || echo "interface -"
 fi
 
 ## print channel
@@ -81,7 +85,7 @@ if [ "$CHANNEL" = "YES" ]; then
   if [ "$ROUTER" ];then 
     channel=$(sudo sshpass -p "$PSWD" ssh root@$WRT "grep 'channel' /etc/config/wireless | sed 's/option channel//g'| grep -o  [^\']* | xargs")
   else
-    channel=$(grep 'channel' /etc/hostapd/hostapd.conf| sed 's/channel=//g') 
+    channel=$(cat /etc/hostapd/replace.sed| grep "channel" | awk -F'[/|/]' '{print $3}') 
   fi
   echo "channel $channel"
 fi
@@ -91,7 +95,7 @@ if [ "$SSID" = "YES" ]; then
   if [ "$ROUTER" ];then
      ssid=$(sudo sshpass -p "$PSWD" ssh root@$WRT "grep 'ssid' /etc/config/wireless | sed 's/option ssid//g'| grep -o  [^\']* | xargs")
   else
-    ssid=$(grep 'ssid' /etc/hostapd/hostapd.conf| sed 's/ssid=//g')  
+    ssid=$(cat /etc/hostapd/replace.sed| grep "ssid" | awk -F'[/|/]' '{print $3}')  
   fi
   echo "ssid $ssid"
 fi
@@ -114,7 +118,7 @@ if [ "$PASSWORD" = "YES" ]; then
   else
      paswd=$(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')
      if [ "$paswd" != "" ];then
-         key=$(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')
+         key=$(cat /etc/hostapd/replace.sed| grep "password" | awk -F'[/|/]' '{print $3}')
      fi
   fi 
   echo "password $key"
@@ -128,8 +132,6 @@ if [ "$MODE" = "YES" ]; then
      echo "mode -"
    fi 
 fi
-
-
 
 if [ "$DEVICE" ];then
   echo "device $dev"

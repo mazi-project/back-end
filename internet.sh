@@ -12,41 +12,17 @@ usage() {
 
 
 conf="/etc/mazi/mazi.conf"
-
+nodog_path="/etc/nodogsplash/nodogsplash.conf"
 while [ $# -gt 0 ]
 do
    case "$1" in
    -m|--mode) MODE="$2"
             if [ "$MODE" = "offline" ]; then
 	        #echo $MODE
-		#Redirect  with DNSMASQ
-                sudo sed -i '/#Redirect rule/a \address=\/#\/10.0.0.1' /etc/dnsmasq.conf
-
-		#Delete iptables rules
-		sudo iptables -F
-		sudo iptables -F -t nat
-		sudo iptables -F -t mangle
-
-		# Block Internet
-		sudo iptables -A FORWARD -i wlan1 -j DROP
-		sudo iptables -A FORWARD -i eth0 -j DROP
-
-		# Redirect HTTP to apache
-		sudo iptables -t mangle -N HTTP
-		sudo iptables -t mangle -A PREROUTING -i wlan0 -p tcp -m tcp --dport 80 -j HTTP
-	        sudo iptables -t mangle -A HTTP -j MARK --set-mark 99
-		sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination 10.0.0.1
-
-		# Redirect HTTPS to apache
-		sudo iptables -t mangle -N HTTPS
-		sudo iptables -t mangle -A PREROUTING -i wlan0 -p tcp -m tcp --dport 443 -j HTTPS
-		sudo iptables -t mangle -A HTTPS -j MARK --set-mark 98
-		sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp -m mark --mark 98 -m tcp --dport 443 -j DNAT --to-destination 10.0.0.1
-
-		#Restart DNSMASQ
-		sudo service dnsmasq restart
-		#Save rules.v4 rules
-		sudo iptables-save | sudo tee /etc/iptables/rules.v4
+                #interface
+		 #sed -i '/FirewallRule .* to 0.0.0.0/c\    FirewallRule drop to 0.0.0.0/0' $nodog_path 
+                #redirect url
+		sed -i '/FirewallRule .* to 0.0.0.0/c\    FirewallRule drop to 0.0.0.0/0' $nodog_path 
 
 		echo You are now in offline mode
                 echo $(cat $conf | jq '.+ {"mode": "offline"}') | sudo tee $conf
