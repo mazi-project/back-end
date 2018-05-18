@@ -65,10 +65,10 @@ start(){
  if [ $ROUTER ];then
     sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=0; uci commit wireless; wifi'
  else
-  [ "$internet_intface" = "$wifi_intface" ] && sh mazi-antenna.sh -d -i $wifi_intface
-  sudo ifconfig $wifi_intface down
+  [ "$1" = "$2" ] && sh mazi-antenna.sh -d -i $2
+  sudo ifconfig $2 down
   sudo hostapd -B $hostapd
-  sudo ifconfig $wifi_intface 10.0.0.1/24
+  sudo ifconfig $2 10.0.0.1/24
  fi
 }
 
@@ -104,14 +104,19 @@ case $key in
     shift # past argument=value
     ;;
     start)
-    start
+    internet_intface=$(sh mazi-current.sh -i internet | awk '{print $2}')
+    wifi_intface=$(sh mazi-current.sh -i wifi | awk '{print $2}')
+    start $internet_intface $wifi_intface
+    exit 0;
     ;;
     stop)
     stop
+    exit 0;
     ;;
     restart)
     stop
-    start
+    start $internet_intface $wifi_intface
+    exit 0;
     ;;
     *)
      # unknown option
@@ -126,7 +131,7 @@ wifi_intface=$(sh mazi-current.sh -i wifi | awk '{print $2}')
 sed -f /etc/hostapd/replace.sed /etc/hostapd/template_80211n.txt  > /etc/hostapd/hostapd.conf
 [ -z $password ] && sed -i '/^wpa/ d' /etc/hostapd/hostapd.conf
 stop
-start
+start $internet_intface $wifi_intface
 
 set +x
 
