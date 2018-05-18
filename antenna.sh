@@ -37,6 +37,10 @@ disconnect(){
      killall dhclient
      ip addr flush dev $1
      ifconfig $1 down
+     # Delete iptable rule
+     sudo iptables -t nat -D POSTROUTING -o $intface -j MASQUERADE
+     sudo iptables-save | sudo tee /etc/iptables/rules.v4
+
 }
 list(){
      sudo ifconfig $intface up 
@@ -63,6 +67,9 @@ connect(){
     sudo ifconfig $intface up
     sudo wpa_supplicant -B -i $intface -c /etc/wpa_supplicant/wpa_supplicant.conf 
     dhclient $intface
+    ## Forward internet through interface
+    sudo iptables -t nat -A POSTROUTING -o $intface -j MASQUERADE
+    sudo iptables-save | sudo tee /etc/iptables/rules.v4
 }
 
 
