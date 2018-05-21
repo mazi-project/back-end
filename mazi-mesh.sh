@@ -1,8 +1,11 @@
 #!/bin/bash
 ##mesh
-#set -x
-conf="/etc/mazi/mazi.conf"
+set -x
 
+## initialization ##
+conf="/etc/mazi/mazi.conf"
+wifi_intface=$(sh mazi-current.sh -i wifi | awk '{print $2}')
+internet_intface=$(sh mazi-current.sh -i internet | awk '{print $2}')
 
 usage() { echo "Usage: sudo bash mazi-mesh.sh [Mode] [Options]"
           echo ""
@@ -17,26 +20,29 @@ usage() { echo "Usage: sudo bash mazi-mesh.sh [Mode] [Options]"
           echo ""
           echo "[node Options]"
           echo "  -i, --interface              Set the interface of the mesh network"
-          echo "  -s, --ssid                   Set the name of the mesh network"
-          echo "  -b, --bridgeIface            Set the interface of the Wi-Fi Access Point"1>&2; exit 1; }
-
+          echo "  -s, --ssid                   Set the name of the mesh network" 1>&2; exit 1; 
+}
 
 batIface(){
   ifaces=$(netstat -i |  awk '{print $1}' | grep -v "Kernel" | grep -v "Iface")
   read -a ifaces <<<$ifaces
   for i in ${ifaces[@]};do
-     [ "$(iwconfig $i 2>/dev/null | grep Cell | awk '{print $NF}')" = "02:12:34:56:78:9A" ] && iface=$i
+     if [ "$(iwconfig $i 2>/dev/null | grep Mode | awk '{print $1}')" = "Mode:Ad-Hoc" ];then
+        iface=$i
+     fi
   done
 }
 
 gateway(){
  cd /root/back-end
  [ $(jq ".mesh" $conf) = '"gateway"' ] && exit 0;
- sh mazi-antenna.sh -d
+ [ "$wifi_intface" = "$iface" ] && echo "This interface is being used by the Access Point" && exit 0;
+ [ "$internet_intface" = "$iface" ] && sh mazi-antenna.sh -d $iface
  ip link set mtu 1532 dev $iface
  sleep 1
  ifconfig $iface down
- iwconfig $iface mode ad-hoc essid $ssid ap 02:12:34:56:78:9A channel 1
+# iwconfig $iface mode ad-hoc essid $ssid ap 02:12:34:56:78:9A channel 1
+ iwconfig $iface mode ad-hoc essid $ssid channel 1
  ifconfig $iface up
  batctl if add $iface
  ip link set up dev $iface
@@ -62,13 +68,15 @@ node(){
    echo "Bad mesh signal"
    exit 0;
   fi  
-  sh mazi-antenna.sh -d
+  [ "$wifi_intface" = "$iface"] && echo "This interface is being used by the Access Point" && exit 0;
+  [ "$internet_intface" = "$iface" ] && sh mazi-antenna.sh -d $iface
   service mazi-portal stop
   service dnsmasq stop
   ip link set mtu 1532 dev $iface
   sleep 1
   ifconfig $iface down
-  iwconfig $iface mode ad-hoc essid $ssid ap 02:12:34:56:78:9A channel 1
+#  iwconfig $iface mode ad-hoc essid $ssid ap 02:12:34:56:78:9A channel 1
+  iwconfig $iface mode ad-hoc essid $ssid channel 1
   ifconfig $iface up
   batctl if add $iface
   ip link set up dev $iface
@@ -77,24 +85,21 @@ node(){
   killall  dhclient
   service dhcpcd stop  
 
-  if [ $br_iface ];then 
-     ip link add name br0 type bridge
-     mac=$(ifconfig br0 | grep HWaddr | awk '{print $NF}')
-     ip link set dev $br_iface master br0
-     ip link set dev bat0 master br0
-     ifconfig br0 hw ether $mac
-     ip link set up dev $br_iface
-     ip link set up dev bat0
-     ip link set up dev br0
-  fi
+  br_iface=$wifi_intface 
+  ip link add name br0 type bridge
+  mac=$(ifconfig br0 | grep HWaddr | awk '{print $NF}')
+  ip link set dev $br_iface master br0
+  ip link set dev bat0 master br0
+  ifconfig br0 hw ether $mac
+  ip link set up dev $br_iface
+  ip link set up dev bat0
+  ip link set up dev br0
+
   batctl gw_mode client
   batctl bl 1
 
-  [ $br_iface ] && sudo dhclient  br0 || sudo dhclient bat0
-  id=$(ps aux | grep hostapd.conf| grep -v 'grep' | awk '{print $2}') 
-  [ "$id" ] && sudo kill $id
-  sleep 1
-  sudo hostapd -B /etc/hostapd/hostapd.conf
+  sudo dhclient  br0
+  sh mazi-wifi.sh restart
   echo $(cat $conf | jq '.+ {"mesh": "node"}') | sudo tee $conf
  
 }
@@ -111,7 +116,8 @@ portal(){
     sudo service mazi-portal restart
     sudo service dnsmasq restart
     sudo service dhcpcd restart
-    sh mazi-wifi.sh
+    iwconfig wlan0  essid off ap off mode managed
+    sh mazi-wifi.sh restart
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   elif [ $(jq ".mesh" $conf) = '"gateway"' ];then
     killall  dhclient
@@ -119,13 +125,15 @@ portal(){
     ip link set down dev $iface
     batctl if del $iface
     ip link set mtu 1500 dev $iface
+    ip addr flush dev $iface
+    iwconfig wlan0  essid off ap off mode managed
     ## remove mesh configutarion from /etc/hosts ##
     sudo sed -i '/192.168.1.1/d' /etc/hosts
     ## remove mesh configuration from dnsmaq.conf ##
     sudo sed -i '/interface=bat0/d' /etc/dnsmasq.conf
     sudo sed -i '/dhcp-range=192.168.1.10,192.168.1.200,255.255.255.0,12h/d' /etc/dnsmasq.conf
     sudo service dnsmasq restart 
-    sh mazi-wifi.sh
+    sh mazi-wifi.sh restart
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   fi
 }
@@ -187,7 +195,7 @@ esac
 
 
 
-#set +x
+set +x
 
 
 
