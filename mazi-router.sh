@@ -3,8 +3,10 @@
 # this	script	is able	to detect it and control the status of the connection, (activate/deactivate).
 
 #set -x
+cd /etc/back-end/
+
 usage(){
-        echo "Usage: sh mazi-router.sh [options] " 
+        echo "Usage: sh mazi-router.sh [options] "
         echo ""
         echo "[options]"
         echo "-s,--status         Displays if the OpenWRT router exists"
@@ -33,7 +35,7 @@ case $key in
     ;;
     *)
        # unknown option
-    usage   
+    usage
     ;;
 esac
 
@@ -50,11 +52,10 @@ fi
 
 
 if [ "$ACT" ];then
-
-   #Setup eth0 interface 
-   sudo ifconfig eth0 10.0.2.1/24 
+   #Setup eth0 interface
+   sudo ifconfig eth0 10.0.2.1/24
    sudo sed -i '/iface eth0 inet manual/d' $interface
-   
+
    sudo sed -i '/auto eth0/ a \iface eth0 inet static\n  address 10.0.2.1\/24' $interface
 
    #Setup Dnsmasq
@@ -66,11 +67,11 @@ if [ "$ACT" ];then
    sudo sed -i '/#OpenWrt/a \interface=eth0' $path
    sudo sed -i "/interface=eth0/ a \dhcp-range=10.0.2.10,10.0.2.200,255.255.255.0,12h" $path
    sudo service dnsmasq restart
-   
+
    #Setup remote AP
-   ssid=$(sh /root/back-end/mazi-current.sh -s | awk '{print $NF}') 
-   channel=$(sh /root/back-end/mazi-current.sh -c | awk '{print $NF}') 
-   password=$(sh /root/back-end/mazi-current.sh -p | awk '{print $NF}')
+   ssid=$(sh mazi-current.sh -s | awk '{print $NF}') 
+   channel=$(sh mazi-current.sh -c | awk '{print $NF}') 
+   password=$(sh mazi-current.sh -p | awk '{print $NF}')
    sudo sshpass -p "$PSWD" ssh root@$WRT 'sed -i "/option channel/c\        option channel '$channel'" /etc/config/wireless'  
    sudo sshpass -p "$PSWD" ssh root@$WRT 'sed -i "/option ssid/c\        option ssid '$ssid'" /etc/config/wireless'
    if [ "$password" != "-" ];then
@@ -79,31 +80,20 @@ if [ "$ACT" ];then
    else
        sudo sshpass -p "$PSWD" ssh root@$WRT 'sed -i "/option encryption/c\        option encryption 'none'" /etc/config/wireless'
    fi
- 
+
    #Enable WiFi on OpenWrt router
    sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=0; uci commit wireless; wifi'
 
    #Disable WiFi on raspberry pi
-   id=$(ps aux | grep hostapd.conf| grep -v 'grep' | awk '{print $2}') 
+   sh mazi-wifi.sh stop
 
-   if [ "$id" ];then 
-      sudo kill $id
-   fi
-   
-    sudo echo 'active' | sudo tee /etc/mazi/router.conf
+   sudo echo 'active' | sudo tee /etc/mazi/router.conf
 fi
 
 
 if [ "$DACT" ];then
-
   #Enable WiFi on raspberry pi
-   id=$(ps aux | grep hostapd.conf| grep -v 'grep'| awk '{print $2}') 
-
-   if [ "$id" = "" ];then 
-     sudo ifconfig wlan0 down
-     sudo hostapd -B $hostapd
-   fi
-   sudo ifconfig wlan0 10.0.0.1/24
+   sh mazi-wifi.sh restart
   #Disable WiFi on OpenWrt router
    sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=1; uci commit wireless; wifi'
 

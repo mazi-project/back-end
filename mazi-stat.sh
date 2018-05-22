@@ -24,6 +24,7 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
 }
 
 users_fun() {
+    wifi_intface=$(sh $path/mazi-current.sh -i wifi | awk '{print $2}')
     sudo touch $log/users.log
     sudo chmod 777 $log/users.log 
     if [ "$ROUTER" ];then
@@ -31,7 +32,8 @@ users_fun() {
       users=$(cat $log/users.log | grep 'responded' | awk '{print $12}') 
       users=$(( users - 1))
     else
-      sudo arp-scan --interface=wlan0 10.0.0.0/24 --arpspa 10.0.0.1 --retry=3 -g  > $log/users.log
+      wifi_intface=$(sh $path/mazi-current.sh -i wifi | awk '{print $2}')
+      sudo arp-scan --interface=$wifi_intface 10.0.0.0/24 --arpspa 10.0.0.1 --retry=3 -g  > $log/users.log
       users=$(cat $log/users.log | grep 'responded' | awk '{print $12}')
     fi
 }

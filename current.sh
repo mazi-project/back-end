@@ -12,6 +12,7 @@ usage() { echo "Usage: sudo sh current.sh  [options]"
           echo "-i,--interface  [wifi|internet]  Shows the interface that used for AP or for internet connection respectively."
           echo "                wifi             Interface for Access Point"
           echo "                internet         Interface for internet connection"
+          echo "                mesh             Interface for mesh network"
           echo "-s,--ssid                        Shows the name of the Wi-Fi network"
           echo "-c,--channel                     Shows the Wi-Fi channel in use"
           echo "-p,--password                    Shows the pasword of the  Wi-Fi network"
@@ -19,17 +20,56 @@ usage() { echo "Usage: sudo sh current.sh  [options]"
           echo "-m,--mode                        Shows the mode of the Wi-Fi network"
           echo "-w,--wifi                        Shows the device that broadcaststhe Wi-Fi AP (pi or OpenWRT router)" 1>&2; exit 1; }
 
+interface(){
+  if [ $1 = "wifi" ];then
+     [ $ROUTER ] && echo "wifi_interface br-lan"
+     [ -z $ROUTER ] && echo "wifi_interface $(cat /etc/hostapd/replace.sed| grep "intface" | awk -F'[/|/]' '{print $3}')" 
+  elif [ $1 = "internet" ];then
+     internet_interface=$(ps aux | grep wpa_supplicant | grep -o '\-i.*' | awk '{print $2}')
+     [ $internet_interface ] && echo "internet_interface $internet_interface" || echo "internet_interface -"
+  elif [ $1 = "mesh" ];then
+     mesh_interface="-"
+     ifaces=$(netstat -i |  awk '{print $1}' | grep -v "Kernel" | grep -v "Iface")
+     read -a ifaces <<<$ifaces
+     for i in ${ifaces[@]};do
+       if [ "$(iwconfig $i 2>/dev/null | grep Mode | awk '{print $1}')" = "Mode:Ad-Hoc" ];then
+         mesh_interface=$i
+       fi
+     done
+     [ $mesh_interface ] && echo "mesh_interface $mesh_interface" || echo "mesh_interface -"
+  elif [ $1 = "all" ];then
+     ifaces=$(ifconfig -a | awk '{print $1}' | grep wlan)
+     read -a ifaces <<<$ifaces
+     for i in ${ifaces[@]};do
+       echo "interface $i"
+     done
+  else
+    usage
+    exit 0;
+  fi
+}
 
 WRT="10.0.2.2"
 PSWD="mazi"
 conf="/etc/mazi/mazi.conf"
+
+if [ -f /etc/mazi/router.conf ];then
+  if [ "$(cat /etc/mazi/router.conf)" = "active" ];then
+    ROUTER="TRUE"
+    dev="OpenWrt router"
+  fi
+fi
+if [ "$(ps aux | grep hostapd | grep -v 'grep')" ];then
+  dev="Raspberry pi"
+fi
+
 while [ $# -gt 0 ]
 do
 key="$1"
 
 case $key in
     -i |--interface)
-    INTERFACE="$2"
+    interface $2
     shift
     ;;
     -d |--domain)
@@ -57,28 +97,6 @@ case $key in
 esac
 shift #past argument
 done
-
-
-if [ -f /etc/mazi/router.conf ];then
-  if [ "$(cat /etc/mazi/router.conf)" = "active" ];then
-    ROUTER="TRUE"
-    dev="OpenWrt router"
-  fi
-fi
-if [ "$(ps aux | grep hostapd | grep -v 'grep')" ];then
-  dev="Raspberry pi"
-fi
-
-## print interface
-if [ $INTERFACE ]; then
-  if [ "$ROUTER" ];then
-   intface="br-lan"
-  else
-    [ $INTERFACE = "wifi" ] && intface=$(cat /etc/hostapd/replace.sed| grep "intface" | awk -F'[/|/]' '{print $3}') 
-    [ $INTERFACE = "internet" ] && intface=$(ps aux | grep wpa_supplicant | grep -o '\-i.*' | awk '{print $2}')
-  fi
-  [ $intface ] && echo "interface $intface" || echo "interface -"
-fi
 
 ## print channel
 if [ "$CHANNEL" = "YES" ]; then
@@ -127,7 +145,7 @@ fi
 ## print mode
 if [ "$MODE" = "YES" ]; then
    if [ -f $conf ]; then
-     echo "mode $(jq ".mode" $conf) "
+     echo mode $(jq ".mode" $conf) 
    else
      echo "mode -"
    fi 

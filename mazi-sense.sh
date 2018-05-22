@@ -12,7 +12,8 @@ interval="0"     #initialization of interval
 domain="localhost"
 conf="/etc/mazi/mazi.conf"
 path_sense="/root/back-end/lib"
-IP="$(ifconfig wlan0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')"
+wifi_intface=$(sh mazi-current.sh -i wifi | awk '{print $2}')
+IP="$(ifconfig $wifi_intface | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')"
 i=0
 port="7654"
 

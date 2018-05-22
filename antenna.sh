@@ -4,13 +4,13 @@
 # This	script	is able	to check if a USB adapter is connected to the Raspberry	Pi. In addition, you can discover the available networks
 # in range and connect to one of them. Finally,	you can	disconnect the USB adapter from	the connected Wi-Fi network.
 #
-set -x
+#set -x
 ## initialization ##
 
 cd /root/back-end
 path="/etc/wpa_supplicant/wpa_supplicant.conf"
-wifi_intface=$(sh mazi-current.sh -i wifi | awk '{print $2}')
-internet_intface=$(sh mazi-current.sh -i internet | awk '{print $2}')
+wifi_intface=$(bash mazi-current.sh -i wifi | awk '{print $2}')
+internet_intface=$(bash mazi-current.sh -i internet | awk '{print $2}')
 password=""
 ssid=""
 
@@ -91,7 +91,7 @@ case $key in
     shift # past argument=value
     ;;
     -a|--active)
-    active="TRUE"
+    active_arg="TRUE"
     ;;
     -h|--hidden)
     hidden="TRUE"
@@ -135,4 +135,4 @@ fi
 
 exit 1;
 
-set +x
+#set +x

@@ -2,17 +2,19 @@
 
 #The mazi-wifi.sh script is responsible for creating the Wi-Fi Access Point on the Raspberry Pi. With this script, you can 
 #also modify the settings of your Wi-Fi Access Point.
-set -x
+#set -x
 cd /root/back-end
 
 ## initialization ##
+internet_intface=$(bash mazi-current.sh -i internet | awk '{print $2}')
+wifi_intface=$(bash mazi-current.sh -i wifi | awk '{print $2}')
 hostapd="/etc/hostapd/hostapd.conf"
 replace="/etc/hostapd/replace.sed"
 WRT="10.0.2.2"
 PSWD="mazi"
 
 #Modifies the wireless network settings of OpenWrt router
-if [ "$(sh current.sh -w)" = "device OpenWrt router" ];then
+if [ "$(bash current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
 
@@ -30,7 +32,8 @@ usage() { echo "Usage: sudo sh wifiap.sh  [options]"
 interface(){
  if [ -z $ROUTER ];then
     sed -i "/intface/c\s/\${intface}/$intface/" $replace
-    sed -i "/# MAZI configuration/!b;n;cinterface=$intface" /etc/dnsmasq.conf    
+    sed -i "/# MAZI configuration/!b;n;cinterface=$intface" /etc/dnsmasq.conf
+    wifi_intface=$(bash mazi-current.sh -i wifi | awk '{print $2}')    
     sudo service dnsmasq restart
  fi
 }
@@ -59,6 +62,7 @@ stop(){
  [ $ROUTER ] && sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=1; uci commit wireless; wifi'
  id=$(ps aux | grep hostapd.conf| grep -v 'grep' | awk '{print $2}')
  [ "$id" ] && sudo kill $id
+ ip addr flush dev $1
 }
 
 start(){
@@ -74,6 +78,8 @@ start(){
 
 
 ######  Parse command line arguments   ######
+
+stop $wifi_intface
 while [ $# -gt 0 ]
 do
 key="$1"
@@ -104,17 +110,15 @@ case $key in
     shift # past argument=value
     ;;
     start)
-    internet_intface=$(sh mazi-current.sh -i internet | awk '{print $2}')
-    wifi_intface=$(sh mazi-current.sh -i wifi | awk '{print $2}')
     start $internet_intface $wifi_intface
     exit 0;
     ;;
     stop)
-    stop
+    stop $wifi_intface
     exit 0;
     ;;
     restart)
-    stop
+    stop $wifi_intface
     start $internet_intface $wifi_intface
     exit 0;
     ;;
@@ -126,14 +130,17 @@ esac
 shift     #past argument or value
 done
 
-internet_intface=$(sh mazi-current.sh -i internet | awk '{print $2}')
-wifi_intface=$(sh mazi-current.sh -i wifi | awk '{print $2}')
+## Make new hostapd configuration file ##
 sed -f /etc/hostapd/replace.sed /etc/hostapd/template_80211n.txt  > /etc/hostapd/hostapd.conf
+
+### remove wpa ###
 [ -z $password ] && sed -i '/^wpa/ d' /etc/hostapd/hostapd.conf
-stop
+
+## restart hostapd ##
+#stop $wifi_intface
 start $internet_intface $wifi_intface
 
-set +x
+#set +x
 
 
 

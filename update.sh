@@ -1,30 +1,48 @@
 #!bin/bash
 
-#configuration of rc.local file 
+# install nodogsplash
+cd /root/
+git clone https://github.com/nodogsplash/nodogsplash.git
+cd nodogsplash
+git checkout v1
+make
+make install
+cp /root/back-end/templates/online.txt /etc/nodogsplash/
+cp /root/back-end/templates/offline.txt /etc/nodogsplash/
 
-sudo sed -i '/ifdown wlan0/,/ifconfig wlan0 10.0.0.1/d' /etc/rc.local
-sudo sed -i '/ifconfig wlan0 10.0.0.1/ a \sudo sh /root/back-end/wifiap.sh' /etc/rc.local
+## hostapd tempates
+cp /root/back-end/templates/template_80211n.txt /etc/hostapd/
+cp /root/back-end/templates/replace.sed /etc/hostapd/
 
-#configuration of ssh_config file 
-sudo sed -i '$ a \Host 10.0.2.2\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null' /etc/ssh/ssh_config
+## install batctl (mesh) ##
+cd /root/
+apt-get install batctl
+echo "batman-adv" >> /etc/modules
+modprobe batman-adv 
 
-#sshpass installation
-sudo apt-get --yes install sshpass
-
-#speedtest-cli installation
-sudo apt-get --yes install python-pip
-sudo pip install speedtest-cli 
+## remove certificates ##
+## ?
 
 
-#execute bash script from any location
-#sudo export PATH=$PATH:/root/back-end/
-#sudo echo 'export PATH="/root/back-end:$PATH"' >> ~/.bashrc
-#. ~/.bashrc
-#sudo chmod o+x /root/back-end/*
+## remove old iptables ##
+iptables -F
+iptables -F -t nat
+iptables -F -t mangle
+sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+sudo iptables-save | sudo tee /etc/iptables/rules.v4
 
-#drivers of available antennas 
+sh /root/back-end/mazi-internet.sh -m offline
 
-sudo install-wifi -u 8188eu
-sudo install-wifi -u 8812au
-sudo install-wifi -u mt7610
-sudo install-wifi -u 8188eu
+## update rc.local ###
+sudo sed -i '/\/sbin\/ifconfig wlan0 10.0.0.1/d' /etc/rc.local 
+/root/nodogsplash/nodogsplash 2 > /dev/null
+sudo sed -i "/wifiap.sh/ a \\/root\/nodogsplash\/nodogsplash 2 > \/dev\/null" /etc/rc.local
+
+## update /etc/network/interfaces
+sed -i '/allow-hotplug wlan0/d' /etc/network/interfaces
+sed -i '/iface wlan0 inet manual/d' /etc/network/interfaces
+sed -i '/wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf/d' /etc/network/interfaces
+sed -i '/allow-hotplug wlan1/d' /etc/network/interfaces
+sed -i '/iface wlan1 inet manual/d' /etc/network/interfaces
+
+

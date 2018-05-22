@@ -1,11 +1,11 @@
 #!/bin/bash
 ##mesh
-set -x
+#set -x
 
 ## initialization ##
 conf="/etc/mazi/mazi.conf"
-wifi_intface=$(sh mazi-current.sh -i wifi | awk '{print $2}')
-internet_intface=$(sh mazi-current.sh -i internet | awk '{print $2}')
+wifi_intface=$(bash mazi-current.sh -i wifi | awk '{print $2}')
+internet_intface=$(bash mazi-current.sh -i internet | awk '{print $2}')
 
 usage() { echo "Usage: sudo bash mazi-mesh.sh [Mode] [Options]"
           echo ""
@@ -37,11 +37,10 @@ gateway(){
  cd /root/back-end
  [ $(jq ".mesh" $conf) = '"gateway"' ] && exit 0;
  [ "$wifi_intface" = "$iface" ] && echo "This interface is being used by the Access Point" && exit 0;
- [ "$internet_intface" = "$iface" ] && sh mazi-antenna.sh -d $iface
+ [ "$internet_intface" = "$iface" ] && bash mazi-antenna.sh -d -i $iface
  ip link set mtu 1532 dev $iface
  sleep 1
  ifconfig $iface down
-# iwconfig $iface mode ad-hoc essid $ssid ap 02:12:34:56:78:9A channel 1
  iwconfig $iface mode ad-hoc essid $ssid channel 1
  ifconfig $iface up
  batctl if add $iface
@@ -49,7 +48,7 @@ gateway(){
  ip link set up dev bat0
  ifconfig bat0 192.168.1.1
  ### configure /etc/hosts ####
- domain=$(sh mazi-current.sh -d | awk '{print $NF}')
+ domain=$(bash mazi-current.sh -d | awk '{print $NF}')
  echo "192.168.1.1     $domain" >> /etc/hosts
  echo "192.168.1.1     local.mazizone.eu"  >> /etc/hosts
  ### configure dnsmasq for mesh interface ####
@@ -68,21 +67,20 @@ node(){
    echo "Bad mesh signal"
    exit 0;
   fi  
-  [ "$wifi_intface" = "$iface"] && echo "This interface is being used by the Access Point" && exit 0;
-  [ "$internet_intface" = "$iface" ] && sh mazi-antenna.sh -d $iface
+  [ "$wifi_intface" = "$iface" ] && echo "This interface is being used by the Access Point" && exit 0;
+  [ "$internet_intface" = "$iface" ] && bash mazi-antenna.sh -d -i $iface
   service mazi-portal stop
   service dnsmasq stop
   ip link set mtu 1532 dev $iface
   sleep 1
   ifconfig $iface down
-#  iwconfig $iface mode ad-hoc essid $ssid ap 02:12:34:56:78:9A channel 1
   iwconfig $iface mode ad-hoc essid $ssid channel 1
   ifconfig $iface up
   batctl if add $iface
   ip link set up dev $iface
   ip link set up dev bat0
   batctl gw_mode client
-  killall  dhclient
+  killall  dhclient 2>/dev/null
   service dhcpcd stop  
 
   br_iface=$wifi_intface 
@@ -99,14 +97,14 @@ node(){
   batctl bl 1
 
   sudo dhclient  br0
-  sh mazi-wifi.sh restart
+  bash mazi-wifi.sh restart
   echo $(cat $conf | jq '.+ {"mesh": "node"}') | sudo tee $conf
  
 }
 portal(){
  cd /root/back-end
  if [ $(jq ".mesh" $conf) = '"node"' ];then
-    killall  dhclient
+    killall  dhclient 2>/dev/null
     ip link set down dev br0
     ip link delete br0
     ip link set down dev bat0
@@ -116,24 +114,25 @@ portal(){
     sudo service mazi-portal restart
     sudo service dnsmasq restart
     sudo service dhcpcd restart
-    iwconfig wlan0  essid off ap off mode managed
-    sh mazi-wifi.sh restart
+    ip addr flush dev $iface
+    iwconfig $iface  essid off mode managed
+    bash mazi-wifi.sh restart
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   elif [ $(jq ".mesh" $conf) = '"gateway"' ];then
-    killall  dhclient
+    killall  dhclient 2>/dev/null
     ip link set down dev bat0
     ip link set down dev $iface
     batctl if del $iface
     ip link set mtu 1500 dev $iface
     ip addr flush dev $iface
-    iwconfig wlan0  essid off ap off mode managed
+    iwconfig $iface  essid off mode managed
     ## remove mesh configutarion from /etc/hosts ##
     sudo sed -i '/192.168.1.1/d' /etc/hosts
     ## remove mesh configuration from dnsmaq.conf ##
     sudo sed -i '/interface=bat0/d' /etc/dnsmasq.conf
     sudo sed -i '/dhcp-range=192.168.1.10,192.168.1.200,255.255.255.0,12h/d' /etc/dnsmasq.conf
     sudo service dnsmasq restart 
-    sh mazi-wifi.sh restart
+    bash mazi-wifi.sh restart
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   fi
 }
@@ -184,7 +183,6 @@ case $1 in
      node
      ;;
      portal)
-     echo "portal node"
      batIface
      portal
      ;;
@@ -195,7 +193,7 @@ esac
 
 
 
-set +x
+#set +x
 
 
 
