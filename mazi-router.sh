@@ -69,9 +69,9 @@ if [ "$ACT" ];then
    sudo service dnsmasq restart
 
    #Setup remote AP
-   ssid=$(sh mazi-current.sh -s | awk '{print $NF}') 
-   channel=$(sh mazi-current.sh -c | awk '{print $NF}') 
-   password=$(sh mazi-current.sh -p | awk '{print $NF}')
+   ssid=$(bash mazi-current.sh -s | awk '{print $NF}') 
+   channel=$(bash mazi-current.sh -c | awk '{print $NF}') 
+   password=$(bash mazi-current.sh -p | awk '{print $NF}')
    sudo sshpass -p "$PSWD" ssh root@$WRT 'sed -i "/option channel/c\        option channel '$channel'" /etc/config/wireless'  
    sudo sshpass -p "$PSWD" ssh root@$WRT 'sed -i "/option ssid/c\        option ssid '$ssid'" /etc/config/wireless'
    if [ "$password" != "-" ];then
@@ -85,7 +85,7 @@ if [ "$ACT" ];then
    sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=0; uci commit wireless; wifi'
 
    #Disable WiFi on raspberry pi
-   sh mazi-wifi.sh stop
+   bash mazi-wifi.sh stop
 
    sudo echo 'active' | sudo tee /etc/mazi/router.conf
 fi
@@ -93,7 +93,7 @@ fi
 
 if [ "$DACT" ];then
   #Enable WiFi on raspberry pi
-   sh mazi-wifi.sh restart
+   bash mazi-wifi.sh restart
   #Disable WiFi on OpenWrt router
    sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=1; uci commit wireless; wifi'
 

@@ -19,12 +19,12 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
           echo "--sd                                   Displays information about the SD card"
           echo "-n,--network                           Displays the Download/Upload speed" 
           echo "-d,--domain                            Set a remote server domain. (default is localhost)"
-          echo "--store [enable,disable,flush]         Controls the status of the stor process" 
+          echo "--store [enable,disable,flush]         Controls the status of the store process" 
           echo "--status                               Shows the status of the storage process" 1>&2; exit 1; 
 }
 
 users_fun() {
-    wifi_intface=$(sh $path/mazi-current.sh -i wifi | awk '{print $2}')
+    wifi_intface=$(bash $path/mazi-current.sh -i wifi | awk '{print $2}')
     sudo touch $log/users.log
     sudo chmod 777 $log/users.log 
     if [ "$ROUTER" ];then
@@ -32,7 +32,7 @@ users_fun() {
       users=$(cat $log/users.log | grep 'responded' | awk '{print $12}') 
       users=$(( users - 1))
     else
-      wifi_intface=$(sh $path/mazi-current.sh -i wifi | awk '{print $2}')
+      wifi_intface=$(bash $path/mazi-current.sh -i wifi | awk '{print $2}')
       sudo arp-scan --interface=$wifi_intface 10.0.0.0/24 --arpspa 10.0.0.1 --retry=3 -g  > $log/users.log
       users=$(cat $log/users.log | grep 'responded' | awk '{print $12}')
     fi
@@ -121,7 +121,7 @@ SDname=$(lsblk | grep "^mm" | awk '{print $1}')
 unit_form="MB"
 unit="m"
 port="7654"
-if [ "$(sh $path/current.sh -w)" = "device OpenWrt router" ];then
+if [ "$(bash $path/current.sh -w)" = "device OpenWrt router" ];then
    ROUTER="TRUE"
 fi
 

@@ -11,7 +11,6 @@ usage() {
    echo "[Application name]"
    echo "-n,--name         The name of the application"
    echo ""
-   echo "-d,--domain                          Sets the server domain to be used for storage (default is localhost)[options]"
    echo "--store [enable,disable,flush]       Controls the status of the storage process"
    echo "--status                             Shows the status of storage process " 
    echo "-d,--domain                          Sets the server domain to be used for storage (default is localhost)" 1>&2; exit 1;
