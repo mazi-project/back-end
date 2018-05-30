@@ -30,7 +30,8 @@ Usage:
 ```
 sudo sh mazi-antenna.sh  [options]
 [options]
--a,--active                 Shows if a USB Wi-Fi adapter exists
+-i,--interface              Set the interface
+-a,--active                 Shows the SSID of the interface  
 -s,--ssid                   Sets the SSID of the Wi-Fi network
 -p,--password               Sets the password of the Wi-Fi network
 -l,--list                   Displays a list of the available Wi-Fi networks in range
@@ -46,6 +47,7 @@ Usage:
 ```
 sudo sh mazi-wifiap.sh  [options]
  [options]
+-i,--interface               Set the interface
 -s,--ssid                    Sets the name of the Wi-Fi network
 -c,--channel                 Sets the Wi-Fi channel
 -p,--password                Sets the Wi-Fi password
@@ -133,13 +135,17 @@ Usage:
 ```
 sudo sh mazi-current.sh  [options]
 [options]
--i,--interface               Shows the name of the active wireless interface
--c,--channel                 Shows the Wi-Fi channel in use
--m,--mode                    Shows the mode of the Wi-Fi network
--p,--password                Shows the password of the Wi-Fi network
--s,-ssid                     Shows the name of the Wi-Fi network
--d,--domain                  Shows the network domain of the MAZI Portal
--w,--wifi                    Shows the device that broadcasts the Wi-Fi AP (pi or OpenWRT router)
+-i,--interface  [wifi|internet..]  Shows the interface that used for AP or for internet connection respectively
+                wifi               Interface for Access Point
+                internet           Interface for internet connection
+                mesh               Interface for mesh network
+                all                Shows all available interfaces
+-c,--channel                       Shows the Wi-Fi channel in use
+-m,--mode                          Shows the mode of the Wi-Fi network
+-p,--password                      Shows the password of the Wi-Fi network
+-s,-ssid                           Shows the name onan f the Wi-Fi network
+-d,--domain                        Shows the network domain of the MAZI Portal
+-w,--wifi                          Shows the device that broadcasts the Wi-Fi AP (pi or OpenWRT router)
 ```
 
 ### mazi-router.sh ###
