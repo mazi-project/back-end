@@ -9,16 +9,17 @@
 usage() { echo "Usage: sudo sh current.sh  [options]" 
           echo " " 
           echo "[options]" 
-          echo "-i,--interface  [wifi|internet]  Shows the interface that used for AP or for internet connection respectively."
-          echo "                wifi             Interface for Access Point"
-          echo "                internet         Interface for internet connection"
-          echo "                mesh             Interface for mesh network"
-          echo "-s,--ssid                        Shows the name of the Wi-Fi network"
-          echo "-c,--channel                     Shows the Wi-Fi channel in use"
-          echo "-p,--password                    Shows the pasword of the  Wi-Fi network"
-          echo "-d,--domain                      Shows the network domain of the MAZI Portal"
-          echo "-m,--mode                        Shows the mode of the Wi-Fi network"
-          echo "-w,--wifi                        Shows the device that broadcaststhe Wi-Fi AP (pi or OpenWRT router)" 1>&2; exit 1; }
+          echo "-i,--interface  [wifi|internet..]  Shows the interface that used for AP or for internet connection respectively."
+          echo "                wifi               Interface for Access Point"
+          echo "                internet           Interface for internet connection"
+          echo "                mesh               Interface for mesh network"
+          echo "                all                Shows all available interfaces"
+          echo "-s,--ssid                          Shows the name of the Wi-Fi network"
+          echo "-c,--channel                       Shows the Wi-Fi channel in use"
+          echo "-p,--password                      Shows the pasword of the  Wi-Fi network"
+          echo "-d,--domain                        Shows the network domain of the MAZI Portal"
+          echo "-m,--mode                          Shows the mode of the Wi-Fi network"
+          echo "-w,--wifi                          Shows the device that broadcaststhe Wi-Fi AP (pi or OpenWRT router)" 1>&2; exit 1; }
 
 interface(){
   if [ $1 = "wifi" ];then
@@ -40,8 +41,11 @@ interface(){
   elif [ $1 = "all" ];then
      ifaces=$(ifconfig -a | awk '{print $1}' | grep wlan)
      read -a ifaces <<<$ifaces
+     count=1
      for i in ${ifaces[@]};do
-       echo "interface $i"
+        [ "$(ifconfig $i | grep "b8:27:eb")" ] && name="raspberry" 
+        [ -z "$(ifconfig $i | grep "b8:27:eb")" ] && name=usb$count && count=$((count+1))
+        echo "interface $i $name"
      done
   else
     usage
@@ -156,3 +160,4 @@ if [ "$DEVICE" ];then
 fi
 
 #set +x
+
