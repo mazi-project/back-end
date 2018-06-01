@@ -39,7 +39,7 @@ disconnect(){
      ifconfig $1 down
      # Delete iptable rule
      sudo iptables -t nat -D POSTROUTING -o $intface -j MASQUERADE
-     sudo iptables-save | sudo tee /etc/iptables/rules.v4
+     sudo iptables-save | sudo tee /etc/iptables/rules.v4 >/dev/null
 
 }
 list(){
@@ -56,7 +56,7 @@ connect(){
     [ "$wifi_intface" = "$intface" ] && echo "This interface is being used by the Access Point" && exit 0;
     
     ##disconnect previous interface##
-    [ $internet_intface ] && disconnect $internet_intface
+    [ "$internet_intface" != "-" ] && disconnect $internet_intface
     disconnect $intface
     ##connect current interface## 
     sudo sed -i '$ a network={' $path
@@ -66,10 +66,10 @@ connect(){
     sudo sed -i '$ a }' $path
     sudo ifconfig $intface up
     sudo wpa_supplicant -B -i $intface -c /etc/wpa_supplicant/wpa_supplicant.conf 
-    dhclient $intface
+    dhclient $intface 
     ## Forward internet through interface
     sudo iptables -t nat -A POSTROUTING -o $intface -j MASQUERADE
-    sudo iptables-save | sudo tee /etc/iptables/rules.v4
+    sudo iptables-save | sudo tee /etc/iptables/rules.v4 >/dev/null
 }
 
 
@@ -136,3 +136,4 @@ fi
 exit 1;
 
 #set +x
+
