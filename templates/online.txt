@@ -1,11 +1,9 @@
 # Nodogsplash Configuration File for MAZI
 GatewayInterface ${intface}
 MaxClients 250
-ClientIdleTimeout 10
+ClientIdleTimeout 100
 MACMechanism block
-DownloadLimit 0
-UploadLimit 0
-
+RedirectURL http://domain
 
 FirewallRuleSet authenticated-users {
 

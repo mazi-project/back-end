@@ -52,7 +52,9 @@ sed -i '/address 10.0.0.1/d' /etc/network/interfaces
 sed -i '/netmask 255.255.255.0/d' /etc/network/interfaces
 sed -i '/gateway 10.0.0.1/d' /etc/network/interfaces
 
-
+#dnsmasq
+sed -i '/address=\/#\/10.0.0.1/d' /etc/dnsmasq.conf
+service dnsmasq restart
 
 #sh /root/back-end/mazi-internet.sh -m offline
 ssid=$(bash /root/back-end/mazi-current.sh -s | awk '{print $NF}')

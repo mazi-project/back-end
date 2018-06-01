@@ -8,7 +8,7 @@ set -x
 cd /root/nodogsplash/
 conf="/etc/mazi/mazi.conf"
 nodog_path="/etc/nodogsplash/nodogsplash.conf"
-
+domain=$(bash /root/back-end/mazi-current.sh -d | awk {'print $NF'})
 
 usage() { 
          echo "sudo sh mazi-internet.sh [options]" 
@@ -17,10 +17,13 @@ usage() {
          echo "-m,--mode  [offline/dual/managed]        Sets the mode of the Wi-Fi Access Point" 1>&2; exit 1; 
 }
 offline(){
-  
+  sudo sed -i '/address=\/#\/10.0.0.1/d' /etc/dnsmasq.conf
+  sudo sed -i '/#Redirect rule/a \address=\/#\/10.0.0.1' /etc/dnsmasq.conf
+  sudo service dnsmasq restart  
   #redirect url
   ndsctl stop
   sed -f /etc/hostapd/replace.sed /etc/nodogsplash/offline.txt > $nodog_path
+  sed "s/domain/$domain/g" /etc/nodogsplash/offline.txt > $nodog_path
   sleep 1
   nodogsplash 2 > /dev/null
   #Save rules.v4 rules
@@ -32,12 +35,15 @@ offline(){
 dual(){
   ndsctl stop
   sed -f /etc/hostapd/replace.sed /etc/nodogsplash/online.txt > $nodog_path
+  sed "s/domain/$domain/g" /etc/nodogsplash/online.txt > $nodog_path
   sleep 1
   nodogsplash 2 > /dev/null
   #Save rules.v4 rules
   sudo iptables-save | sudo tee /etc/iptables/rules.v4
   echo You are now in dual mode
   echo $(cat $conf | jq '.+ {"mode": "dual"}') | sudo tee $conf
+  sudo sed -i '/address=\/#\/10.0.0.1/d' /etc/dnsmasq.conf
+  sudo service dnsmasq restart
 }
 managed(){
   cd /root/back-end/
