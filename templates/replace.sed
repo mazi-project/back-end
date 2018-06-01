@@ -1,5 +1,5 @@
-s/${ssid}/john-new-version/
-s/${intface}/wlan1/
+s/${ssid}/mazizone/
+s/${intface}/wlan0/
 s/${channel}/1/
 s/${password}/mazizone/
 
