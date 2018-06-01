@@ -1,0 +1,30 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          nodogsplash
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts nodogsplash Server
+# Description:       nodogsplash
+### END INIT INFO
+
+case "$1" in
+  start)
+        cd /root/      
+        nodogsplash/nodogsplash 2>/dev/null
+        ;;
+  stop)
+        ndsctl stop
+        ;;
+  restart)
+        stop
+        start
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+exit 0
+
