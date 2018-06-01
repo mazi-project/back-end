@@ -1,5 +1,5 @@
 #!bin/bash
-set -x 
+#set -x 
 # install nodogsplash
 cd /root/
 git clone https://github.com/nodogsplash/nodogsplash.git
@@ -38,8 +38,6 @@ sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 
 ## update rc.local ###
-sudo sed -i '/\/sbin\/ifconfig wlan0 10.0.0.1/d' /etc/rc.local 
-/root/nodogsplash/nodogsplash 2 > /dev/null
 sudo sed -i "/ifconfig wlan0 10.0.0.1/ a \service nodogsplash start" /etc/rc.local
 
 ## update /etc/network/interfaces
@@ -53,7 +51,6 @@ sed -i '/iface wlan0 inet static/d' /etc/network/interfaces
 sed -i '/address 10.0.0.1/d' /etc/network/interfaces
 sed -i '/netmask 255.255.255.0/d' /etc/network/interfaces
 sed -i '/gateway 10.0.0.1/d' /etc/network/interfaces
-set +x
 
 
 
@@ -62,6 +59,7 @@ ssid=$(bash /root/back-end/mazi-current.sh -s | awk '{print $NF}')
 channel=$(bash /root/back-end/mazi-current.sh -c | awk '{print $NF}')
 password=$(bash /root/back-end/mazi-current.sh -p | awk '{print $NF}')
 mode=$(bash /root/back-end/mazi-current.sh -m | awk '{print $NF}')
-[ "$password" == "-"] && bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel ||  bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel -p $password
+[ "$password" == "-" ] && bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel ||  bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel -p $password
 
 bash /root/back-end/mazi-internet.sh -m $mode
+#set +x
