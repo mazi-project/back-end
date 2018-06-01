@@ -1,3 +1,4 @@
+
 #!/bin/bash 
 
 #The mazi-current.sh script displays the settings of the Wi-Fi Access Point that has been created in this MAZI Zone.
@@ -9,11 +10,11 @@
 usage() { echo "Usage: sudo sh current.sh  [options]" 
           echo " " 
           echo "[options]" 
-          echo "-i,--interface  [wifi|internet..]  Shows the interface that used for AP or for internet connection respectively."
-          echo "                wifi               Interface for Access Point"
-          echo "                internet           Interface for internet connection"
-          echo "                mesh               Interface for mesh network"
-          echo "                all                Shows all available interfaces"
+          echo "-i,--info    [wifi|internet..]     Shows the interface that used for AP or for internet connection respectively."
+          echo "              wifi                 Interface for Access Point"
+          echo "              internet             Interface for internet connection"
+          echo "              mesh                 Interface for mesh network"
+          echo "              all                  Shows all available interfaces"
           echo "-s,--ssid                          Shows the name of the Wi-Fi network"
           echo "-c,--channel                       Shows the Wi-Fi channel in use"
           echo "-p,--password                      Shows the pasword of the  Wi-Fi network"
@@ -27,6 +28,7 @@ interface(){
      [ -z $ROUTER ] && echo "wifi_interface $(cat /etc/hostapd/replace.sed| grep "intface" | awk -F'[/|/]' '{print $3}')" 
   elif [ $1 = "internet" ];then
      internet_interface=$(ps aux | grep wpa_supplicant | grep -o '\-i.*' | awk '{print $2}')
+     internet_interface=$(iwconfig 2>/dev/null | grep $internet_interface | awk '{print $1}')
      [ $internet_interface ] && echo "internet_interface $internet_interface" || echo "internet_interface -"
   elif [ $1 = "mesh" ];then
      mesh_interface="-"
@@ -72,7 +74,7 @@ do
 key="$1"
 
 case $key in
-    -i |--interface)
+    -i |--info)
     interface $2
     shift
     ;;
