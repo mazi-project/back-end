@@ -60,7 +60,7 @@ service dnsmasq restart
 ssid=$(bash /root/back-end/mazi-current.sh -s | awk '{print $NF}')
 channel=$(bash /root/back-end/mazi-current.sh -c | awk '{print $NF}')
 password=$(bash /root/back-end/mazi-current.sh -p | awk '{print $NF}')
-mode=$(bash /root/back-end/mazi-current.sh -m | awk '{print $NF}')
+mode=$(bash /root/back-end/mazi-current.sh -m | awk {print $NF})
 [ "$password" == "-" ] && bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel ||  bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel -p $password
 
 bash /root/back-end/mazi-internet.sh -m $mode

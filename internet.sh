@@ -4,7 +4,7 @@
 #to the Internet and are permanently redirected to the Portal splash page. In the dual mode, the Raspberry Pi provides 
 #Internet access through either the Ethernet cable or an external USB Wi-Fi adapter.
 ## initialization ##
-set -x
+#set -x
 cd /root/nodogsplash/
 conf="/etc/mazi/mazi.conf"
 nodog_path="/etc/nodogsplash/nodogsplash.conf"
@@ -23,7 +23,7 @@ offline(){
   #redirect url
   ndsctl stop
   sed -f /etc/hostapd/replace.sed /etc/nodogsplash/offline.txt > $nodog_path
-  sed "s/domain/$domain/g" /etc/nodogsplash/offline.txt > $nodog_path
+  sed -i "s/domain/$domain/g" $nodog_path 
   sleep 1
   nodogsplash 2 > /dev/null
   #Save rules.v4 rules
@@ -35,7 +35,7 @@ offline(){
 dual(){
   ndsctl stop
   sed -f /etc/hostapd/replace.sed /etc/nodogsplash/online.txt > $nodog_path
-  sed "s/domain/$domain/g" /etc/nodogsplash/online.txt > $nodog_path
+  sed -i "s/domain/$domain/g" $nodog_path 
   sleep 1
   nodogsplash 2 > /dev/null
   #Save rules.v4 rules
@@ -72,4 +72,4 @@ case $key in
 done
 
 
-set +x
+#set +x
