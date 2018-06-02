@@ -21,11 +21,11 @@ offline(){
   sudo sed -i '/#Redirect rule/a \address=\/#\/10.0.0.1' /etc/dnsmasq.conf
   sudo service dnsmasq restart  
   #redirect url
-  ndsctl stop
+  service nodogsplash stop
   sed -f /etc/hostapd/replace.sed /etc/nodogsplash/offline.txt > $nodog_path
   sed -i "s/domain/$domain/g" $nodog_path 
   sleep 1
-  nodogsplash 2 > /dev/null
+  service nodogsplash start
   #Save rules.v4 rules
   sudo iptables-save | sudo tee /etc/iptables/rules.v4
   echo You are now in offline mode
@@ -33,11 +33,11 @@ offline(){
 }
 
 dual(){
-  ndsctl stop
+  service nodogsplash stop
   sed -f /etc/hostapd/replace.sed /etc/nodogsplash/online.txt > $nodog_path
   sed -i "s/domain/$domain/g" $nodog_path 
   sleep 1
-  nodogsplash 2 > /dev/null
+  service nodogsplash start
   #Save rules.v4 rules
   sudo iptables-save | sudo tee /etc/iptables/rules.v4
   echo You are now in dual mode
