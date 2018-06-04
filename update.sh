@@ -62,4 +62,5 @@ password=$(bash /root/back-end/mazi-current.sh -p | awk '{print $NF}')
 bash /root/back-end/mazi-internet.sh -m $(jq -r .mode /etc/mazi/mazi.conf)
 
 cp /root/back-end/templates/splash.html /etc/nodogsplash/htdocs/
+cp /root/back-end/templates/MAZI_bw.png /etc/nodogsplash/htdocs/images/
 #set +x
