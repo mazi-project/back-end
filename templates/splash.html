@@ -1,0 +1,74 @@
+<html>
+<head>
+	<title>$gatewayname </title>
+	<meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
+</head>
+<body bgcolor="#DDDDDD" text="#000000">
+
+<table border="0" cellpadding="2" align="center" cellspacing="0" width="60%">
+<!--
+<tr>
+
+	<td align="center"><h2>$gatewayname</h2></td>
+</tr>
+-->
+
+<tr>
+	<td align="center" height="120">
+<h1>Welcome to MAZI Zone</h1>
+<p>You are now connected to a MAZI Zone, having access to local applications and services. You can also have access to the Internet depending on the configuration.&nbsp;</p>
+<h2>Some useful features:</h2>
+
+<p>Collaborative editing</p>
+<p>File Sharing</p>
+<p>Guestbook</p>
+<p>MAZI Portal appearance adjustment</p>
+<p>Full network configuration and adaptation to your needs</p>
+<p>Monitoring service</p>
+<h2>How to proceed:</h2>
+<p>Click on the MAZI logo bellow to proceed to the MAZI Portal.</p>
+<p>*In case you are not automatically redirected to the MAZI Portal, use the URLs below:</p>
+<p>User interface: portal.mazizone.eu</p>
+<p>Admin interface: portal.mazizone.eu/admin&nbsp;</p>
+
+
+<!--
+	A client is authenticated by requesting the page $authtarget.
+	So, href to it here, with an img or link text the user can click on.
+	Also, note that any images you reference must reside in the
+	subdirectory that is the value of $imagesdir (default: "images").
+
+	Available variables:
+	error_msg: $error_msg
+	gatewayname: $gatewayname
+	tok: $tok
+	redir: $redir
+	authaction: $authaction
+	denyaction: $denyaction
+	authtarget: $authtarget
+	clientip: $clientip
+	clientmac: $clientmac
+	gatewaymac: $gatewaymac
+	nclients: $nclients
+	maxclients: $maxclients
+	uptime: $uptime
+	imagesdir: $imagesdir
+	pagesdir: $pagesdir
+
+	Variables that can be passed back via HTTP GET.
+	Just append them to the authentication link:
+	nodoguser
+	nodogpass
+	info
+	voucher
+-->
+	<a href="$authtarget" target="_blank">
+	<img src="$imagesdir/MAZI_bw.png" width="71" height="49" border="0"
+		alt="Click to enter" title="Click to enter">
+	</a>
+	</td>
+</tr>
+</table>
+
+</body>
+</html>
