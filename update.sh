@@ -60,4 +60,7 @@ password=$(bash /root/back-end/mazi-current.sh -p | awk '{print $NF}')
 [ "$password" == "-" ] && bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel ||  bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel -p $password
 
 bash /root/back-end/mazi-internet.sh -m $(jq -r .mode /etc/mazi/mazi.conf)
+
+cp templates/splash.html /etc/nodogsplash/htdocs/
+
 #set +x
