@@ -38,7 +38,7 @@ sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 
 ## update rc.local ###
-sudo sed -i "/#ifconfig wlan0 10.0.0.1/ a \service nodogsplash start" /etc/rc.local
+sudo sed -i "/#ifconfig wlan0 10.0.0.1/ a \bash /root/back-end/mazi-internet.sh -m $(jq -r .mode /etc/mazi/mazi.conf)" /etc/rc.local
 
 ## update /etc/network/interfaces
 sed -i '/allow-hotplug wlan0/d' /etc/network/interfaces
