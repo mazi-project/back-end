@@ -1,34 +1,38 @@
 #!bin/bash
 #set -x
 # install nodogsplash
-cd /root/
-git clone https://github.com/nodogsplash/nodogsplash.git
-cd nodogsplash
-git checkout v1
-make
-make install
+if [ ! -d /root/nodogsplash ];then
+  cd /root/
+  git clone https://github.com/nodogsplash/nodogsplash.git
+  cd nodogsplash
+  git checkout v1
+  make
+  make install
+fi
+
 cp /root/back-end/templates/online.txt /etc/nodogsplash/
 cp /root/back-end/templates/offline.txt /etc/nodogsplash/
 
 ## create nodogsplash service
-cp /root/back-end/templates/nodogsplash /etc/init.d/
-chmod +x /etc/init.d/nodogsplash
-update-rc.d nodogsplash defaults
-systemctl daemon-reload
-
+if [ ! -f /etc/init.d/nodogsplash ];then
+  cp /root/back-end/templates/nodogsplash /etc/init.d/
+  chmod +x /etc/init.d/nodogsplash
+  update-rc.d nodogsplash defaults
+  systemctl daemon-reload
+fi
 
 ## hostapd tempates
 cp /root/back-end/templates/template_80211n.txt /etc/hostapd/
 cp /root/back-end/templates/replace.sed /etc/hostapd/
 
 
-
-## install batctl (mesh) ##
-cd /root/
-apt-get install batctl
-echo "batman-adv" >> /etc/modules
-modprobe batman-adv
-
+if [ -z "$(cat /proc/modules | grep batman)" ];then
+  ## install batctl (mesh) ##
+  cd /root/
+  apt-get install batctl
+  echo "batman-adv" >> /etc/modules
+  modprobe batman-adv
+fi
 
 ## remove old iptables ##
 iptables -F
@@ -38,7 +42,10 @@ sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 
 ## update rc.local ###
-sudo sed -i "/#ifconfig wlan0 10.0.0.1/ a \bash /root/back-end/mazi-internet.sh -m $(jq -r .mode /etc/mazi/mazi.conf)" /etc/rc.local
+sed -i '/service nodogsplash start/d' /etc/rc.local
+if [ -z "$(cat /etc/rc.local | grep "bash /root/back-end/mazi-internet.sh")" ];then
+  sudo sed -i '/#ifconfig wlan0 10.0.0.1/ a \bash /root/back-end/mazi-internet.sh -m $(jq -r .mode /etc/mazi/mazi.conf)' /etc/rc.local
+fi
 
 ## update /etc/network/interfaces
 sed -i '/allow-hotplug wlan0/d' /etc/network/interfaces
@@ -57,15 +64,17 @@ sed -i '/gateway 10.0.0.1/d' /etc/network/interfaces
 ssid=$(bash /root/back-end/mazi-current.sh -s | awk '{print $NF}')
 channel=$(bash /root/back-end/mazi-current.sh -c | awk '{print $NF}')
 password=$(bash /root/back-end/mazi-current.sh -p | awk '{print $NF}')
-[ "$password" == "-" ] && bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel ||  bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel -p $password
+if [ "$password" = "-" ];then
+  bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel 
+else
+  bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel -p $password
+fi
 
 bash /root/back-end/mazi-internet.sh -m $(jq -r .mode /etc/mazi/mazi.conf)
 
-<<<<<<< HEAD
 cp templates/splash.html /etc/nodogsplash/htdocs/
 
-=======
 cp /root/back-end/templates/splash.html /etc/nodogsplash/htdocs/
 cp /root/back-end/templates/MAZI_bw.png /etc/nodogsplash/htdocs/images/
->>>>>>> 672cc5f458dbe30c55a8aa7e72b8635ff86e967a
+
 #set +x
