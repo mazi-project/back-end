@@ -215,7 +215,6 @@ sudo bash mazi-mesh.sh [Mode] [Options]
 [node Options]
   -i, --interface              Set the interface of the mesh network
   -s, --ssid                   Set the name of the mesh network
-  -b, --bridgeIface            Set the interface of the Wi-Fi Access Point
 ```
 
 ## License
