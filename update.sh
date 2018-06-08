@@ -1,5 +1,5 @@
 #!bin/bash
-#set -x
+set -x
 # install nodogsplash
 if [ ! -d /root/nodogsplash ];then
   cd /root/
@@ -44,7 +44,7 @@ sudo iptables-save | sudo tee /etc/iptables/rules.v4
 ## update rc.local ###
 sed -i '/service nodogsplash start/d' /etc/rc.local
 if [ -z "$(cat /etc/rc.local | grep "bash /root/back-end/mazi-internet.sh")" ];then
-  sudo sed -i '/#ifconfig wlan0 10.0.0.1/ a \bash /root/back-end/mazi-internet.sh -m $(jq -r .mode /etc/mazi/mazi.conf)' /etc/rc.local
+  sudo sed -i '/#END RASPIMJPEG SECTION/ a \bash /root/back-end/mazi-internet.sh -m $(jq -r .mode /etc/mazi/mazi.conf)' /etc/rc.local
 fi
 
 ## update /etc/network/interfaces
@@ -61,13 +61,15 @@ sed -i '/gateway 10.0.0.1/d' /etc/network/interfaces
 
 
 #sh /root/back-end/mazi-internet.sh -m offline
-ssid=$(bash /root/back-end/mazi-current.sh -s | awk '{print $NF}')
-channel=$(bash /root/back-end/mazi-current.sh -c | awk '{print $NF}')
-password=$(bash /root/back-end/mazi-current.sh -p | awk '{print $NF}')
+intface=$(grep 'interface' /etc/hostapd/hostapd.conf| sed 's/interface=//g')
+ssid=$(grep 'ssid' /etc/hostapd/hostapd.conf| sed 's/ssid=//g')
+channel=$(grep 'channel' /etc/hostapd/hostapd.conf| sed 's/channel=//g')
+password=$(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')
+[ -z $password ] && password="-"
 if [ "$password" = "-" ];then
-  bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel 
+  bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel  -i $intface
 else
-  bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel -p $password
+  bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel -p $password -i $intface
 fi
 
 bash /root/back-end/mazi-internet.sh -m $(jq -r .mode /etc/mazi/mazi.conf)
@@ -77,4 +79,4 @@ cp templates/splash.html /etc/nodogsplash/htdocs/
 cp /root/back-end/templates/splash.html /etc/nodogsplash/htdocs/
 cp /root/back-end/templates/MAZI_bw.png /etc/nodogsplash/htdocs/images/
 
-#set +x
+set +x
