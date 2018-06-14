@@ -6,13 +6,7 @@ MACMechanism block
 RedirectURL http://domain
 
 FirewallRuleSet authenticated-users {
-
-    FirewallRule allow udp port 53
-    FirewallRule allow tcp port 53
-
-    FirewallRule allow tcp port 22
-    FirewallRule allow tcp port 80
-    FirewallRule allow tcp port 443
+   FirewallRule allow all
 
 }
 
@@ -24,13 +18,7 @@ FirewallRuleSet preauthenticated-users {
 }
 
 FirewallRuleSet users-to-router {
-    FirewallRule allow udp port 53
-    FirewallRule allow tcp port 53
-    FirewallRule allow udp port 67
-
-    FirewallRule allow tcp port 22
-    FirewallRule allow tcp port 80
-    FirewallRule allow tcp port 443
+    FirewallRule allow all
 }
 
 
