@@ -63,6 +63,7 @@ stop(){
  id=$(ps aux | grep hostapd.conf| grep -v 'grep' | awk '{print $2}')
  [ "$id" ] && sudo kill $id
  ip addr flush dev $1
+ /etc/init.d/nodogsplash stop
 }
 
 start(){
@@ -74,7 +75,9 @@ start(){
   sudo hostapd -B $hostapd
   sudo ifconfig $2 10.0.0.1/24
  fi
+ /etc/init.d/nodogsplash start
 }
+
 
 
 ######  Parse command line arguments   ######
