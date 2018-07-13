@@ -119,17 +119,17 @@ sudo sh mazi-domain.sh [options]
 ```
 
 ### mazi-internet.sh ###
-The	mazi-internet.sh	script	is	able	to	modify	the	mode	of	your	Wi-Fi	Access	Point	–	currently	-	between	offline	and	dual	as	the	managed	mode	has	not	been	implemented	yet.	In	the	offline	mode,	clients	of	the	Wi-Fi	Access	Point	have	not	access	to	the	Internet	and	are	permanently	redirected	to	the	Portal	splash	page.	In	the	dual	mode,	the	Raspberry	Pi	provides	Internet	access	through	either	the	Ethernet	cable	or	an	external	USB	Wi-Fi	adapter.
+The	mazi-internet.sh	script	is	able	to	modify	the	mode	of	your	Wi-Fi	Access	Point	–	currently	-	between	offline	and	online	as	the	managed	mode	has	not	been	implemented	yet.	In	the	offline	mode,	clients	of	the	Wi-Fi	Access	Point	have	not	access	to	the	Internet	and	are	permanently	redirected	to	the	Portal	splash	page.	In	the	online	mode,	the	Raspberry	Pi	provides	Internet	access	through	either	the	Ethernet	cable	or	an	external	USB	Wi-Fi	adapter.
 
 Usage:
 ```
 sudo sh internet.sh [options]
 [options]
--m,--mode  [offline/dual/managed]   Sets the mode of the Wi-Fi Access Point
+-m,--mode  [offline/online/managed]   Sets the mode of the Wi-Fi Access Point
 ```
 
 ### mazi-current.sh ###
-The	mazi-current.sh	script	displays	the	settings	of	the	Wi-Fi	Access	Point	that	has	been	created	in	this	MAZI	Zone.	You	can	view	information	such	as	the	name,	the	password	and	the	channel	of	the	Wi-Fi	Access	Point.	You	can	also	see	the	domain	you	are	using	for	the	portal	page,	as	well	as	the	active	interface	that	broadcasts	the	Wi-Fi	Access	Point	-	in	case	you	have	plugged	in	an	OpenWRT	router.	Finally,	this	script	informs	you	about	the	mode	of	your	Wi-Fi	Access	Point	(offline,	dual,	managed).
+The	mazi-current.sh	script	displays	the	settings	of	the	Wi-Fi	Access	Point	that	has	been	created	in	this	MAZI	Zone.	You	can	view	information	such	as	the	name,	the	password	and	the	channel	of	the	Wi-Fi	Access	Point.	You	can	also	see	the	domain	you	are	using	for	the	portal	page,	as	well	as	the	active	interface	that	broadcasts	the	Wi-Fi	Access	Point	-	in	case	you	have	plugged	in	an	OpenWRT	router.	Finally,	this	script	informs	you	about	the	mode	of	your	Wi-Fi	Access	Point	(offline,	online,	managed).
 
 Usage:
 ```
