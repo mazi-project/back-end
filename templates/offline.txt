@@ -1,7 +1,7 @@
 # Nodogsplash Configuration File for MAZI
 GatewayInterface ${intface}
 MaxClients 250
-ClientIdleTimeout 100
+ClientIdleTimeout 1440
 MACMechanism block
 RedirectURL http://domain
 
@@ -17,7 +17,6 @@ FirewallRuleSet preauthenticated-users {
 
     FirewallRule allow tcp port 53
     FirewallRule allow udp port 53
-
 }
 
 FirewallRuleSet users-to-router {
