@@ -22,9 +22,6 @@ offline(){
   sudo service dnsmasq restart  
   #redirect url
   service nodogsplash stop
-  sed -f /etc/hostapd/replace.sed /etc/nodogsplash/offline.txt > $nodog_path
-  sed -i "s/domain/$domain/g" $nodog_path 
-  sleep 1
   service nodogsplash start
   #Save rules.v4 rules
   sudo iptables-save | sudo tee /etc/iptables/rules.v4
@@ -34,9 +31,6 @@ offline(){
 
 online(){
   service nodogsplash stop
-  sed -f /etc/hostapd/replace.sed /etc/nodogsplash/online.txt > $nodog_path
-  sed -i "s/domain/$domain/g" $nodog_path 
-  sleep 1
   service nodogsplash start
   #Save rules.v4 rules
   sudo iptables-save | sudo tee /etc/iptables/rules.v4
