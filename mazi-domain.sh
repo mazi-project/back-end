@@ -44,6 +44,7 @@ if [ $domain ];then
   sudo service apache2 restart
   sudo service dnsmasq restart
   /etc/init.d/nodogsplash stop
+  sleep 1
   /etc/init.d/nodogsplash start
 fi
 
