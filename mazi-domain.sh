@@ -43,6 +43,8 @@ if [ $domain ];then
   sudo systemctl daemon-reload
   sudo service apache2 restart
   sudo service dnsmasq restart
+  /etc/init.d/nodogsplash stop
+  /etc/init.d/nodogsplash start
 fi
 
 if [ $app ];then
