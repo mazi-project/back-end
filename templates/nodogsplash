@@ -1,5 +1,5 @@
 #!/bin/sh
-
+#set -x
 ### BEGIN INIT INFO
 # Provides:          nodogsplash
 # Required-Start:    $local_fs $remote_fs $network $syslog
@@ -9,9 +9,13 @@
 # Short-Description: Starts nodogsplash Server
 # Description:       nodogsplash
 ### END INIT INFO
-
+dog_path="/etc/nodogsplash/nodogsplash.conf"
+domain=$(bash /root/back-end/mazi-current.sh -d | awk {'print $NF'})
+mode=$(bash /root/back-end/mazi-current.sh -m | awk {'print $NF'}|tr -d '"')
 case "$1" in
   start)
+        sudo sed -f /etc/hostapd/replace.sed /etc/nodogsplash/${mode}.txt > ${dog_path}
+        sed -i "s/domain/$domain/g" ${dog_path}
         cd /root/      
         nodogsplash/nodogsplash 2>/dev/null
         ;;
@@ -19,12 +23,10 @@ case "$1" in
         ndsctl stop
         ;;
   restart)
-        stop
-        start
         ;;
-  *)
-        echo $"Usage: $0 {start|stop|restart}"
+        *)
+        echo "Usage: $0 {start|stop|restart}"
         exit 1
 esac
 exit 0
-
+#set +x
