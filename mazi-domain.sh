@@ -6,7 +6,7 @@
 hosts="/etc/hosts"
 portal_conf="/etc/apache2/sites-available/portal.conf"
 index_apache="/var/www/html/index.html"
-
+splash_path="/etc/nodogsplash/htdocs/splash.html"
 usage() { echo "This script changes the domain of mazi toolkit"
           echo ""
           echo "Usage: mazi-domain.sh [options]"
@@ -38,6 +38,7 @@ done
 if [ $domain ];then
   c_domain=$(grep -o -P '(?<=url=http://).*(?=">)' $index_apache)
   sed -i "s/$c_domain/$domain/g" $hosts
+  sed -i "s/$c_domain/$domain/g" $splash_path
   sed -i '/<meta HTTP-EQUIV="REFRESH"/c\          <meta HTTP-EQUIV="REFRESH" content="0; url=http://'$domain'">' $index_apache
   sed -i "s/$c_domain/$domain/g" $portal_conf 
   sudo systemctl daemon-reload
