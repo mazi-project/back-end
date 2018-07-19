@@ -4,7 +4,7 @@
 #to the Internet and are permanently redirected to the Portal splash page. In the online mode, the Raspberry Pi provides 
 #Internet access through either the Ethernet cable or an external USB Wi-Fi adapter.
 ## initialization ##
-set -x
+#set -x
 cd /root/nodogsplash/
 conf="/etc/mazi/mazi.conf"
 nodog_path="/etc/nodogsplash/nodogsplash.conf"
@@ -21,7 +21,7 @@ offline(){
   sudo sed -i '/#Redirect rule/a \address=\/#\/10.0.0.1' /etc/dnsmasq.conf
   sudo service dnsmasq restart  
   #Save rules.v4 rules
-  sudo iptables-save | sudo tee /etc/iptables/rules.v4
+ # sudo iptables-save | sudo tee /etc/iptables/rules.v4
   echo You are now in offline mode
   echo $(cat $conf | jq '.+ {"mode": "offline"}') | sudo tee $conf
   #restart nodogsplash
@@ -32,7 +32,7 @@ offline(){
 
 online(){
   #Save rules.v4 rules
-  sudo iptables-save | sudo tee /etc/iptables/rules.v4
+ # sudo iptables-save | sudo tee /etc/iptables/rules.v4
   echo You are now in online mode
   echo $(cat $conf | jq '.+ {"mode": "online"}') | sudo tee $conf
   sudo sed -i '/address=\/#\/10.0.0.1/d' /etc/dnsmasq.conf
@@ -69,4 +69,4 @@ case $key in
 done
 
 
-set +x
+#set +x
