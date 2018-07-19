@@ -13,11 +13,14 @@ fi
 }
 nodogsplash_template(){
  echo "New templates for nodogspalsh "
+ c_domain=$(grep -o -P '(?<=url=http://).*(?=">)' /var/www/html/index.html)
  cp /root/back-end/templates/online.txt /etc/nodogsplash/
  cp /root/back-end/templates/offline.txt /etc/nodogsplash/
  cp /root/back-end/templates/splash.html /etc/nodogsplash/htdocs/
+ sed -i "s/portal.mazizone.eu/$c_domain/g" /etc/nodogsplash/htdocs/splash.html 
+
 }
-nodogspalsh_service(){
+nodogsplash_service(){
  echo "Create nodogsplash service"
 ## create nodogsplash service
  cp /root/back-end/templates/nodogsplash /etc/init.d/
@@ -101,7 +104,7 @@ do
   case $key in
     2.5.4)
     #update v2.5.4
-    nodogsplash_templates
+    nodogsplash_template
     nodogsplash_service
     synchronize_AP
     shift
@@ -110,7 +113,7 @@ do
     #previous update 
     install_nodogsplash
     nodogsplash_templates
-    nodogspalsh_service
+    nodogsplash_service
     hostapd_templates 
     install_batman
     remove_iptables 
