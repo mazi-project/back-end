@@ -4,7 +4,7 @@ MaxClients 250
 ClientIdleTimeout 1440
 MACMechanism block
 RedirectURL http://domain
-TrustedMACList 
+TrustedMACList none 
 
 FirewallRuleSet authenticated-users {
    FirewallRule allow all

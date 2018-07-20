@@ -17,7 +17,7 @@ case "$1" in
   start)
         sed -f /etc/hostapd/replace.sed /etc/nodogsplash/${mode}.txt > ${dog_path}
         sed -i "s/domain/$domain/g" ${dog_path}
-        sed -i "s/TrustedMACList/TrustedMACList $list/g" ${dog_path}
+        sed -i "/TrustedMACList/c\TrustedMACList $list" ${dog_path}
         cd /root/      
         nodogsplash/nodogsplash 2>/dev/null
         ;;
