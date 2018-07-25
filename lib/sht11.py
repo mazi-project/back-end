@@ -28,9 +28,9 @@ def sht11( sensor ):
   return "false"  
  
 def detect():
-#   var = sht11("temperature")
-#   if (type(var) == int or type(var) == float):
-    print 'sht11'
+   var = sht11("temperature")
+   if (type(var) == int or type(var) == float):
+     print 'sht11'
 
 if __name__ == '__main__':
 
