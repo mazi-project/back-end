@@ -1,5 +1,4 @@
-#!/bin/sh
-#set -x
+#!/bin/bash
 ### BEGIN INIT INFO
 # Provides:          nodogsplash
 # Required-Start:    $local_fs $remote_fs $network $syslog
@@ -12,17 +11,22 @@
 dog_path="/etc/nodogsplash/nodogsplash.conf"
 domain=$(bash /root/back-end/mazi-current.sh -d | awk {'print $NF'})
 mode=$(bash /root/back-end/mazi-current.sh -m | awk {'print $NF'}|tr -d '"')
-list=$(tr -s 2>/dev/null '\n' ',' < /etc/mazi/users.dat | sed 's/.$//')
+list="$(cat /etc/mazi/users.dat 2>/dev/null | awk {'print $1'} | tr -s '\n' ',' | sed 's/.$//')"
 case "$1" in
   start)
-        sed -f /etc/hostapd/replace.sed /etc/nodogsplash/${mode}.txt > ${dog_path}
-        sed -i "s/domain/$domain/g" ${dog_path}
-        sed -i "/TrustedMACList/c\TrustedMACList $list" ${dog_path}
+        sudo sed -f /etc/hostapd/replace.sed /etc/nodogsplash/${mode}.txt > ${dog_path}
+        sudo sed -i "s/domain/$domain/g" ${dog_path}
+        [ ! -z "$list" ] && sudo sed -i "/TrustedMACList/c\TrustedMACList $list" ${dog_path}
         cd /root/      
-        nodogsplash/nodogsplash 2>/dev/null
+        bash back-end/timeout.sh &>/dev/null & 
+        sudo nodogsplash/nodogsplash &>/dev/null 
         ;;
   stop)
-        ndsctl stop
+ 	id=$(ps aux | grep back-end/timeout.sh | grep -v 'grep' |awk '{print $2}')
+        if [ -z "$id" ] ;then
+           sudo  kill $id
+        fi	
+        sudo ndsctl stop &>/dev/null
         ;;
   restart)
         ;;
@@ -31,4 +35,3 @@ case "$1" in
         exit 1
 esac
 exit 0
-#set +x
