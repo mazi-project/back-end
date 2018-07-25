@@ -25,9 +25,9 @@ offline(){
   echo You are now in offline mode
   echo $(cat $conf | jq '.+ {"mode": "offline"}') | sudo tee $conf
   #restart nodogsplash
-  /etc/init.d/nodogsplash stop
+  /etc/init.d/nodogsplash stop 
   sleep 1
-  /etc/init.d/nodogsplash start
+  /etc/init.d/nodogsplash start 
 }
 
 online(){
