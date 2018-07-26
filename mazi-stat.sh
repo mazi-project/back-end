@@ -5,7 +5,6 @@
 # You can also see information about the SD card such as capacity and whether or not the filesystem has been expanded.
 # Another functionality is the storage of these data in a local or remote database. In addition, you have the ability to flush these data
 # from the database in case you do not need them.
-#set -x
 
 #### Functions ####
 usage() { echo "Usage: sudo sh mazi-stat.sh  [options]" 
@@ -17,12 +16,24 @@ usage() { echo "Usage: sudo sh mazi-stat.sh  [options]"
           echo "-r,--ram                               Displays the RAM usage"
           echo "-s,--storage                           Displays the card storage in use"
           echo "--sd                                   Displays information about the SD card"
+          echo "--usb                                  Displays information about usb"
           echo "-n,--network                           Displays the Download/Upload speed" 
           echo "-d,--domain                            Set a remote server domain. (default is localhost)"
           echo "--store [enable,disable,flush]         Controls the status of the store process" 
           echo "--status                               Shows the status of the storage process" 1>&2; exit 1; 
 }
 
+usb_fun(){
+ usb_path=$(df -h | grep media | awk {'print $1'}) 
+ if [ -n "$usb_path" ];then
+   usb_avail=$(df --output=source,avail | grep $usb_path | awk {'print $NF'})
+   usb_target=$(df --output=source,target | grep $usb_path | awk {'print $NF'})
+   echo "usb_target $usb_target"
+   echo "free_space $usb_avail"
+ else
+   echo "usb -"
+ fi
+}
 users_fun() {
     wifi_intface=$(bash $path/mazi-current.sh -i wifi | awk '{print $2}')
     sudo touch $log/users.log
@@ -79,6 +90,7 @@ data_fun(){
  [ $SDinfo ] && SD_fun && echo "SD size: $SDsize" && echo "expand: $expand"
  [ $storage_arg ] && storage_fun && echo "storage: $storage$unit_form ($storagePer%)"
  [ $network_arg ] && network_fun && echo "Download $download $download_unit " && echo "Upload $upload $upload_unit "
+ [ $usb_arg ] && usb_fun 
 
 }
 
@@ -161,6 +173,9 @@ do
         unit="h" && unit_form="GB" && shift
         ;;
         esac
+      ;;
+      --usb)
+      usb_arg="TRUE"
       ;;
       -n|--network)
       network_arg="TRUE"
