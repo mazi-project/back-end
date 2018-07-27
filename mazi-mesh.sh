@@ -207,9 +207,9 @@ case $1 in
      ;;
      portal)
      key="$2"
-     if [ $key == "--ip" ]; then  
+     if [ "$key" == "--ip" ]; then  
 	curl -s -P POST -d '{"ip":"'$3'"}' http://localhost:$port/flush/node
-        sudo sshpass ssh root@$3 'bash /root/back-end/mazi-mesh.sh portal'
+        sudo sshpass ssh -o StrictHostKeyChecking=no root@$3 'bash /root/back-end/mazi-mesh.sh portal' &>/dev/null &
      else
        batIface
        portal
