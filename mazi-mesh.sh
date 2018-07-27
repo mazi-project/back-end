@@ -77,6 +77,7 @@ gateway(){
  batctl gw_mode server
  batctl bl 1
  echo $(cat $conf | jq '.+ {"mesh": "gateway"}') | sudo tee $conf
+ curl -s -X POST  http://localhost:$port/create/mesh
 }
 
 node(){
