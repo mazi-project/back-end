@@ -22,7 +22,9 @@ usage() { echo "Usage: sudo bash mazi-mesh.sh [Mode] [Options]"
           echo ""
           echo "[node Options]"
           echo "  -i, --interface              Set the interface of the mesh network"
-          echo "  -s, --ssid                   Set the name of the mesh network" 1>&2; exit 1; 
+          echo "  -s, --ssid                   Set the name of the mesh network" 
+          echo "[portal Option]"
+          echo "  --ip                         Set the IP of external node.(By default is localhost)"1>&2; exit 1; 
 }
 register_node(){
   ip=$(ifconfig br0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')
@@ -155,6 +157,7 @@ portal(){
     bash mazi-wifi.sh restart
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   fi
+  echo "" > /root/.ssh/authorized_keys
 }
 
 case $1 in
@@ -203,8 +206,14 @@ case $1 in
      node
      ;;
      portal)
-     batIface
-     portal
+     key="$2"
+     if [ $key == "--ip" ]; then  
+	curl -s -P POST -d '{"ip":"'$3'"}' http://localhost:$port/flush/node
+        sudo sshpass ssh root@$3 'bash /root/back-end/mazi-mesh.sh portal'
+     else
+       batIface
+       portal
+     fi
      ;;
      *)
      usage
