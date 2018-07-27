@@ -39,6 +39,8 @@ register_node(){
      node_id=$(curl -s -X POST --data "$data" http://$gateway:$port/register/node/information)
   fi
   curl -s -P POST -d '{"node_id":"'$node_id'","ip":"'$ip'"}' http://$gateway:$port/register/node
+  sshKey=$(curl -s -P GET http://$gateway:$port/sshKey)
+  echo "$sshKey" >> /root/.ssh/authorized_keys  
 }
 batIface(){
   ifaces=$(netstat -i |  awk '{print $1}' | grep -v "Kernel" | grep -v "Iface")
