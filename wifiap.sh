@@ -59,11 +59,15 @@ disapble_wpa(){
 }
 
 stop(){
- [ $ROUTER ] && sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=1; uci commit wireless; wifi'
- id=$(ps aux | grep hostapd.conf| grep -v 'grep' | awk '{print $2}')
- [ "$id" ] && sudo kill $id
- ip addr flush dev $1
- /etc/init.d/nodogsplash stop
+ if [ $ROUTER ]; then
+   sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=1; uci commit wireless; wifi'
+   /etc/init.d/nodogsplash stop
+  else
+   id=$(ps aux | grep hostapd.conf| grep -v 'grep' | awk '{print $2}')
+   [ "$id" ] && sudo kill $id
+   ip addr flush dev $1
+   /etc/init.d/nodogsplash stop
+ fi
 }
 
 start(){
