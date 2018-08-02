@@ -3,7 +3,7 @@
 # this	script	is able	to detect it and control the status of the connection, (activate/deactivate).
 
 #set -x
-cd /etc/back-end/
+cd /root/back-end/
 
 usage(){
         echo "Usage: sh mazi-router.sh [options] "
@@ -13,9 +13,10 @@ usage(){
         echo "-a,--activate       Activates the OpenWRT router as the Wi-Fi AP of this MAZI Zone "
         echo "-d,--deactivate     Discannects the router and restores the initial settings of the Raspberry pi built-in Wi-Fi module" 1>&2; exit 1;}
 
-
+hosts="/etc/hosts"
 hostapd="/etc/hostapd/hostapd.conf"
 interface="/etc/network/interfaces"
+replace="/etc/hostapd/replace.sed"
 path="/etc/dnsmasq.conf"
 WRT="10.0.2.2"
 PSWD="mazi"
@@ -58,6 +59,9 @@ if [ "$ACT" ];then
 
    sudo sed -i '/auto eth0/ a \iface eth0 inet static\n  address 10.0.2.1\/24' $interface
 
+   #Setup Hosts
+   sed -i "s/10.0.0.1/10.0.2.1/g" $hosts 
+   
    #Setup Dnsmasq
    sudo sed -i '/OpenWrt/d' $path
    sudo sed -i '/interface=eth0/d' $path
@@ -88,26 +92,32 @@ if [ "$ACT" ];then
    bash mazi-wifi.sh stop
 
    sudo echo 'active' | sudo tee /etc/mazi/router.conf
+   sed -i "/intface/c\s/\${intface}/eth0/" $replace
+   /etc/init.d/nodogsplash stop
+   /etc/init.d/nodogsplash start
 fi
 
 
 if [ "$DACT" ];then
-  #Enable WiFi on raspberry pi
-   bash mazi-wifi.sh restart
-  #Disable WiFi on OpenWrt router
    sudo sshpass -p "$PSWD" ssh root@$WRT 'uci set wireless.@wifi-device[0].disabled=1; uci commit wireless; wifi'
-
+  #Restore Hosts
+   sed -i "s/10.0.2.1/10.0.0.1/g" $hosts 
+  
   #Restore DHCP settings
    sudo sed -i '/OpenWrt/d' $path 
    sudo sed -i '/interface=eth0/d' $path
    sudo sed -i '/dhcp-range=10.0.2.10,10.0.2.200,255.255.255.0,12h/d' $path
    sudo service dnsmasq restart
+   
 
    sudo echo 'inactive' | sudo tee /etc/mazi/router.conf
 
    sudo ip addr flush dev eth0
    sudo sed -i '/iface eth0/,/address 10.0.2.1\/24/d' $interface
    sudo sed -i '/auto eth0/ a \iface eth0 inet manual' $interface
+
+   #Enable WiFi on raspberry pi
+   bash mazi-wifi.sh -i wlan0
 
 fi
 #set +x
