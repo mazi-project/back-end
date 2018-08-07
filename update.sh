@@ -103,7 +103,7 @@ rc_local_CHANGE(){
  sed -i "/\/sbin\/ifconfig wlan0 10.0.0.1/d" /etc/rc.local
  sed -i "/#ifdown wlan0/d" /etc/rc.local
  sed -i "/#sleep 1/d" /etc/rc.local
- sed -i "/#hostapd -B /etc/hostapd/hostapd.conf/d" /etc/rc.local
+ sed -i "/#hostapd -B \/etc\/hostapd\/hostapd.conf/d" /etc/rc.local
  sed -i "/#ifconfig wlan0 10.0.0.1/d" /etc/rc.local 
 
 }
