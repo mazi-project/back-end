@@ -2,7 +2,6 @@
 
 #The mazi-wifi.sh script is responsible for creating the Wi-Fi Access Point on the Raspberry Pi. With this script, you can 
 #also modify the settings of your Wi-Fi Access Point.
-#set -x
 cd /root/back-end
 
 ## initialization ##
@@ -53,8 +52,9 @@ password(){
  sed -i "/password/c\s/\${password}/$password/" $replace
 }
 
-disapble_wpa(){
+disable_wpa(){
  [ $ROUTER ] && sudo sshpass -p "$PSWD" ssh root@$WRT 'sed -i "/option encryption/c\        option encryption 'none'" /etc/config/wireless'
+ sed -i "/password/c\s/\${password}/-/" $replace
  sed -i '/^wpa/ d' $hostapd
 }
 
@@ -114,6 +114,7 @@ case $key in
     ;;
     -w|--wpa)
     wpa="$2"
+    disable_wpa
     shift # past argument=value
     ;;
     start)
@@ -141,13 +142,11 @@ done
 sed -f /etc/hostapd/replace.sed /etc/hostapd/template_80211n.txt  > /etc/hostapd/hostapd.conf
 
 ### remove wpa ###
-[ -z $password ] && sed -i '/^wpa/ d' /etc/hostapd/hostapd.conf
-
+[ "$(cat $replace| grep "password" | cut -d '/' -f 3)" == "-" ] && disable_wpa
 ## restart hostapd ##
 #stop $wifi_intface
 start $internet_intface $wifi_intface
 
-#set +x
 
 
 
