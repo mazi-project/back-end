@@ -31,6 +31,11 @@ disconnect(){
      sudo sed -i '/psk=/d' $path
      sudo sed -i '/key_mgmt=NONE/d' $path
      sudo sed -i '/}/d' $path
+     ##setup /network/interfaces
+     sed -i "/auto $1/d" /etc/network/interfaces
+     sed -i "/allow-hotplug $1/d" /etc/network/interfaces
+     sed -i "/iface $1 inet manual/d" /etc/network/interfaces
+     sed -i "/wpa-conf \/etc\/wpa_supplicant\/wpa_supplicant.conf/d" /etc/network/interfaces
 
      WPAid=$(sudo ps aux | grep wpa_supplicant | grep $1 | awk '{print $2}') 
      [ "$WPAid" ] && sudo kill $WPAid
@@ -38,7 +43,7 @@ disconnect(){
      ip addr flush dev $1
      ifconfig $1 down
      # Delete iptable rule
-     sudo iptables -t nat -D POSTROUTING -o $intface -j MASQUERADE
+     sudo iptables -t nat -D POSTROUTING -o $1 -j MASQUERADE
      sudo iptables-save | sudo tee /etc/iptables/rules.v4 >/dev/null
 
 }
@@ -70,6 +75,12 @@ connect(){
     ## Forward internet through interface
     sudo iptables -t nat -A POSTROUTING -o $intface -j MASQUERADE
     sudo iptables-save | sudo tee /etc/iptables/rules.v4 >/dev/null
+    ##setup /network/interfaces file
+    echo "auto $intface" >> /etc/network/interfaces
+    echo "allow-hotplug $intface" >> /etc/network/interfaces
+    echo "iface $intface inet manual" >> /etc/network/interfaces
+    echo "wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf" >> /etc/network/interfaces  
+
 }
 
 
