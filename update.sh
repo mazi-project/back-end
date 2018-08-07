@@ -98,12 +98,22 @@ synchronize_AP(){
   bash /root/back-end/mazi-internet.sh -m $(jq -r .mode /etc/mazi/mazi.conf)
 }
 
+rc_local_CHANGE(){
+ echo "Removes unuseful commands from rc.local file"
+ sed -i "/\/sbin\/ifconfig wlan0 10.0.0.1/d" /etc/rc.local
+ sed -i "/#ifdown wlan0/d" /etc/rc.local
+ sed -i "/#sleep 1/d" /etc/rc.local
+ sed -i "/#hostapd -B /etc/hostapd/hostapd.conf/d" /etc/rc.local
+ sed -i "/#ifconfig wlan0 10.0.0.1/d" /etc/rc.local 
+
+}
 while [ $# -gt 0 ]
 do
   key="$1"
   case $key in
     2.5.4)
     #update v2.5.4
+    rc_local_CHANGE
     nodogsplash_template
     nodogsplash_service
     synchronize_AP
