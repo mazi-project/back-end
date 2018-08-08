@@ -1,5 +1,4 @@
 #!bin/bash
-
 install_nodogsplash(){
 echo "Install nodogsplash"
 if [ ! -d /root/nodogsplash ];then
@@ -84,17 +83,25 @@ sed -i '/gateway 10.0.0.1/d' /etc/network/interfaces
 #sh /root/back-end/mazi-internet.sh -m offline
 synchronize_AP(){
   echo "synchronize Access Point"
+  mode=$(jq -r .mode /etc/mazi/mazi.conf)
+  if [ "$mode" == "offline" ];then
+      echo $(cat /etc/mazi/mazi.conf | jq '.+ {"mode": "offline"}') | sudo tee /etc/mazi/mazi.conf
+  else
+      echo $(cat /etc/mazi/mazi.conf | jq '.+ {"mode": "online"}') | sudo tee /etc/mazi/mazi.conf
+  fi
+
   intface=$(grep 'interface' /etc/hostapd/hostapd.conf| sed 's/interface=//g')
   ssid=$(grep 'ssid' /etc/hostapd/hostapd.conf| sed 's/ssid=//g')
   channel=$(grep 'channel' /etc/hostapd/hostapd.conf| sed 's/channel=//g')
   password=$(grep 'wpa_passphrase' /etc/hostapd/hostapd.conf| sed 's/wpa_passphrase=//g')
   [ -z $password ] && password="-"
+  sed -i  "/password/c\s/\${password}/$password/" /etc/hostapd/replace.sed
   if [ "$password" = "-" ];then
     bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel  -i $intface
   else
     bash /root/back-end/mazi-wifi.sh -s $ssid -c $channel -p $password -i $intface
   fi
-
+  
   bash /root/back-end/mazi-internet.sh -m $(jq -r .mode /etc/mazi/mazi.conf)
 }
 
@@ -137,4 +144,3 @@ do
   esac
   shift
 done
-
