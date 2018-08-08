@@ -76,7 +76,7 @@ start(){
  else
   [ "$1" = "$2" ] && sh mazi-antenna.sh -d -i $2
   sudo ifconfig $2 down
-  sudo hostapd -B $hostapd
+  sudo hostapd -B $hostapd &>/dev/null
   sudo ifconfig $2 10.0.0.1/24
  fi
  /etc/init.d/nodogsplash start
