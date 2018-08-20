@@ -118,6 +118,8 @@ case $key in
     shift # past argument=value
     ;;
     start)
+    ### remove wpa ###
+    [ "$(cat $replace| grep "password" | cut -d '/' -f 3)" == "-" ] && disable_wpa
     start $internet_intface $wifi_intface
     exit 0;
     ;;
