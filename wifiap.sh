@@ -119,7 +119,7 @@ case $key in
     ;;
     start)
     ### remove wpa ###
-    [ "$(cat $replace| grep "password" | cut -d '/' -f 3)" == "-" ] && disable_wpa
+    [ "$(cat $replace| grep "password" | cut -d '/' -f 3)" = "-" ] && disable_wpa
     start $internet_intface $wifi_intface
     exit 0;
     ;;
@@ -144,7 +144,7 @@ done
 sed -f /etc/hostapd/replace.sed /etc/hostapd/template_80211n.txt  > /etc/hostapd/hostapd.conf
 
 ### remove wpa ###
-[ "$(cat $replace| grep "password" | cut -d '/' -f 3)" == "-" ] && disable_wpa
+[ "$(cat $replace| grep "password" | cut -d '/' -f 3)" = "-" ] && disable_wpa
 ## restart hostapd ##
 #stop $wifi_intface
 start $internet_intface $wifi_intface
