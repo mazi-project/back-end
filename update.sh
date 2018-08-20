@@ -84,7 +84,7 @@ sed -i '/gateway 10.0.0.1/d' /etc/network/interfaces
 synchronize_AP(){
   echo "synchronize Access Point"
   mode=$(jq -r .mode /etc/mazi/mazi.conf)
-  if [ "$mode" == "offline" ];then
+  if [ "$mode" = "offline" ];then
       echo $(cat /etc/mazi/mazi.conf | jq '.+ {"mode": "offline"}') | sudo tee /etc/mazi/mazi.conf
   else
       echo $(cat /etc/mazi/mazi.conf | jq '.+ {"mode": "online"}') | sudo tee /etc/mazi/mazi.conf
@@ -124,7 +124,6 @@ do
     nodogsplash_template
     nodogsplash_service
     synchronize_AP
-    shift
     ;;
     previous)
     #previous update 
