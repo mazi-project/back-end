@@ -27,13 +27,13 @@ interface(){
      [ $ROUTER ] && echo "wifi_interface br-lan"
      [ -z $ROUTER ] && echo "wifi_interface $(cat /etc/hostapd/replace.sed| grep "intface" | awk -F'[/|/]' '{print $3}')" 
   elif [ $1 = "internet" ];then
-     internet_interface=$(ps aux | grep wpa_supplicant | grep -o '\-i.*' | awk '{print $2}')
+     internet_interface=$(ps aux | grep wpa_supplicant | grep -o '\-i.*' | awk '{print $1}' | tr -d \\-i)
      [ $internet_interface ] && internet_interface=$(iwconfig 2>/dev/null | grep $internet_interface | awk '{print $1}')
      [ $internet_interface ] && echo "internet_interface $internet_interface" || echo "internet_interface -"
   elif [ $1 = "mesh" ];then
      mesh_interface="-"
      ifaces=$(netstat -i |  awk '{print $1}' | grep -v "Kernel" | grep -v "Iface")
-     read -a ifaces <<<$ifaces
+     #read -a ifaces <<<$ifaces
      for i in ${ifaces[@]};do
        if [ "$(iwconfig $i 2>/dev/null | grep Mode | awk '{print $1}')" = "Mode:Ad-Hoc" ];then
          mesh_interface=$i
@@ -41,8 +41,8 @@ interface(){
      done
      [ $mesh_interface ] && echo "mesh_interface $mesh_interface" || echo "mesh_interface -"
   elif [ $1 = "all" ];then
-     ifaces=$(ifconfig -a | awk '{print $1}' | grep wlan)
-     read -a ifaces <<<$ifaces
+     ifaces=$(ifconfig -a | awk '{print $1}' | grep wlan| tr -d :)
+    # read -a ifaces <<<$ifaces
      count=1
      for i in ${ifaces[@]};do
         [ "$(ifconfig $i | grep "b8:27:eb")" ] && name="raspberry" 
