@@ -27,7 +27,7 @@ interface(){
      [ $ROUTER ] && echo "wifi_interface br-lan"
      [ -z $ROUTER ] && echo "wifi_interface $(cat /etc/hostapd/replace.sed| grep "intface" | awk -F'[/|/]' '{print $3}')" 
   elif [ $1 = "internet" ];then
-     internet_interface=$(ps aux | grep wpa_supplicant | grep -o '\-i.*' | awk '{print $1}' | tr -d \\-i)
+     internet_interface=$(ps aux | grep wpa_supplicant | grep -o '\-i.*' | awk '{print $2}')
      [ $internet_interface ] && internet_interface=$(iwconfig 2>/dev/null | grep $internet_interface | awk '{print $1}')
      [ $internet_interface ] && echo "internet_interface $internet_interface" || echo "internet_interface -"
   elif [ $1 = "mesh" ];then
