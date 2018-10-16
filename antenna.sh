@@ -140,9 +140,9 @@ else
 fi
 ####################
 
-[ $list_arg ] && list
-[ $active_arg ] && active
-[ $ssid ] && connect
+[ "$list_arg" ] && list
+[ "$active_arg" ] && active
+[ "$ssid" ] && connect
 
 exit 1;
 
