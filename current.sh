@@ -15,6 +15,7 @@ usage() { echo "Usage: sudo sh current.sh  [options]"
           echo "              internet             Interface for internet connection"
           echo "              mesh                 Interface for mesh network"
           echo "              all                  Shows all available interfaces"
+          echo "-n,--netstat                       Shows the status of the internet network"
           echo "-s,--ssid                          Shows the name of the Wi-Fi network"
           echo "-c,--channel                       Shows the Wi-Fi channel in use"
           echo "-p,--password                      Shows the pasword of the  Wi-Fi network"
@@ -93,6 +94,9 @@ case $key in
     -m|--mode)
     MODE="YES"
     ;;
+    -n|--netstat)
+    NETWORK="YES"
+    ;;
     -w|--wifi)
     DEVICE="TRUE"
     ;;
@@ -112,6 +116,11 @@ if [ "$CHANNEL" = "YES" ]; then
     channel=$(cat /etc/hostapd/replace.sed| grep "channel" | awk -F'[/|/]' '{print $3}') 
   fi
   echo "channel $channel"
+fi
+
+## print network status
+if [ "$NETWORK" = "YES" ];then
+   ping -q -w 1 -c 1 `ip r | grep default | cut -d ' ' -f 3` > /dev/null && echo ok || echo error
 fi
 
 ## print ssid
