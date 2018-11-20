@@ -135,6 +135,7 @@ case $key in
     *)
      # unknown option
     usage   
+    exit 0;
     ;;
 esac
 shift     #past argument or value

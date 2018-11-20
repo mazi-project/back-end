@@ -70,7 +70,7 @@ connect(){
     [ $hidden ] && sudo sed -i '$ a scan_ssid=1' $path && echo "Hidden"
     sudo sed -i '$ a }' $path
     sudo ifconfig $intface up
-    sudo wpa_supplicant -B -i $intface -c /etc/wpa_supplicant/wpa_supplicant.conf 
+    sudo wpa_supplicant -B -D wext -i $intface -c /etc/wpa_supplicant/wpa_supplicant.conf 
     dhclient $intface 
     ## Forward internet through interface
     sudo iptables -t nat -A POSTROUTING -o $intface -j MASQUERADE
