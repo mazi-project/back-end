@@ -1,6 +1,6 @@
 #!/bin/bash 
 filename="/etc/mazi/users.dat"
-nodogMinutes=$(cat /etc/nodogsplash/nodogsplash.conf | grep "ClientIdleTimeout" | awk {'print $NF'})
+nodogMinutes=$(cat /etc/nodogsplash/nodogsplash.conf | grep "AuthIdleTimeout" | awk {'print $NF'})
 while true; 
 do
   while read -r line
