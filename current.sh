@@ -120,7 +120,7 @@ fi
 
 ## print network status
 if [ "$NETWORK" = "YES" ];then
-    ping 8.8.8.8 -c 1 -W 1 | grep "100% packet loss" > /dev/null && echo "error" || echo "ok"
+    ping 8.8.8.8 -c 1 -W 1 | grep "1 received" > /dev/null && echo "ok" || echo "error"
 fi
 
 ## print ssid
