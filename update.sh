@@ -124,11 +124,12 @@ do
     nodogsplash_template
     nodogsplash_service
     synchronize_AP
+    exit 0
     ;;
     previous)
     #previous update 
     install_nodogsplash
-    nodogsplash_templates
+    nodogsplash_template
     nodogsplash_service
     hostapd_templates 
     install_batman
@@ -136,6 +137,7 @@ do
     rc_local
     interface_file
     synchronize_AP
+    exit 0
     ;;
     *)
     echo "Invalid version"
@@ -143,3 +145,14 @@ do
   esac
   shift
 done
+
+### Run update script without argument #####
+install_nodogsplash
+nodogsplash_template
+nodogsplash_service
+hostapd_templates
+install_batman
+remove_iptables
+rc_local
+interface_file
+synchronize_AP
