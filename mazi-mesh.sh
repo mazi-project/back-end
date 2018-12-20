@@ -27,7 +27,7 @@ usage() { echo "Usage: sudo bash mazi-mesh.sh [Mode] [Options]"
           echo "  --ip                         Set the IP of external node.(By default is localhost)"1>&2; exit 1; 
 }
 register_node(){
-  ip=$(ifconfig br0 | grep 'inet addr' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')
+  ip=$(ifconfig br0 | grep 'inet' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')
   ssd=$(bash /root/back-end/mazi-current.sh -s |awk {'print $NF'})
   data='{"deployment":'$(jq ".deployment" $conf)',
          "ssid":"'$ssd'",
@@ -45,9 +45,8 @@ register_node(){
   echo "$sshKey" >> /root/.ssh/authorized_keys  
 }
 batIface(){
-  ifaces=$(netstat -i |  awk '{print $1}' | grep -v "Kernel" | grep -v "Iface")
-  read -a ifaces <<<$ifaces
-  for i in ${ifaces[@]};do
+  ifaces="$(netstat -i |  awk '{print $1}' | grep -v "Kernel" | grep -v "Iface")"
+  for i in $ifaces;do
      if [ "$(iwconfig $i 2>/dev/null | grep Mode | awk '{print $1}')" = "Mode:Ad-Hoc" ];then
         iface=$i
      fi
@@ -80,9 +79,11 @@ gateway(){
  batctl bl 1
  echo $(cat $conf | jq '.+ {"mesh": "gateway"}') | sudo tee $conf
  curl -s -X POST  http://localhost:$port/create/mesh
+
 }
 
 node(){
+  echo $(cat $conf | jq '.+ {"mesh": "node"}') | sudo tee $conf
   cd /root/back-end
   ifconfig $iface up
   if [ -z "$(iwlist $iface scan | grep -w '.*"'$ssid'"' )" ];then
@@ -107,7 +108,7 @@ node(){
 
   br_iface=$wifi_intface 
   ip link add name br0 type bridge
-  mac=$(ifconfig br0 | grep HWaddr | awk '{print $NF}')
+  mac=$(ifconfig br0 | grep ether | awk '{print $2}')
   ip link set dev $br_iface master br0
   ip link set dev bat0 master br0
   ifconfig br0 hw ether $mac
@@ -118,11 +119,12 @@ node(){
   batctl gw_mode client
   batctl bl 1
 
-  sudo dhclient  br0
+  sudo dhclient br0
+  # [ -z "$(ifconfig br0 | grep -w "inet")" ] && batIface && portal
   bash mazi-wifi.sh restart
-  echo $(cat $conf | jq '.+ {"mesh": "node"}') | sudo tee $conf
   register_node 
 }
+
 portal(){
  cd /root/back-end
  if [ $(jq ".mesh" $conf) = '"node"' ];then
@@ -137,6 +139,7 @@ portal(){
     sudo service dnsmasq restart
     sudo service dhcpcd restart
     ip addr flush dev $iface
+    ifconfig $iface down
     iwconfig $iface  essid off mode managed
     bash mazi-wifi.sh restart
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
@@ -158,6 +161,7 @@ portal(){
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   fi
   echo "" > /root/.ssh/authorized_keys
+  exit 0;
 }
 
 case $1 in
