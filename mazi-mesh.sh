@@ -58,8 +58,6 @@ gateway(){
  [ $(jq ".mesh" $conf) = '"gateway"' ] && exit 0;
  [ "$wifi_intface" = "$iface" ] && echo "This interface is being used by the Access Point" && exit 0;
  [ "$internet_intface" = "$iface" ] && bash mazi-antenna.sh -d -i $iface
- ip link set mtu 1532 dev $iface
- sleep 1
  ifconfig $iface down
  iwconfig $iface mode ad-hoc essid $ssid channel 1
  ifconfig $iface up
@@ -94,8 +92,6 @@ node(){
   [ "$internet_intface" = "$iface" ] && bash mazi-antenna.sh -d -i $iface
   service mazi-portal stop
   service dnsmasq stop
-  ip link set mtu 1532 dev $iface
-  sleep 1
   ifconfig $iface down
   iwconfig $iface mode ad-hoc essid $ssid channel 1
   ifconfig $iface up
