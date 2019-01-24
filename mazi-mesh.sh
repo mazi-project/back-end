@@ -44,14 +44,6 @@ register_node(){
   sshKey=$(curl -s -P GET http://$gateway:$port/sshKey)
   echo "$sshKey" >> /root/.ssh/authorized_keys  
 }
-batIface(){
-  ifaces="$(netstat -i |  awk '{print $1}' | grep -v "Kernel" | grep -v "Iface")"
-  for i in $ifaces;do
-     if [ "$(iwconfig $i 2>/dev/null | grep Mode | awk '{print $1}')" = "Mode:Ad-Hoc" ];then
-        iface=$i
-     fi
-  done
-}
 
 gateway(){
  cd /root/back-end
@@ -60,28 +52,24 @@ gateway(){
  [ "$internet_intface" = "$iface" ] && bash mazi-antenna.sh -d -i $iface
  ifconfig $iface down
  iwconfig $iface mode ad-hoc essid $ssid channel 1
- ifconfig $iface up
  batctl if add $iface
- ip link set up dev $iface
- ip link set up dev bat0
- ifconfig bat0 192.168.1.1
+ ifconfig $iface up
+ ifconfig bat0 up
+ ifconfig bat0 192.168.1.1/24
  ### configure /etc/hosts ####
  domain=$(bash mazi-current.sh -d | awk '{print $NF}')
  echo "192.168.1.1     $domain" >> /etc/hosts
  echo "192.168.1.1     local.mazizone.eu"  >> /etc/hosts
  ### configure dnsmasq for mesh interface ####
  echo "interface=bat0" >> /etc/dnsmasq.conf
- echo "dhcp-range=192.168.1.10,192.168.1.200,255.255.255.0,12h" >> /etc/dnsmasq.conf
+ echo "dhcp-range=bat0,192.168.1.10,192.168.1.200,255.255.255.0,12h" >> /etc/dnsmasq.conf
  service dnsmasq restart
- batctl gw_mode server
- batctl bl 1
  echo $(cat $conf | jq '.+ {"mesh": "gateway"}') | sudo tee $conf
  curl -s -X POST  http://localhost:$port/create/mesh
 
 }
 
 node(){
-  echo $(cat $conf | jq '.+ {"mesh": "node"}') | sudo tee $conf
   cd /root/back-end
   ifconfig $iface up
   if [ -z "$(iwlist $iface scan | grep -w '.*"'$ssid'"' )" ];then
@@ -94,64 +82,50 @@ node(){
   service dnsmasq stop
   ifconfig $iface down
   iwconfig $iface mode ad-hoc essid $ssid channel 1
-  ifconfig $iface up
   batctl if add $iface
-  ip link set up dev $iface
-  ip link set up dev bat0
-  batctl gw_mode client
-  killall  dhclient 2>/dev/null
-  service dhcpcd stop  
+  ifconfig $iface up
+  ifconfig bat0 up
 
-  br_iface=$wifi_intface 
   ip link add name br0 type bridge
   mac=$(ifconfig br0 | grep ether | awk '{print $2}')
-  ip link set dev $br_iface master br0
+  ip link set dev $wifi_intface master br0
   ip link set dev bat0 master br0
   ifconfig br0 hw ether $mac
-  ip link set up dev $br_iface
+  ip link set up dev $wifi_intface
   ip link set up dev bat0
   ip link set up dev br0
 
-  batctl gw_mode client
-  batctl bl 1
-
   sudo dhclient br0
-  # [ -z "$(ifconfig br0 | grep -w "inet")" ] && batIface && portal
-  bash mazi-wifi.sh restart
   register_node 
+  echo $(cat $conf | jq '.+ {"mesh": "node"}') | sudo tee $conf
 }
 
 portal(){
  cd /root/back-end
+ iface=$(batctl if | awk '{print $1}'| tr -d :)
  if [ $(jq ".mesh" $conf) = '"node"' ];then
-    killall  dhclient 2>/dev/null
-    ip link set down dev br0
+    ifconfig br0 down
     ip link delete br0
-    ip link set down dev bat0
-    ip link set down dev $iface
+    ifconfig bat0 down
+    ifconfig $iface down
     batctl if del $iface
-    ip link set mtu 1500 dev $iface
     sudo service mazi-portal restart
     sudo service dnsmasq restart
-    sudo service dhcpcd restart
     ip addr flush dev $iface
-    ifconfig $iface down
     iwconfig $iface  essid off mode managed
     bash mazi-wifi.sh restart
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   elif [ $(jq ".mesh" $conf) = '"gateway"' ];then
-    killall  dhclient 2>/dev/null
-    ip link set down dev bat0
-    ip link set down dev $iface
+    ifconfig bat0 down
+    ifconfig $iface down
     batctl if del $iface
-    ip link set mtu 1500 dev $iface
     ip addr flush dev $iface
     iwconfig $iface  essid off mode managed
     ## remove mesh configutarion from /etc/hosts ##
     sudo sed -i '/192.168.1.1/d' /etc/hosts
     ## remove mesh configuration from dnsmaq.conf ##
     sudo sed -i '/interface=bat0/d' /etc/dnsmasq.conf
-    sudo sed -i '/dhcp-range=192.168.1.10,192.168.1.200,255.255.255.0,12h/d' /etc/dnsmasq.conf
+    sudo sed -i '/dhcp-range=bat0,192.168.1.10,192.168.1.200,255.255.255.0,12h/d' /etc/dnsmasq.conf
     sudo service dnsmasq restart 
     bash mazi-wifi.sh restart
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
@@ -211,8 +185,7 @@ case $1 in
 	curl -s -P POST -d '{"ip":"'$3'"}' http://localhost:$port/flush/node
         sudo sshpass ssh -o StrictHostKeyChecking=no root@$3 'bash /root/back-end/mazi-mesh.sh portal' &>/dev/null &
      else
-       batIface
-       portal
+        portal
      fi
      ;;
      *)
