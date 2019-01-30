@@ -114,10 +114,29 @@ rc_local_CHANGE(){
  sed -i "/#ifconfig wlan0 10.0.0.1/d" /etc/rc.local 
 
 }
+batman_boot_exce(){
+  sed -i '/#END RASPIMJPEG SECTION/a #BOOT RASPI INTO PORTAL MODE' /etc/rc.local
+  sed -i "/#BOOT RASPI INTO PORTAL MODE/a echo \$(cat /etc/mazi/mazi.conf | jq '.+ {\"mesh\": \"portal\"}') | sudo tee /etc/mazi/mazi.conf" /etc/rc.local
+
+}
+
+nds_service(){	
+ sed "/sudo ndsctl stop &>\/dev\/nul/a\       \ timeout_id=\$(ps aux | grep -v grep | grep back-end/timeout.sh | awk '{print \$2}')\n \      \ for pid in \$timeout_id; do kill \$pid >/dev/null 2>\&1; done" /etc/init.d/nodogsplash 
+ chmod +x /etc/init.d/nodogsplash
+ update-rc.d nodogsplash defaults
+ systemctl daemon-reload
+}
+
+
 while [ $# -gt 0 ]
 do
   key="$1"
   case $key in
+    3.0.2)
+    install_batman
+    batman_boot_exce    
+    nds_service
+    ;;    
     2.5.4)
     #update v2.5.4
     rc_local_CHANGE
