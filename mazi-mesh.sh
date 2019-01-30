@@ -82,6 +82,7 @@ node(){
   service dnsmasq stop
   ifconfig $iface down
   iwconfig $iface mode ad-hoc essid $ssid channel 1
+  ifconfig $iface up
   batctl if add $iface
   ifconfig $iface up
   ifconfig bat0 up
@@ -113,6 +114,7 @@ portal(){
     sudo service dnsmasq restart
     ip addr flush dev $iface
     iwconfig $iface  essid off mode managed
+    killall dhclient
     bash mazi-wifi.sh restart
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   elif [ $(jq ".mesh" $conf) = '"gateway"' ];then
@@ -187,6 +189,10 @@ case $1 in
      else
         portal
      fi
+     ;;
+     scan)
+     list=$(iwlist $2 scan | grep  -B 3 -A 1 'Mode:Ad-Hoc' | grep ESSID |sed -e s/ESSID:// | tr -d \")     
+     echo $list
      ;;
      *)
      usage
