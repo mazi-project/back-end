@@ -42,13 +42,34 @@ online(){
   sleep 1
   /etc/init.d/nodogsplash start
 }
-managed(){
-  cd /root/back-end/
-  mode=$(sh mazi-current.sh -m | awk '{print $2}')
-  
+limit(){
+if [ $1 = "flush" ];then
+  sudo ndsctl stop &>/dev/null
+  sudo sed -i '/DownloadLimit/d' /etc/nodogsplash/nodogsplash.conf
+  sudo /root/nodogsplash/nodogsplash &>/dev/null	
+else
+  sudo ndsctl stop &>/dev/null
+  sudo sed -i '/DownloadLimit/d' /etc/nodogsplash/nodogsplash.conf
+  echo "DownloadLimit $1" >> /etc/nodogsplash/nodogsplash.conf
+  echo "TrafficControl yes" >> /etc/nodogsplash/nodogsplash.conf
+  sudo /root/nodogsplash/nodogsplash &>/dev/null	
+fi
 }
 
+auth(){
+	mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $2'})
+	datE=$(date +"%Y-%m-%d %T")
+	echo "$mac $datE" >> /etc/mazi/users.dat
+	ndsctl auth $mac
+    ndsctl trust $mac
+}
 
+deauth(){
+	mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $2'})
+	sudo sed -i "/$mac/d" /etc/mazi/users.dat
+	ndsctl deauth $mac
+    ndsctl untrust $mac
+}
 
 while [ $# -gt 0 ]
 do
@@ -58,9 +79,15 @@ case $key in
    -m|--mode)
     [ "$2" = "offline" ] && offline
     [ "$2" = "online" ] && online
-    [ "$2" = "managed" ] && managed $3 && shift
     shift 
     ;;
+    -man|--managed)
+	[ "$2" = "limit" ] && limit $3 
+ 	[ "$2" = "auth" ] && auth $3 
+    [ "$2" = "deauth" ] && deauth $3 
+    shift
+	shift
+	;;
     *)
     usage
     ;;

@@ -1,0 +1,29 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          users
+# Required-Start:    $local_fs $remote_fs $network $syslog
+# Required-Stop:     $local_fs $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: mazi-users
+# Description:       mazi-users
+### END INIT INFO
+
+case "$1" in
+  start)
+		bash /usr/local/bin/mazi-users.sh &
+        ;;
+  stop)
+        id=$(ps aux | grep -v grep | grep mazi-users.sh | awk '{print $2}')
+		for pid in $id;do kill $pid >/dev/null 2>&1; done
+		;;
+  restart)
+        id=$(ps aux | grep -v grep | grep mazi-users.sh | awk '{print $2}')
+		for pid in $id;do kill $pid >/dev/null 2>&1; done
+		bash /usr/local/bin/mazi-users.sh &
+		;;
+        *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+exit 0

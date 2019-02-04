@@ -127,6 +127,14 @@ nds_service(){
  systemctl daemon-reload
 }
 
+users_count(){
+	cp /root/back-end/templates/mazi-users.sh /usr/local/bin/
+	cp /root/back-end/templates/mazi-users /etc/init.d/
+	chmod +x /etc/init.d/mazi-users
+	update-rc.d mazi-users defaults
+	systemctl daemon-reload
+}
+
 
 while [ $# -gt 0 ]
 do
@@ -136,6 +144,7 @@ do
     install_batman
     batman_boot_exce    
     nds_service
+    users_count
     ;;    
     2.5.4)
     #update v2.5.4

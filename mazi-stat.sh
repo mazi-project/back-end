@@ -35,17 +35,9 @@ usb_fun(){
  fi
 }
 users_fun() {
-    wifi_intface=$(bash $path/mazi-current.sh -i wifi | awk '{print $2}')
-    sudo touch $log/users.log
-    sudo chmod 777 $log/users.log 
-    if [ "$ROUTER" ];then
-      sudo arp-scan --interface=eth0 10.0.2.0/24 --arpspa 10.0.2.1 --retry=3 -g  > $log/users.log
-      users=$(cat $log/users.log | grep 'responded' | awk '{print $12}') 
+    users=$(cat /etc/mazi/users.log | wc -l)
+	if [ "$ROUTER" ];then
       users=$(( users - 1))
-    else
-      wifi_intface=$(bash $path/mazi-current.sh -i wifi | awk '{print $2}')
-      sudo arp-scan --interface=$wifi_intface 10.0.0.0/24 --arpspa 10.0.0.1 --retry=3 -g  > $log/users.log
-      users=$(cat $log/users.log | grep 'responded' | awk '{print $12}')
     fi
 }
 
