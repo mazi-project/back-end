@@ -18,4 +18,5 @@ while true; do
    		response=$(sudo arp-scan --interface=wlan1 10.0.0.0/24 --numeric --quiet --ignoredups | grep -E '([a-f0-9]{2}:){5}[a-f0-9]{2}')
         printf "%s %s \n" "${response[@]}" > $log/users.log
 	fi
+    sleep 10
 done
