@@ -121,6 +121,7 @@ batman_boot_exce(){
 }
 
 nds_service(){	
+ sed -i "/id=\$(ps aux \| grep back-end\/timeout.sh \| grep -v 'grep' \|awk '{print $2}')/{N;N;N;d;}" /etc/init.d/nodogsplash 
  sed -i "/sudo ndsctl stop &>\/dev\/nul/a\       \ timeout_id=\$(ps aux | grep -v grep | grep back-end/timeout.sh | awk '{print \$2}')\n \      \ for pid in \$timeout_id; do kill \$pid >/dev/null 2>\&1; done" /etc/init.d/nodogsplash 
  chmod +x /etc/init.d/nodogsplash
  update-rc.d nodogsplash defaults
