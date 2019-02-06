@@ -134,6 +134,7 @@ users_count(){
 	chmod +x /etc/init.d/mazi-users
 	update-rc.d mazi-users defaults
 	systemctl daemon-reload
+	/etc/init.d/mazi-users start
 }
 
 
