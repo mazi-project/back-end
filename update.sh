@@ -1,4 +1,5 @@
 #!bin/bash
+set -x
 install_nodogsplash(){
 echo "Install nodogsplash"
 if [ ! -d /root/nodogsplash ];then
@@ -32,7 +33,6 @@ hostapd_templates(){
 ## hostapd tempates
  echo "New templates for hostapd"
  cp /root/back-end/templates/template_80211n.txt /etc/hostapd/
- cp /root/back-end/templates/replace.sed /etc/hostapd/
 }
 
 install_batman(){
@@ -129,23 +129,30 @@ nds_service(){
 }
 
 users_count(){
-	cp /root/back-end/templates/mazi-users.sh /usr/local/bin/
+    sudo chmod o+x /root/back-end/mazi-users.sh
 	cp /root/back-end/templates/mazi-users /etc/init.d/
 	chmod +x /etc/init.d/mazi-users
 	update-rc.d mazi-users defaults
 	systemctl daemon-reload
+    rm /etc/mazi/users.log
+    touch /etc/mazi/users.log
 	/etc/init.d/mazi-users start
 }
 
+install_hostap_utils(){
+  sudo apt-get install hostap-utils
+}
 
 while [ $# -gt 0 ]
 do
   key="$1"
   case $key in
     3.0.2)
-    install_batman
-    batman_boot_exce    
-    nds_service
+#    install_batman
+#    batman_boot_exce    
+#    nds_service
+    hostapd_templates
+    install_hostap_utils
     users_count
     ;;    
     2.5.4)
@@ -173,3 +180,5 @@ do
   esac
   shift
 done
+
+set +x
