@@ -1,5 +1,5 @@
 #!bin/bash
-set -x
+#set -x
 install_nodogsplash(){
 echo "Install nodogsplash"
 if [ ! -d /root/nodogsplash ];then
@@ -147,10 +147,10 @@ while [ $# -gt 0 ]
 do
   key="$1"
   case $key in
-    3.0.2)
-#    install_batman
-#    batman_boot_exce    
-#    nds_service
+    3.0.3)
+    install_batman
+    batman_boot_exce    
+    nds_service
     hostapd_templates
     install_hostap_utils
     users_count
@@ -181,4 +181,4 @@ do
   shift
 done
 
-set +x
+#set +x
