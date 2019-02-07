@@ -8,19 +8,20 @@
 # Short-Description: mazi-users
 # Description:       mazi-users
 ### END INIT INFO
+wifi_int=$(bash /root/back-end/mazi-current.sh -i wifi | awk {'print $2'})
 
 case "$1" in
   start)
-		bash /usr/local/bin/mazi-users.sh &
+		hostapd_cli -a '/root/back-end/mazi-users.sh' -i $wifi_int &
         ;;
   stop)
-        id=$(ps aux | grep -v grep | grep mazi-users.sh | awk '{print $2}')
+        id=$(ps aux | grep -v grep | grep hostapd_cli | awk '{print $2}')
 		for pid in $id;do kill $pid >/dev/null 2>&1; done
 		;;
   restart)
-        id=$(ps aux | grep -v grep | grep mazi-users.sh | awk '{print $2}')
+        id=$(ps aux | grep -v grep | grep hostapd_cli | awk '{print $2}')
 		for pid in $id;do kill $pid >/dev/null 2>&1; done
-		bash /usr/local/bin/mazi-users.sh &
+		hostapd_cli -a '/root/back-end/mazi-users.sh' -i $wifi_int &
 		;;
         *)
         echo "Usage: $0 {start|stop|restart}"
