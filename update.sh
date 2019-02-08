@@ -136,6 +136,8 @@ users_count(){
 	systemctl daemon-reload
     rm /etc/mazi/users.log
     touch /etc/mazi/users.log
+    bash /root/back-end/wifiap.sh -c 6
+ 	/etc/init.d/mazi-users start
 }
 
 install_hostap_utils(){
