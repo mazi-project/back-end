@@ -136,7 +136,6 @@ users_count(){
 	systemctl daemon-reload
     rm /etc/mazi/users.log
     touch /etc/mazi/users.log
-	/etc/init.d/mazi-users start
 }
 
 install_hostap_utils(){
