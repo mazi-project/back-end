@@ -8,6 +8,7 @@
 cd /root/nodogsplash/
 conf="/etc/mazi/mazi.conf"
 nodog_path="/etc/nodogsplash/nodogsplash.conf"
+connectedU="/etc/mazi/users.log"
 domain=$(bash /root/back-end/mazi-current.sh -d | awk {'print $NF'})
 
 usage() { 
@@ -58,19 +59,45 @@ fi
 }
 
 auth(){
-	mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $1'})
-	datE=$(date +"%Y-%m-%d %T")
-	sudo sed -i "/$mac/d" /etc/mazi/users.dat
-	echo "$mac $datE" >> /etc/mazi/users.dat
-	ndsctl auth $mac
-    ndsctl trust $mac
+    if [ $1 = "all" ];then
+		IFS=$'\n'
+	 	set -f
+		for line in $(cat $connectedU);do
+			datE=$(date +"%Y-%m-%d %T")
+			IFS=' ' 
+			declare -a list=( $line )
+			sudo sed -i "/${list[0]}/d" /etc/mazi/users.dat
+			echo "${list[0]} $datE" >> /etc/mazi/users.dat
+			ndsctl auth ${list[0]}
+   			ndsctl trust ${list[0]}
+		done
+	else
+		mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $1'})
+		datE=$(date +"%Y-%m-%d %T")
+		sudo sed -i "/$mac/d" /etc/mazi/users.dat
+		echo "$mac $datE" >> /etc/mazi/users.dat
+		ndsctl auth $mac
+   		ndsctl trust $mac
+	fi
 }
 
 deauth(){
-	mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $1'})
-	sudo sed -i "/$mac/d" /etc/mazi/users.dat
-	ndsctl deauth $mac
-    ndsctl untrust $mac
+	if [ $1 = "all" ];then
+		IFS=$'\n'
+		set -f 
+		for line in $(cat $connectedU);do
+			IFS=' ' 
+			declare -a list=( $line )
+			sudo sed -i "/${list[0]}/d" /etc/mazi/users.dat
+			ndsctl deauth ${list[0]}
+   			ndsctl untrust ${list[0]}
+		done
+	else 
+		mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $1'})
+		sudo sed -i "/$mac/d" /etc/mazi/users.dat
+		ndsctl deauth $mac
+   	    ndsctl untrust $mac
+	fi
 }
 
 restricted(){
