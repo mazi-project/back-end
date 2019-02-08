@@ -4,6 +4,7 @@
 #to the Internet and are permanently redirected to the Portal splash page. In the online mode, the Raspberry Pi provides 
 #Internet access through either the Ethernet cable or an external USB Wi-Fi adapter.
 ## initialization ##
+#set -x
 cd /root/nodogsplash/
 conf="/etc/mazi/mazi.conf"
 nodog_path="/etc/nodogsplash/nodogsplash.conf"
@@ -57,18 +58,19 @@ fi
 }
 
 auth(){
-	mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $2'})
+	mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $1'})
 	datE=$(date +"%Y-%m-%d %T")
+	sudo sed -i "/$mac/d" /etc/mazi/users.dat
 	echo "$mac $datE" >> /etc/mazi/users.dat
 	ndsctl auth $mac
     ndsctl trust $mac
 }
 
 deauth(){
-	mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $2'})
+	mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $1'})
 	sudo sed -i "/$mac/d" /etc/mazi/users.dat
 	ndsctl deauth $mac
-        ndsctl untrust $mac
+    ndsctl untrust $mac
 }
 
 restricted(){
@@ -112,4 +114,4 @@ case $key in
     shift
 done
 
-
+#set +x
