@@ -23,7 +23,12 @@ usage() { echo "Usage: sudo sh current.sh  [options]"
           echo "-m,--mode                          Shows the mode of the Wi-Fi network"
           echo "-w,--wifi                          Shows the device that broadcaststhe Wi-Fi AP (pi or OpenWRT router)" 1>&2; exit 1; }
 
-
+limit(){
+	limit="-"
+	carrent=$(cat /etc/nodogsplash/nodogsplash.conf | grep "DownloadLimit" | awk {'print $2'})
+	if [[ -n $carrent ]];then limit=$carrent;fi
+	echo "limit $limit"
+}
 user_info(){
     IFS=$'\n'
     set -f
@@ -89,6 +94,10 @@ do
 key="$1"
 
 case $key in
+    -l|--limit)
+    limit
+    shift
+    ;;
     -u | --userinfo)
 	user_info
     shift	
