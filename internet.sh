@@ -42,13 +42,47 @@ online(){
   sleep 1
   /etc/init.d/nodogsplash start
 }
-managed(){
-  cd /root/back-end/
-  mode=$(sh mazi-current.sh -m | awk '{print $2}')
-  
+limit(){
+if [ $1 = "flush" ];then
+  sudo ndsctl stop &>/dev/null
+  sudo sed -i '/DownloadLimit/d' /etc/nodogsplash/nodogsplash.conf
+  sudo sed -i '/TrafficControl yes/d' /etc/nodogsplash/nodogsplash.conf
+  sudo /root/nodogsplash/nodogsplash &>/dev/null	
+else
+  sudo ndsctl stop &>/dev/null
+  sudo sed -i '/DownloadLimit/d' /etc/nodogsplash/nodogsplash.conf
+  echo "DownloadLimit $1" >> /etc/nodogsplash/nodogsplash.conf
+  echo "TrafficControl yes" >> /etc/nodogsplash/nodogsplash.conf
+  sudo /root/nodogsplash/nodogsplash &>/dev/null	
+fi
 }
 
+auth(){
+	mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $1'})
+	datE=$(date +"%Y-%m-%d %T")
+	sudo sed -i "/$mac/d" /etc/mazi/users.dat
+	echo "$mac $datE" >> /etc/mazi/users.dat
+	ndsctl auth $mac
+    ndsctl trust $mac
+}
 
+deauth(){
+	mac=$(cat /etc/mazi/users.log | grep $1 | awk {'print $1'})
+	sudo sed -i "/$mac/d" /etc/mazi/users.dat
+	ndsctl deauth $mac
+    ndsctl untrust $mac
+}
+
+restricted(){
+  echo You are now in restricted mode
+  echo $(cat $conf | jq '.+ {"mode": "online"}') | sudo tee $conf
+  sudo sed -i '/address=\/#\/10.0.0.1/d' /etc/dnsmasq.conf
+  sudo service dnsmasq restart
+  /etc/init.d/nodogsplash stop
+  sleep 1
+  /etc/init.d/nodogsplash start
+  echo $(cat $conf | jq '.+ {"mode": "restricted"}') | sudo tee $conf
+}
 
 while [ $# -gt 0 ]
 do
@@ -58,15 +92,26 @@ case $key in
    -m|--mode)
     [ "$2" = "offline" ] && offline
     [ "$2" = "online" ] && online
-    [ "$2" = "managed" ] && managed $3 && shift
+    [ "$2" = "restricted" ] && restricted 
     shift 
     ;;
+    -l|--limit)
+    limit $2
+    shift
+    ;;
+    -d|--deauth)
+    deauth $2
+    shift
+    ;;
+    -a|--auth)
+    auth $2
+    shift
+    ;;    
     *)
     usage
     ;;
     esac
     shift
 done
-
 
 #set +x

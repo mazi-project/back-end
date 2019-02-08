@@ -67,6 +67,7 @@ stop(){
    [ "$id" ] && sudo kill $id
    ip addr flush dev $1
    /etc/init.d/nodogsplash stop
+   /etc/init.d/mazi-users stop
  fi
 }
 
@@ -80,6 +81,7 @@ start(){
   sudo ifconfig $2 10.0.0.1/24
  fi
  /etc/init.d/nodogsplash start
+ /etc/init.d/mazi-users start
 }
 
 

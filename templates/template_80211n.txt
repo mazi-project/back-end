@@ -52,6 +52,10 @@ wmm_ac_vo_cwmax=3
 wmm_ac_vo_txop_limit=47
 wmm_ac_vo_acm=0
 
+# hostapd_cli configuration
+ctrl_interface=/var/run/hostapd
+ctrl_interface_group=0
+
 ## WPA/IEEE 802.11i configuration ##
 wpa=1
 wpa_passphrase=${password}

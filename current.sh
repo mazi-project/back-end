@@ -23,6 +23,18 @@ usage() { echo "Usage: sudo sh current.sh  [options]"
           echo "-m,--mode                          Shows the mode of the Wi-Fi network"
           echo "-w,--wifi                          Shows the device that broadcaststhe Wi-Fi AP (pi or OpenWRT router)" 1>&2; exit 1; }
 
+
+user_info(){
+    IFS=$'\n'
+    set -f
+    for line in $(cat $connectedU);do
+ 		IFS=' ' 
+		declare -a list=( $line )
+ 		status=$(grep -q "${list[0]}" "$authU" && echo "authenticated" || echo "deauthenticated")
+		echo "${list[2]} ${list[1]} $status ${list[0]}"
+    done
+}
+
 interface(){
   if [ $1 = "wifi" ];then
      [ $ROUTER ] && echo "wifi_interface br-lan"
@@ -59,6 +71,8 @@ interface(){
 WRT="10.0.2.2"
 PSWD="mazi"
 conf="/etc/mazi/mazi.conf"
+connectedU="/etc/mazi/users.log"
+authU="/etc/mazi/users.dat"
 
 if [ -f /etc/mazi/router.conf ];then
   if [ "$(cat /etc/mazi/router.conf)" = "active" ];then
@@ -75,6 +89,10 @@ do
 key="$1"
 
 case $key in
+    -u | --userinfo)
+	user_info
+    shift	
+	;;
     -i |--info)
     interface $2
     shift
