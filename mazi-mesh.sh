@@ -6,8 +6,8 @@
 gateway="192.168.1.1"
 port="7654"
 conf="/etc/mazi/mazi.conf"
-wifi_intface=$(bash mazi-current.sh -i wifi | awk '{print $2}')
-internet_intface=$(bash mazi-current.sh -i internet | awk '{print $2}')
+wifi_intface=$(bash /root/back-end/mazi-current.sh -i wifi | awk '{print $2}')
+internet_intface=$(bash /root/back-end/mazi-current.sh -i internet | awk '{print $2}')
 
 usage() { echo "Usage: sudo bash mazi-mesh.sh [Mode] [Options]"
           echo ""
@@ -26,6 +26,16 @@ usage() { echo "Usage: sudo bash mazi-mesh.sh [Mode] [Options]"
           echo "[portal Option]"
           echo "  --ip                         Set the IP of external node.(By default is localhost)"1>&2; exit 1; 
 }
+details(){
+	cd /root/back-end
+	intface=$(bash mazi-current.sh -i mesh |awk {'print $2'})
+	mode=$(jq ."mesh" /etc/mazi/mazi.conf)
+	ssid=$(iwconfig $intface | grep ESSID | awk {'print $4'} | sed -e s/ESSID://)	
+	echo "mode $mode"
+	echo "mesh_ssid $ssid"
+	exit 0
+}
+
 register_node(){
   ip=$(ifconfig br0 | grep 'inet' | awk '{printf $2}'| grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')
   ssd=$(bash /root/back-end/mazi-current.sh -s |awk {'print $NF'})
@@ -137,6 +147,10 @@ portal(){
 }
 
 case $1 in
+     -d|--details)
+     details
+     shift
+     ;;	
      gateway)
         while [ $# -gt 1 ];do
         key="$2"
