@@ -10,6 +10,8 @@ conf="/etc/mazi/mazi.conf"
 nodog_path="/etc/nodogsplash/nodogsplash.conf"
 connectedU="/etc/mazi/users.log"
 domain=$(bash /root/back-end/mazi-current.sh -d | awk {'print $NF'})
+dog_path="/etc/nodogsplash/nodogsplash.conf"
+list="$(cat /etc/mazi/users.dat 2>/dev/null | awk {'print $1'} | tr -s '\n' ',' | sed 's/.$//')"
 
 usage() { 
          echo "sudo sh mazi-internet.sh [options]" 
@@ -54,6 +56,7 @@ else
   sudo sed -i '/DownloadLimit/d' /etc/nodogsplash/nodogsplash.conf
   echo "DownloadLimit $1" >> /etc/nodogsplash/nodogsplash.conf
   echo "TrafficControl yes" >> /etc/nodogsplash/nodogsplash.conf
+  [ ! -z "$list" ] && sudo sed -i "/TrustedMACList/c\TrustedMACList $list" ${dog_path}
   sudo /root/nodogsplash/nodogsplash &>/dev/null	
 fi
 }
