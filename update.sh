@@ -136,8 +136,10 @@ users_count(){
 	systemctl daemon-reload
     rm /etc/mazi/users.log
     touch /etc/mazi/users.log
-    bash /root/back-end/wifiap.sh -c 6
- 	/etc/init.d/mazi-users start
+    sed -i "/channel/c\s/\${channel}/6/" /etc/hostapd/replace.sed
+    sed -i "/wmm_ac_vo_acm=0/a # Hostapd_cli configuration" /etc/hostapd/hostapd.conf
+    sed -i "/# Hostapd_cli configuration/a ctrl_interface=/var/run/hostapd" /etc/hostapd/hostapd.conf
+    sed -i "/ctrl_interface=\/var\/run\/hostapd/a ctrl_interface_group=0" /etc/hostapd/hostapd.conf
 }
 
 install_hostap_utils(){
