@@ -139,7 +139,9 @@ users_count(){
     sed -i "/channel/c\s/\${channel}/6/" /etc/hostapd/replace.sed
     sed -i "/wmm_ac_vo_acm=0/a # Hostapd_cli configuration" /etc/hostapd/hostapd.conf
     sed -i "/# Hostapd_cli configuration/a ctrl_interface=/var/run/hostapd" /etc/hostapd/hostapd.conf
-    sed -i "/ctrl_interface=\/var\/run\/hostapd/a ctrl_interface_group=0" /etc/hostapd/hostapd.conf
+    sed -i "/ctrl_interface=\/var\/run\/hostapd/a ctrl_interface_group=0" /etc/hostapd/hostapd.conf	
+    sed "/echo \$(cat \/etc\/mazi\/mazi.conf | jq /a #RESTART MAZI-USERS SERVICE" /etc/rc.local
+    sed -i "/#RESTART MAZI-USERS SERVICE/a /etc/init.d/mazi-users restart" /etc/rc.local
 }
 
 install_hostap_utils(){
