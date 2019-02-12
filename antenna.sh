@@ -53,7 +53,7 @@ list(){
      exit 0;
 }
 active(){
-    echo "active $(iwconfig $intface 2>/dev/null | grep $intface |awk '{print $4}')"
+	echo "active $(iwconfig $intface 2>/dev/null | grep $intface | awk '{ s = ""; for (i = 4; i <= NF; i++) s = s $i " "; print s }')"
     exit 0;
 }
 connect(){
