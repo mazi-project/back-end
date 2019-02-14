@@ -134,7 +134,8 @@ users_count(){
 	echo 'export PATH=$PATH:/root/back-end/mazi-users.sh'  >> ~/.bashrc
 	. ~/.bashrc
 	sudo chmod o+x /root/back-end/mazi-users.sh
-#	cp /root/back-end/templates/mazi-users /etc/init.d/
+	touch /etc/init.d/mazi-users
+	#	cp /root/back-end/templates/mazi-users /etc/init.d/
 #	chmod +x /etc/init.d/mazi-users
 #	update-rc.d mazi-users defaults
 #	systemctl daemon-reload
