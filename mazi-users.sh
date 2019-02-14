@@ -4,14 +4,22 @@ if [[ $2 == "AP-STA-CONNECTED" ]];then
  	name=""
     ip=""
     stoptime=$(( $(date +%s)  + 15 ))
-	while [[ -z "$name" ]] && [[ -z $ip ]]; do 
-        ip=$(cat /var/lib/misc/dnsmasq.leases | grep $3 | awk {'print $3'})
+	while [[ -z $ip ]]; do 
+        ip=$(arp -n | grep -w -i $3 | awk '{print $1}')
+	    sleep 1
+		if [[ $(date +%s) -ge $stoptime ]];then break; fi
+	done
+    stoptime=$(( $(date +%s)  + 15 ))
+	while [[ -z "$name" ]] ; do 
 		name=$(cat /var/lib/misc/dnsmasq.leases | grep $3 | awk {'print $4'})
+	    sleep 1
 		if [[ $(date +%s) -ge $stoptime ]];then
-			break
+		 name=$(nbtscan $ip -e | awk {'print $NF'})
+		 if [[ -z $name ]];then name="-";fi
+		 break 
 		fi
 	done
-    if [[ -n "$name" ]] && [[ -n $ip ]]; then
+ 	if [[ -n $ip ]];then
 		sed -i "/$3/d" /etc/mazi/users.log
 		echo "$3 $ip $name" >> /etc/mazi/users.log
 	fi
