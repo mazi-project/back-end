@@ -134,20 +134,20 @@ users_count(){
 	echo 'export PATH=$PATH:/root/back-end/mazi-users.sh'  >> ~/.bashrc
 	. ~/.bashrc
 	sudo chmod o+x /root/back-end/mazi-users.sh
-	cp /root/back-end/templates/mazi-users /etc/init.d/
-	chmod +x /etc/init.d/mazi-users
-	update-rc.d mazi-users defaults
-	systemctl daemon-reload
+#	cp /root/back-end/templates/mazi-users /etc/init.d/
+#	chmod +x /etc/init.d/mazi-users
+#	update-rc.d mazi-users defaults
+#	systemctl daemon-reload
     rm /etc/mazi/users.log
     touch /etc/mazi/users.log
     sed -i "/channel/c\s/\${channel}/6/" /etc/hostapd/replace.sed
     sed -i "/wmm_ac_vo_acm=0/a # Hostapd_cli configuration" /etc/hostapd/hostapd.conf
     sed -i "/# Hostapd_cli configuration/a ctrl_interface=/var/run/hostapd" /etc/hostapd/hostapd.conf
     sed -i "/ctrl_interface=\/var\/run\/hostapd/a ctrl_interface_group=0" /etc/hostapd/hostapd.conf	
-    sed -i "/echo \$(cat \/etc\/mazi\/mazi.conf | jq /a #RESTART MAZI-USERS SERVICE" /etc/rc.local
-    sed -i "/#RESTART MAZI-USERS SERVICE/a sudo rm /etc/mazi/users.log" /etc/rc.local
-    sed -i "/sudo rm \/etc\/mazi\/users.log/a sudo touch /etc/mazi/users.log" /etc/rc.local
-    sed -i "/sudo touch \/etc\/mazi\/users.log/a /etc/init.d/mazi-users restart" /etc/rc.local
+#    sed -i "/echo \$(cat \/etc\/mazi\/mazi.conf | jq /a #RESTART MAZI-USERS SERVICE" /etc/rc.local
+#    sed -i "/#RESTART MAZI-USERS SERVICE/a sudo rm /etc/mazi/users.log" /etc/rc.local
+#    sed -i "/sudo rm \/etc\/mazi\/users.log/a sudo touch /etc/mazi/users.log" /etc/rc.local
+#    sed -i "/sudo touch \/etc\/mazi\/users.log/a /etc/init.d/mazi-users restart" /etc/rc.local
 }
 
 install_hostap_utils(){

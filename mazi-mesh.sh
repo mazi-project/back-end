@@ -139,7 +139,7 @@ portal(){
     sudo sed -i '/interface=bat0/d' /etc/dnsmasq.conf
     sudo sed -i '/dhcp-range=bat0,192.168.1.10,192.168.1.200,255.255.255.0,12h/d' /etc/dnsmasq.conf
     sudo service dnsmasq restart 
-    bash mazi-wifi.sh restart
+  #  bash mazi-wifi.sh restart
     echo $(cat $conf | jq '.+ {"mesh": "portal"}') | sudo tee $conf
   fi
   echo "" > /root/.ssh/authorized_keys
