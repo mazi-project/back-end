@@ -61,7 +61,7 @@ gateway(){
  [ "$wifi_intface" = "$iface" ] && echo "This interface is being used by the Access Point" && exit 0;
  [ "$internet_intface" = "$iface" ] && bash mazi-antenna.sh -d -i $iface
  ifconfig $iface down
- iwconfig $iface mode ad-hoc essid $ssid channel 1
+ iwconfig $iface mode ad-hoc essid $ssid channel 11
  batctl if add $iface
  ifconfig $iface up
  ifconfig bat0 up
@@ -91,7 +91,7 @@ node(){
   service mazi-portal stop
   service dnsmasq stop
   ifconfig $iface down
-  iwconfig $iface mode ad-hoc essid $ssid channel 1
+  iwconfig $iface mode ad-hoc essid $ssid channel 11
   ifconfig $iface up
   batctl if add $iface
   ifconfig $iface up
