@@ -81,7 +81,7 @@ start(){
   sudo ifconfig $2 10.0.0.1/24
  fi
  /etc/init.d/nodogsplash start
- hostapd_cli -B  -a /root/back-end/mazi-users.sh
+ hostapd_cli -B  -a /usr/local/bin/mazi-users.sh
 }
 
 
