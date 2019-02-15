@@ -130,8 +130,8 @@ nds_service(){
 }
 
 users_count(){
-	sudo chmod +x /root/back-end/mazi-users.sh
-	touch /etc/init.d/mazi-users
+	cp /root/back-end/templates/mazi-users /usr/local/bin/
+	sudo chmod +x /usr/local/bin/mazi-users.sh
     rm /etc/mazi/users.log
     touch /etc/mazi/users.log
     sed -i "/channel/c\s/\${channel}/6/" /etc/hostapd/replace.sed
