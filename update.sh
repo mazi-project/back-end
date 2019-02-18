@@ -130,7 +130,7 @@ nds_service(){
 }
 
 users_count(){
-	cp /root/back-end/templates/mazi-users /usr/local/bin/
+	cp /root/back-end/templates/mazi-users.sh /usr/local/bin/
 	sudo chmod +x /usr/local/bin/mazi-users.sh
     rm /etc/mazi/users.log
     touch /etc/mazi/users.log
