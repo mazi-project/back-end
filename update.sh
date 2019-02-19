@@ -145,10 +145,23 @@ install_hostap_utils(){
   sudo apt-get install nbtscan
 }
 
+interface_name(){
+  if [ ! -f /etc/udev/rules.d/70-my_network_interfaces.rules ];then	
+    touch /etc/udev/rules.d/70-my_network_interfaces.rules
+    rasp_int=$(bash mazi-current.sh -i all | grep raspberry | awk {'print $2'})
+    rasp_mac=$(ifconfig $rasp_int | grep ether | awk {'print $2'})
+    echo "# Built-in wifi interface used in hostapd - identify device by MAC address" >> /etc/udev/rules.d/70-my_network_interfaces.rules
+    echo "SUBSYSTEM==\"net\", ACTION==\"add\", ATTR{address}==\"$rasp_mac\", NAME=\"wlan0\"" >> /etc/udev/rules.d/70-my_network_interfaces.rules
+  fi
+}
+
 while [ $# -gt 0 ]
 do
   key="$1"
   case $key in
+    3.2)
+    interface_name
+    ;;	    
     3.0.3)
     install_batman
     batman_boot_exce    
